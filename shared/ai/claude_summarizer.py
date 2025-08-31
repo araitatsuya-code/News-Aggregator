@@ -13,6 +13,7 @@ from asyncio_throttle import Throttler
 from ..types import RawNewsItem, NewsItem, DailySummary
 from ..exceptions import AIProcessingError
 from ..config import AppConfig
+from ..cache import ArticleCache
 
 
 class ClaudeSummarizer:
@@ -45,10 +46,14 @@ class ClaudeSummarizer:
         self.batch_size = config.claude_batch_size
         self.max_retries = config.max_retries
         self.retry_delay = config.retry_delay
+        
+        # キャッシュシステム初期化
+        self.cache = ArticleCache(cache_dir="cache/articles", retention_days=7)
     
     async def summarize_article(self, article: RawNewsItem) -> Optional[NewsItem]:
         """
         記事を要約し、NewsItemに変換
+        キャッシュがある場合はそちらを使用
         
         Args:
             article: 生記事データ
@@ -57,6 +62,11 @@ class ClaudeSummarizer:
             処理済み記事データ、失敗時はNone
         """
         try:
+            # キャッシュから検索
+            cached_item = self.cache.get(article)
+            if cached_item:
+                self.logger.info(f"キャッシュヒット: {article.title[:50]}...")
+                return cached_item
             # API制限対応
             async with self.throttler:
                 # 要約生成
@@ -88,6 +98,9 @@ class ClaudeSummarizer:
                     tags=tags,
                     ai_confidence=0.8  # デフォルト信頼度
                 )
+                
+                # キャッシュに保存
+                self.cache.put(article, news_item)
                 
                 self.logger.info(f"記事要約完了: {article.title[:50]}...")
                 return news_item
@@ -271,6 +284,7 @@ Content: {content}
     async def batch_process(self, articles: List[RawNewsItem]) -> List[NewsItem]:
         """
         記事をバッチ処理で要約
+        キャッシュされた記事はスキップ
         
         Args:
             articles: 生記事データリスト
@@ -280,10 +294,32 @@ Content: {content}
         """
         processed_articles = []
         
+        # キャッシュされた記事と新規記事を分離
+        cached_articles = []
+        new_articles = []
+        
+        for article in articles:
+            cached_item = self.cache.get(article)
+            if cached_item:
+                cached_articles.append(cached_item)
+                self.logger.debug(f"キャッシュ使用: {article.title[:50]}...")
+            else:
+                new_articles.append(article)
+        
+        self.logger.info(f"キャッシュヒット: {len(cached_articles)}件, 新規処理: {len(new_articles)}件")
+        
+        # キャッシュされた記事を結果に追加
+        processed_articles.extend(cached_articles)
+        
+        # 新規記事のみバッチ処理
+        if not new_articles:
+            self.logger.info("すべてキャッシュされた記事でした。AI処理をスキップします。")
+            return processed_articles
+        
         # バッチサイズごとに分割して処理
-        for i in range(0, len(articles), self.batch_size):
-            batch = articles[i:i + self.batch_size]
-            self.logger.info(f"バッチ処理開始: {i+1}-{min(i+self.batch_size, len(articles))}/{len(articles)}")
+        for i in range(0, len(new_articles), self.batch_size):
+            batch = new_articles[i:i + self.batch_size]
+            self.logger.info(f"バッチ処理開始: {i+1}-{min(i+self.batch_size, len(new_articles))}/{len(new_articles)} (新規記事)")
             
             # 並行処理でバッチ内の記事を処理
             tasks = [self._process_article_with_retry(article) for article in batch]
@@ -300,7 +336,14 @@ Content: {content}
             if i + self.batch_size < len(articles):
                 await asyncio.sleep(45)  # レート制限を避けるため45秒待機
         
+        # キャッシュクリーンアップ
+        self.cache.cleanup_expired()
+        
+        # 結果サマリー
+        cache_stats = self.cache.get_cache_stats()
         self.logger.info(f"バッチ処理完了: {len(processed_articles)}/{len(articles)} 記事処理成功")
+        self.logger.info(f"キャッシュ統計: {cache_stats['total_entries']}件, {cache_stats['total_size_mb']}MB")
+        
         return processed_articles
     
     async def _process_article_with_retry(self, article: RawNewsItem) -> Optional[NewsItem]:

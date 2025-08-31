@@ -186,12 +186,6 @@ def get_default_rss_sources() -> List[RSSSource]:
             name="Ollama Blog"
         ),
         RSSSource(
-            url="https://txt.cohere.ai/rss/",
-            category="海外",
-            language="en",
-            name="Cohere Context"
-        ),
-        RSSSource(
             url="https://rsshub.app/huggingface/daily-papers",
             category="海外",
             language="en",

@@ -95,3 +95,6 @@ frontend/public/data/
 frontend/public/rss.xml
 frontend/public/rss-en.xml  
 frontend/public/sitemap.xml
+
+# Cache files
+cache/
