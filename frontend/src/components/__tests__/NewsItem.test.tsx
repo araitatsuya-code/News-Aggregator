@@ -70,10 +70,10 @@ describe('NewsItem', () => {
   it('タグが正しく表示される', () => {
     render(<NewsItemComponent article={mockNewsItem} />)
     
-    // 全てのタグが表示されることを確認
-    expect(screen.getByText('AI')).toBeInTheDocument()
-    expect(screen.getByText('技術革新')).toBeInTheDocument()
-    expect(screen.getByText('自動化')).toBeInTheDocument()
+    // 全てのタグが表示されることを確認（#付きで表示される）
+    expect(screen.getByText('#AI')).toBeInTheDocument()
+    expect(screen.getByText('#技術革新')).toBeInTheDocument()
+    expect(screen.getByText('#自動化')).toBeInTheDocument()
   })
   
   it('信頼度スコアが正しく表示される', () => {

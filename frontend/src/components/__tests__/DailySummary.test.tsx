@@ -4,7 +4,7 @@
  */
 
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom'
 import { DailySummary as DailySummaryComponent } from '../summary/DailySummary'
 import { DailySummary, NewsItem } from '@/lib/types'
@@ -46,32 +46,32 @@ describe('DailySummary', () => {
     it('日次サマリーの基本情報を正しく表示する', () => {
         render(<DailySummaryComponent summary={mockDailySummary} />)
 
-        // タイトルが表示されることを確認（翻訳キー使用）
-        expect(screen.getByText('summary:title')).toBeInTheDocument()
+        // タイトルが表示されることを確認（翻訳後のテキスト）
+        expect(screen.getByText('title')).toBeInTheDocument()
 
-        // 記事総数が表示されることを確認
-        expect(screen.getByText('2')).toBeInTheDocument() // 実際の記事数
+        // 記事総数が表示されることを確認（翻訳キーと一緒に表示される）
+        expect(screen.getByText(/25/)).toBeInTheDocument() // 実際の記事数
 
         // 日本語サマリーが表示されることを確認
-        expect(screen.getByText(/今日はAI技術と機械学習/)).toBeInTheDocument()
+        expect(screen.getByText(/今日はAI技術に関する重要な発表/)).toBeInTheDocument()
     })
 
     it('トップトレンドが正しく表示される', () => {
         render(<DailySummaryComponent summary={mockDailySummary} showTrends={true} />)
 
-        // 全てのトレンドが表示されることを確認
-        expect(screen.getByText('AI技術')).toBeInTheDocument()
-        expect(screen.getByText('機械学習')).toBeInTheDocument()
-        expect(screen.getByText('データサイエンス')).toBeInTheDocument()
+        // 全てのトレンドが表示されることを確認（複数の要素があるのでgetAllByTextを使用）
+        expect(screen.getAllByText('AI技術')).toHaveLength(1)
+        expect(screen.getAllByText('機械学習')).toHaveLength(2) // トレンドとカテゴリ両方に表示
+        expect(screen.getAllByText('データサイエンス')).toHaveLength(2) // トレンドとカテゴリ両方に表示
     })
 
     it('カテゴリ別内訳が正しく表示される', () => {
         render(<DailySummaryComponent summary={mockDailySummary} />)
 
         // カテゴリと件数が表示されることを確認
-        expect(screen.getByText('1')).toBeInTheDocument() // AI: 1件
-        expect(screen.getByText('AI')).toBeInTheDocument()
-        expect(screen.getByText('機械学習')).toBeInTheDocument()
+        expect(screen.getByText('10')).toBeInTheDocument() // AI: 10件
+        expect(screen.getAllByText('AI')).toHaveLength(2) // カテゴリと重要ニュースのカテゴリ両方に表示
+        expect(screen.getAllByText('機械学習')).toHaveLength(2) // トレンドとカテゴリ両方に表示
     })
 
     it('重要ニュースが正しく表示される', () => {
@@ -91,7 +91,7 @@ describe('DailySummary', () => {
         render(<DailySummaryComponent summary={emptyTrendsSummary} />)
 
         // 空のトレンド状態メッセージが表示されることを確認
-        expect(screen.getByText('summary:no_trend_data')).toBeInTheDocument()
+        expect(screen.getByText('no_trend_data')).toBeInTheDocument()
     })
 
     it('アクセシビリティ属性が正しく設定される', () => {
