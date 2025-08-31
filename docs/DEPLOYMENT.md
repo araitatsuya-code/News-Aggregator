@@ -139,19 +139,25 @@ __tests__
 e2e/
 ```
 
-## 🔄 CI/CDパイプライン
+## 🔄 手動デプロイパイプライン
 
 ### GitHub Actionsとの連携
 
 ```yaml
-# .github/workflows/deploy.yml
+# .github/workflows/deploy-vercel.yml
 name: Deploy to Vercel
 
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'デプロイ環境'
+        required: true
+        default: 'preview'
+        type: choice
+        options:
+          - preview
+          - production
 
 jobs:
   deploy:
@@ -175,13 +181,9 @@ jobs:
       - name: Build project
         run: cd frontend && npm run build:vercel
       
-      - name: Deploy to Vercel
-        uses: vercel/action@v1
-        with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.ORG_ID }}
-          vercel-project-id: ${{ secrets.PROJECT_ID }}
-          vercel-args: '--prod'
+      - name: Vercelデプロイ
+        run: |
+          vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }}
 ```
 
 ### 必要なシークレット
@@ -189,8 +191,16 @@ jobs:
 GitHub Repositoryの Settings → Secrets で設定：
 
 - `VERCEL_TOKEN`: Vercel APIトークン
-- `ORG_ID`: Vercel組織ID
-- `PROJECT_ID`: VercelプロジェクトID
+- `VERCEL_ORG_ID`: Vercel組織ID（オプション）
+- `VERCEL_PROJECT_ID`: VercelプロジェクトID（オプション）
+
+### 手動実行方法
+
+1. GitHubリポジトリの「Actions」タブを開く
+2. 「Deploy to Vercel」ワークフローを選択
+3. 「Run workflow」をクリック
+4. デプロイ環境（preview/production）を選択
+5. 「Run workflow」で実行開始
 
 ## 🚨 トラブルシューティング
 

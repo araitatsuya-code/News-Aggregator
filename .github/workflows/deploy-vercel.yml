@@ -1,7 +1,7 @@
 name: Deploy to Vercel
 
 on:
-  # 手動実行
+  # 手動実行のみ
   workflow_dispatch:
     inputs:
       environment:
@@ -12,23 +12,6 @@ on:
         options:
           - preview
           - production
-      
-  # mainブランチへのプッシュ時（本番デプロイ）
-  push:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
-      - 'vercel.json'
-      - '.github/workflows/deploy-vercel.yml'
-  
-  # プルリクエスト時（プレビューデプロイ）
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'frontend/**'
-      - 'vercel.json'
 
 env:
   NODE_VERSION: '18'
@@ -40,7 +23,6 @@ jobs:
   process-data:
     name: データ処理
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main'
     
     steps:
       - name: チェックアウト
@@ -144,13 +126,13 @@ jobs:
           npm run build:vercel
       
       - name: プレビューデプロイ
-        if: github.event_name == 'pull_request' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'preview')
+        if: github.event.inputs.environment == 'preview'
         run: |
           vercel deploy --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "DEPLOYMENT_URL=$(cat deployment-url.txt)" >> $GITHUB_ENV
       
       - name: 本番デプロイ
-        if: github.ref == 'refs/heads/main' || (github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'production')
+        if: github.event.inputs.environment == 'production'
         run: |
           vercel deploy --prod --token=${{ secrets.VERCEL_TOKEN }} > deployment-url.txt
           echo "DEPLOYMENT_URL=$(cat deployment-url.txt)" >> $GITHUB_ENV
@@ -167,30 +149,11 @@ jobs:
             echo "⚠️ サイトへのアクセスに問題がある可能性があります"
           fi
       
-      - name: プルリクエストにコメント
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: `🚀 **Vercelプレビューデプロイが完了しました！**
-              
-              📍 **プレビューURL**: ${{ env.DEPLOYMENT_URL }}
-              
-              🔍 **変更内容を確認してください**
-              - フロントエンドの動作確認
-              - レスポンシブデザインの確認
-              - データ表示の確認
-              
-              ⚡ **自動チェック結果**
-              - ✅ TypeScriptタイプチェック
-              - ✅ ESLintチェック
-              - ✅ ビルド成功
-              - ✅ デプロイ成功`
-            })
+      - name: デプロイ完了通知
+        run: |
+          echo "🚀 **Vercelデプロイが完了しました！**"
+          echo "📍 **URL**: ${{ env.DEPLOYMENT_URL }}"
+          echo "🔧 **環境**: ${{ github.event.inputs.environment }}"
 
   # デプロイ後のテスト
   post-deploy-test:

@@ -65,11 +65,10 @@ vercel          # プレビュー
 vercel --prod   # 本番
 ```
 
-### GitHub Actions自動デプロイ
+### GitHub Actions手動デプロイ
 
-- **mainブランチ**: 自動で本番デプロイ
-- **プルリクエスト**: 自動でプレビューデプロイ
-- **手動実行**: GitHub Actionsタブから実行可能
+- **手動実行**: GitHub Actionsタブから「Deploy to Vercel」を実行
+- **環境選択**: プレビューまたは本番環境を選択可能
 
 詳細は [デプロイメントガイド](docs/DEPLOYMENT.md) を参照してください。
 
