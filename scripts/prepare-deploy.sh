@@ -96,12 +96,16 @@ if [[ ! -f "requirements.txt" ]]; then
 fi
 
 # Python環境の確認
-if ! command -v python &> /dev/null; then
+if command -v python3 &> /dev/null; then
+    PYTHON_CMD="python3"
+elif command -v python &> /dev/null; then
+    PYTHON_CMD="python"
+else
     log_error "Pythonがインストールされていません"
     exit 1
 fi
 
-PYTHON_VERSION=$(python --version)
+PYTHON_VERSION=$($PYTHON_CMD --version)
 log_info "Python バージョン: $PYTHON_VERSION"
 
 # Node.js環境の確認
@@ -172,6 +176,16 @@ fi
 # 3. データ処理の実行
 if [[ "$BUILD_ONLY" != true ]]; then
     log_info "データ処理を実行中..."
+    
+    # 仮想環境の確認と有効化
+    if [[ -d "venv" ]]; then
+        log_info "既存の仮想環境を使用します"
+        source venv/bin/activate
+    else
+        log_info "仮想環境を作成中..."
+        $PYTHON_CMD -m venv venv
+        source venv/bin/activate
+    fi
     
     # Python依存関係のインストール
     log_info "Python依存関係をインストール中..."

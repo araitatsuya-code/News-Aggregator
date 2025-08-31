@@ -149,13 +149,18 @@ class RSSCollector:
         if not hasattr(feed, 'entries') or not feed.entries:
             raise RSSCollectionError(source.name, "記事が見つかりません")
         
-        # 記事を正規化
+        # 記事を正規化（当日のみ）
         articles = []
+        today = datetime.now(timezone.utc).date()
+        
         for entry in feed.entries:
             try:
                 article = self.normalize_article(entry, source)
                 if article:
-                    articles.append(article)
+                    # 記事の日付が当日かチェック
+                    article_date = article.published_at.date()
+                    if article_date == today:
+                        articles.append(article)
             except Exception as e:
                 self.logger.warning(f"記事の正規化に失敗 (ソース: {source.name}): {e}")
                 continue

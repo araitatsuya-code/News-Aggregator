@@ -66,12 +66,39 @@ class AppConfig:
 def get_default_rss_sources() -> List[RSSSource]:
     """デフォルトRSSソース設定"""
     return [
+        # Claude/Anthropic専用
         RSSSource(
-            url="https://feeds.feedburner.com/oreilly/radar",
-            category="海外",
+            url="https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_news.xml",
+            category="Claude",
             language="en",
-            name="O'Reilly Radar"
+            name="Anthropic News"
         ),
+        RSSSource(
+            url="https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_research.xml",
+            category="Claude",
+            language="en",
+            name="Anthropic Research"
+        ),
+        RSSSource(
+            url="https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_engineering.xml",
+            category="Claude",
+            language="en",
+            name="Anthropic Engineering"
+        ),
+        RSSSource(
+            url="https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_anthropic_changelog_claude_code.xml",
+            category="Claude",
+            language="en",
+            name="Claude Code Changelog"
+        ),
+        RSSSource(
+            url="https://status.anthropic.com/history.rss",
+            category="Claude",
+            language="en",
+            name="Anthropic Status"
+        ),
+        
+        # Reddit
         RSSSource(
             url="https://www.reddit.com/r/MachineLearning/.rss",
             category="Reddit",
@@ -85,14 +112,204 @@ def get_default_rss_sources() -> List[RSSSource]:
             name="Reddit AI"
         ),
         RSSSource(
+            url="https://www.reddit.com/r/OpenAI/.rss",
+            category="Reddit",
+            language="en",
+            name="r/OpenAI"
+        ),
+        RSSSource(
+            url="https://www.reddit.com/r/ClaudeAI/.rss",
+            category="Reddit",
+            language="en",
+            name="r/ClaudeAI"
+        ),
+        RSSSource(
+            url="https://www.reddit.com/r/LocalLLaMA/.rss",
+            category="Reddit",
+            language="en",
+            name="r/LocalLLaMA"
+        ),
+        
+        # 海外AIニュース
+        RSSSource(
             url="https://techcrunch.com/category/artificial-intelligence/feed/",
             category="海外",
             language="en",
             name="TechCrunch AI"
-        )
+        ),
+        RSSSource(
+            url="https://www.technologyreview.com/feed/",
+            category="海外",
+            language="en",
+            name="MIT Technology Review"
+        ),
+        RSSSource(
+            url="https://www.theverge.com/rss/index.xml",
+            category="海外",
+            language="en",
+            name="The Verge"
+        ),
+        RSSSource(
+            url="https://feeds.feedburner.com/venturebeat/SZYF",
+            category="海外",
+            language="en",
+            name="VentureBeat"
+        ),
+        RSSSource(
+            url="https://arstechnica.com/ai/feed/",
+            category="海外",
+            language="en",
+            name="Ars Technica AI"
+        ),
+        RSSSource(
+            url="https://www.wired.com/feed/tag/ai/latest/rss",
+            category="海外",
+            language="en",
+            name="WIRED AI"
+        ),
+        RSSSource(
+            url="https://openai.com/news/rss.xml",
+            category="海外",
+            language="en",
+            name="OpenAI"
+        ),
+        RSSSource(
+            url="https://blogs.microsoft.com/ai/feed/",
+            category="海外",
+            language="en",
+            name="Microsoft AI Blog"
+        ),
+        RSSSource(
+            url="https://raw.githubusercontent.com/Olshansk/rss-feeds/main/feeds/feed_ollama.xml",
+            category="海外",
+            language="en",
+            name="Ollama Blog"
+        ),
+        RSSSource(
+            url="https://blog.langchain.dev/rss.xml",
+            category="海外",
+            language="en",
+            name="LangChain Blog"
+        ),
+        RSSSource(
+            url="https://txt.cohere.ai/rss/",
+            category="海外",
+            language="en",
+            name="Cohere Context"
+        ),
+        RSSSource(
+            url="https://blog.pinecone.io/rss/",
+            category="海外",
+            language="en",
+            name="Pinecone Blog"
+        ),
+        RSSSource(
+            url="https://rsshub.app/huggingface/daily-papers",
+            category="海外",
+            language="en",
+            name="Hugging Face Daily Papers"
+        ),
+        RSSSource(
+            url="https://huggingface.co/blog/feed.xml",
+            category="海外",
+            language="en",
+            name="Hugging Face Blog"
+        ),
+        RSSSource(
+            url="https://deepmind.com/blog/feed/basic/",
+            category="海外",
+            language="en",
+            name="DeepMind"
+        ),
+        RSSSource(
+            url="https://feeds.feedburner.com/blogspot/gJZg",
+            category="海外",
+            language="en",
+            name="Google Research Blog"
+        ),
+        RSSSource(
+            url="https://towardsdatascience.com/feed",
+            category="海外",
+            language="en",
+            name="Towards Data Science"
+        ),
+        RSSSource(
+            url="https://artificialintelligence-news.com/feed/",
+            category="海外",
+            language="en",
+            name="AI News"
+        ),
+        RSSSource(
+            url="https://rss.beehiiv.com/feeds/2R3C6Bt5wj.xml",
+            category="海外",
+            language="en",
+            name="The Rundown AI"
+        ),
+        RSSSource(
+            url="https://aibusiness.com/rss.xml",
+            category="海外",
+            language="en",
+            name="AI Business"
+        ),
+        RSSSource(
+            url="https://simonwillison.net/atom/everything/",
+            category="海外",
+            language="en",
+            name="Simon Willison's Weblog"
+        ),
+        RSSSource(
+            url="https://www.oneusefulthing.org/feed",
+            category="海外",
+            language="en",
+            name="One Useful Thing"
+        ),
+        
+        # 国内AIニュース・技術ブログ
+        RSSSource(
+            url="https://www.ai-shift.co.jp/techblog/feed",
+            category="国内",
+            language="ja",
+            name="AI Shift Tech Blog"
+        ),
+        RSSSource(
+            url="https://medium.com/feed/@kyakuno",
+            category="国内",
+            language="ja",
+            name="AX Tech Blog"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/ai/feed",
+            category="国内",
+            language="ja",
+            name="Zenn AI"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/llm/feed",
+            category="国内",
+            language="ja",
+            name="Zenn LLM"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/nlp/feed",
+            category="国内",
+            language="ja",
+            name="Zenn NLP"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/%E6%A9%9F%E6%A2%B0%E5%AD%A6%E7%BF%92/feed",
+            category="国内",
+            language="ja",
+            name="Zenn 機械学習"
+        ),
+        RSSSource(
+            url="https://note.com/chatgpt_lab/rss",
+            category="国内",
+            language="ja",
+            name="ChatGPT ラボ"
+        ),
     ]
 
 
 def get_categories() -> List[str]:
     """利用可能なカテゴリ一覧"""
-    return ["国内", "海外", "Reddit", "その他"]
+    return ["Claude", "国内", "海外", "Reddit", "その他"]
