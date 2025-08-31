@@ -1,0 +1,26 @@
+User-agent: *
+Allow: /
+
+# サイトマップ
+Sitemap: https://ai-news-aggregator.example.com/sitemap.xml
+
+# クロール頻度の制限
+Crawl-delay: 1
+
+# 除外パス
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+
+# 検索エンジン向けの追加情報
+# Google
+User-agent: Googlebot
+Allow: /
+
+# Bing
+User-agent: Bingbot
+Allow: /
+
+# Yahoo
+User-agent: Slurp
+Allow: /

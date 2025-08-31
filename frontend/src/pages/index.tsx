@@ -1,29 +1,31 @@
 import { GetStaticProps } from 'next'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { NewsService } from '../lib/data/newsService'
 import { useNewsDataWithFallback } from '../lib/hooks/useDataLoaderWithFallback'
 import { useCategoryFilter } from '../lib/hooks/useCategoryFilter'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { DataError } from '../components/DataError'
 import { ErrorBoundary } from '../components/ErrorBoundary'
+import { SEOHead } from '../components/SEOHead'
 import { NewsList, CategoryFilter } from '../components/news'
 import { NewsItem } from '../lib/types'
+import { getNewsListSEOMetadata, generateWebsiteJsonLd } from '../lib/utils/seo'
 
-function NewsListSection() {
-  const { 
-    data: latestNews, 
-    loading, 
-    error, 
-    isUsingFallback,
-    retry 
-  } = useNewsDataWithFallback<NewsItem[]>(
-    () => NewsService.getLatestNews(20),
-    [], // フォールバックデータは空配列
-    []
-  )
-
+function NewsListSection({ 
+  latestNews, 
+  loading, 
+  error, 
+  isUsingFallback, 
+  retry 
+}: {
+  latestNews: NewsItem[] | null
+  loading: boolean
+  error: Error | null
+  isUsingFallback: boolean
+  retry: () => void
+}) {
   const {
     selectedCategory,
     setSelectedCategory,
@@ -85,16 +87,41 @@ function NewsListSection() {
 
 export default function Home() {
   const { t } = useTranslation('common')
+  const router = useRouter()
+  
+  // ニュースデータを取得（SEO用）
+  const { 
+    data: latestNews, 
+    loading, 
+    error, 
+    isUsingFallback 
+  } = useNewsDataWithFallback<NewsItem[]>(
+    () => NewsService.getLatestNews(20),
+    [], // フォールバックデータは空配列
+    []
+  )
+
+  const {
+    selectedCategory,
+    filteredArticles,
+  } = useCategoryFilter(latestNews || [])
+
+  // SEOメタデータを生成
+  const seoMetadata = getNewsListSEOMetadata(
+    filteredArticles,
+    selectedCategory || undefined,
+    router.locale || 'ja'
+  )
+  
+  // 構造化データを生成
+  const websiteJsonLd = generateWebsiteJsonLd(router.locale || 'ja')
 
   return (
     <>
-      <Head>
-        <title>{t('site.title')}</title>
-        <meta name="description" content={t('site.description')} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-        <meta name="theme-color" content="#2563eb" />
-        <link rel="apple-touch-icon" href="/favicon.ico" />
-      </Head>
+      <SEOHead 
+        metadata={seoMetadata}
+        jsonLd={websiteJsonLd}
+      />
       
       <div className="responsive-container py-4 sm:py-6 lg:py-8">
         {/* ヘッダーセクション */}
@@ -127,7 +154,13 @@ export default function Home() {
         
         {/* メインコンテンツ */}
         <ErrorBoundary>
-          <NewsListSection />
+          <NewsListSection 
+            latestNews={latestNews}
+            loading={loading}
+            error={error}
+            isUsingFallback={isUsingFallback}
+            retry={() => window.location.reload()}
+          />
         </ErrorBoundary>
         
         {/* フローティングアクションボタン（モバイル用） */}

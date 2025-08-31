@@ -1,18 +1,21 @@
 import { GetStaticProps } from 'next'
 import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
-import Head from 'next/head'
+import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 import { DailySummary, DateSelector } from '../components/summary'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { DataError } from '../components/DataError'
+import { SEOHead } from '../components/SEOHead'
 import { useDailySummary } from '../lib/hooks/useDailySummary'
 import { useDateNavigation } from '../lib/hooks/useDateNavigation'
 import { useSummaryDataWithFallback } from '../lib/hooks/useDataLoaderWithFallback'
 import { NewsService } from '../lib/data/newsService'
+import { getDailySummarySEOMetadata, getDefaultSEOMetadata } from '../lib/utils/seo'
 
 export default function Summary() {
   const { t, i18n } = useTranslation(['common', 'summary'])
+  const router = useRouter()
   const { selectedDate, setSelectedDate, availableDates, setAvailableDates } = useDateNavigation()
   
   // フォールバック機能付きのデータローダーを使用
@@ -65,13 +68,14 @@ export default function Summary() {
   const canNavigatePrev = availableDates.length > 0 && availableDates.indexOf(selectedDate) < availableDates.length - 1;
   const canNavigateNext = availableDates.length > 0 && availableDates.indexOf(selectedDate) > 0;
 
+  // SEOメタデータを生成
+  const seoMetadata = summary 
+    ? getDailySummarySEOMetadata(summary, router.locale || 'ja')
+    : getDefaultSEOMetadata(router.locale || 'ja')
+
   return (
     <>
-      <Head>
-        <title>{t('summary:title')} - {t('common:site.title')}</title>
-        <meta name="description" content={t('summary:description')} />
-        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
-      </Head>
+      <SEOHead metadata={seoMetadata} />
       
       <div className="min-h-screen bg-gray-50">
         <div className="responsive-container py-4 sm:py-6 lg:py-8">
