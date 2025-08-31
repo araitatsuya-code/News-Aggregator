@@ -1,18 +1,18 @@
 {
-  "total": 12,
+  "total": 5,
   "categories": {
-    "海外": 1,
-    "国内": 1,
-    "Reddit": 10
+    "海外": 4,
+    "国内": 1
   },
   "sources": {
     "AI News": 1,
     "Tech Review": 1,
-    "Reddit ML": 10
+    "日本AI新聞": 1,
+    "Microsoft News": 1,
+    "Global Tech Policy": 1
   },
   "languages": {
-    "ja": 2,
-    "en": 10
+    "ja": 5
   },
-  "generated_at": "2025-08-31T11:55:16.329388"
+  "generated_at": "2025-08-31T12:02:35.873832"
 }

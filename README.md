@@ -77,14 +77,14 @@ python scripts/test_cleanup.py
 
 `.env`ファイルで以下の設定が可能です：
 
-| 変数名 | 説明 | デフォルト値 |
-|--------|------|-------------|
-| `CLAUDE_API_KEY` | Claude APIキー（必須） | - |
-| `CLAUDE_MODEL` | 使用するClaudeモデル | claude-3-haiku-20240307 |
-| `CLAUDE_MAX_TOKENS` | 最大トークン数 | 1000 |
-| `OUTPUT_PATH` | データ出力先 | frontend/public/data |
-| `RETENTION_DAYS` | データ保持日数 | 30 |
-| `LOG_LEVEL` | ログレベル | INFO |
+| 変数名              | 説明                   | デフォルト値            |
+| ------------------- | ---------------------- | ----------------------- |
+| `CLAUDE_API_KEY`    | Claude APIキー（必須） | -                       |
+| `CLAUDE_MODEL`      | 使用するClaudeモデル   | claude-3-haiku-20240307 |
+| `CLAUDE_MAX_TOKENS` | 最大トークン数         | 1000                    |
+| `OUTPUT_PATH`       | データ出力先           | frontend/public/data    |
+| `RETENTION_DAYS`    | データ保持日数         | 30                      |
+| `LOG_LEVEL`         | ログレベル             | INFO                    |
 
 ## 📊 出力データ形式
 

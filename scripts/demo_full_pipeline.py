@@ -43,11 +43,7 @@ async def main():
         logger.info(f"RSS収集器を初期化しました: {len(rss_sources)}ソース")
         
         # AI要約器を初期化
-        summarizer = ClaudeSummarizer(
-            api_key=config.claude_api_key,
-            model=config.claude_model,
-            batch_size=2  # デモ用に小さなバッチサイズ
-        )
+        summarizer = ClaudeSummarizer(config)
         logger.info("AI要約器を初期化しました")
         
         # データ管理器を初期化
@@ -56,7 +52,8 @@ async def main():
         
         # RSS収集を実行
         logger.info("RSS収集を開始します...")
-        raw_articles = await collector.collect_all()
+        async with collector:
+            raw_articles = await collector.collect_all()
         logger.info(f"RSS収集完了: {len(raw_articles)}件の記事を収集")
         
         if not raw_articles:
