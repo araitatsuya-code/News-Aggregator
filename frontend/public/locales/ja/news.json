@@ -3,6 +3,7 @@
   "loading": "読み込み中...",
   "error": "ニュースの読み込みに失敗しました",
   "no_articles": "記事がありません",
+  "refresh": "更新",
   "read_more": "続きを読む",
   "source": "ソース",
   "published_at": "公開日時",
@@ -12,10 +13,19 @@
   "confidence": "信頼度",
   "external_link": "外部リンクで開く",
   "translation_note": "この記事は英語から翻訳されています",
+  "time": {
+    "just_now": "たった今",
+    "hour_ago": "{{count}}時間前",
+    "hours_ago": "{{count}}時間前"
+  },
   "category_filter": {
     "title": "カテゴリで絞り込み",
     "all": "すべて",
     "select": "カテゴリを選択",
+    "show_more": "もっと表示",
+    "show_less": "少なく表示",
+    "filtered_by": "フィルター中",
+    "clear": "クリア",
     "no_articles_in_category": "このカテゴリにはニュースがありません"
   }
 }

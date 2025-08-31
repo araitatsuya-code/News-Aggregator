@@ -6,7 +6,10 @@
   "navigation": {
     "home": "Home",
     "daily_summary": "Daily Summary",
-    "categories": "Categories"
+    "categories": "Categories",
+    "language": "Language",
+    "open_menu": "Open menu",
+    "close_menu": "Close menu"
   },
   "language": {
     "switch_to_english": "English",
@@ -16,7 +19,9 @@
   },
   "footer": {
     "copyright": "© 2024 AI News Aggregator. All rights reserved.",
-    "powered_by": "Powered by Claude AI"
+    "powered_by": "Powered by Claude AI",
+    "mobile_optimized": "Mobile Optimized",
+    "responsive": "Responsive"
   },
   "loading": "Loading page..."
 }

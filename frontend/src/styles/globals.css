@@ -20,8 +20,106 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+/* モバイル対応のベーススタイル */
+@layer base {
+  /* タッチデバイス用のタップハイライト無効化 */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* スクロールバーのスタイリング（Webkit系ブラウザ） */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 3px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+  }
+}
+
+@layer components {
+  /* タッチ対応ボタンの基本スタイル */
+  .touch-button {
+    @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
+    @apply transition-all duration-200 ease-in-out;
+    @apply active:scale-95 active:bg-opacity-80;
+  }
+  
+  /* モバイル対応カード */
+  .mobile-card {
+    @apply bg-white rounded-lg shadow-sm border border-gray-200;
+    @apply transition-shadow duration-200;
+    @apply hover:shadow-md active:shadow-lg;
+  }
+  
+  /* レスポンシブコンテナ */
+  .responsive-container {
+    @apply w-full max-w-7xl mx-auto;
+    @apply px-4 sm:px-6 lg:px-8;
+  }
+  
+  /* モバイルメニューのアニメーション */
+  .mobile-menu-enter {
+    @apply opacity-0 transform -translate-y-2;
+  }
+  
+  .mobile-menu-enter-active {
+    @apply opacity-100 transform translate-y-0;
+    @apply transition-all duration-200 ease-out;
+  }
+  
+  .mobile-menu-exit {
+    @apply opacity-100 transform translate-y-0;
+  }
+  
+  .mobile-menu-exit-active {
+    @apply opacity-0 transform -translate-y-2;
+    @apply transition-all duration-150 ease-in;
+  }
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+  
+  /* タッチ対応のスペーシング */
+  .touch-spacing {
+    @apply space-y-3 sm:space-y-4;
+  }
+  
+  /* 安全エリア対応（iPhone X以降のノッチ対応） */
+  .safe-area-top {
+    padding-top: env(safe-area-inset-top);
+  }
+  
+  .safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  
+  /* モバイル専用表示/非表示 */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+  
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+  
+  /* タッチ対応のホバー効果（タッチデバイスでは無効化） */
+  @media (hover: hover) and (pointer: fine) {
+    .hover-desktop:hover {
+      @apply transform scale-105;
+    }
   }
 }

@@ -3,6 +3,7 @@
   "loading": "Loading...",
   "error": "Failed to load news",
   "no_articles": "No articles available",
+  "refresh": "Refresh",
   "read_more": "Read more",
   "source": "Source",
   "published_at": "Published",
@@ -12,10 +13,19 @@
   "confidence": "Confidence",
   "external_link": "Open in new tab",
   "translation_note": "This article has been translated from English",
+  "time": {
+    "just_now": "Just now",
+    "hour_ago": "{{count}} hour ago",
+    "hours_ago": "{{count}} hours ago"
+  },
   "category_filter": {
     "title": "Filter by Category",
     "all": "All",
     "select": "Select Category",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "filtered_by": "Filtered by",
+    "clear": "Clear",
     "no_articles_in_category": "No articles in this category"
   }
 }
