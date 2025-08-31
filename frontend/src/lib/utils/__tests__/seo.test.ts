@@ -20,7 +20,7 @@ const mockNewsItem: NewsItem = {
   url: 'https://example.com/news/1',
   source: 'Test Source',
   category: '国内',
-  published_at: new Date('2025-08-31T10:00:00Z'),
+  published_at: '2025-08-31T10:00:00Z',
   language: 'ja',
   tags: ['AI', 'テスト'],
   ai_confidence: 0.95
@@ -34,7 +34,7 @@ const mockDailySummary: DailySummary = {
   category_breakdown: { '国内': 5, '海外': 3, 'Reddit': 2 },
   summary_ja: '今日のAI関連ニュースのまとめです。',
   summary_en: 'Summary of today\'s AI-related news.',
-  generated_at: new Date('2025-08-31T12:00:00Z')
+  generated_at: '2025-08-31T12:00:00Z'
 };
 
 describe('SEO Utils', () => {

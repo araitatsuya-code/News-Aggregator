@@ -43,9 +43,9 @@ describe('NewsItem', () => {
   
   it('翻訳記事の場合に翻訳情報が表示される', () => {
     // 翻訳記事のテストデータ
-    const translatedArticle = {
+    const translatedArticle: NewsItem = {
       ...mockNewsItem,
-      language: 'en',
+      language: 'en' as const,
       title: 'AI技術の革新的進歩', // 翻訳されたタイトル
       original_title: 'Revolutionary AI Technology Advances' // 元のタイトル
     }

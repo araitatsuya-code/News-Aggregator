@@ -123,7 +123,7 @@ describe('NewsList', () => {
     render(<NewsList articles={mockNewsItems} />)
     
     // レスポンシブクラスが適用されることを確認
-    const container = screen.getByText('AI Technology Advances').closest('div').parentElement.parentElement.parentElement.parentElement
+    const container = screen.getByText('AI Technology Advances').closest('div')?.parentElement?.parentElement?.parentElement?.parentElement
     expect(container).toHaveClass('space-y-4', 'sm:space-y-6')
   })
   

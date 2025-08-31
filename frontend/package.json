@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "npm run generate-sitemap && next build",
     "build:analyze": "ANALYZE=true npm run build",
+    "build:vercel": "npm run generate-sitemap && npm run type-check && next build",
     "start": "next start",
     "lint": "next lint",
     "export": "npm run build && next export",
@@ -17,7 +18,10 @@
     "test:e2e:headed": "playwright test --headed",
     "type-check": "tsc --noEmit",
     "generate-sitemap": "node scripts/generate-sitemap.js",
-    "optimize": "npm run type-check && npm run lint && npm run test && npm run build:analyze"
+    "optimize": "npm run type-check && npm run lint && npm run test && npm run build:analyze",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "vercel-build": "npm run build:vercel"
   },
   "dependencies": {
     "i18next": "^23.5.1",

@@ -5,7 +5,7 @@
     <description><![CDATA[Latest AI and machine learning news with automatic summaries]]></description>
     <link>https://ai-news-aggregator.example.com</link>
     <language>en</language>
-    <lastBuildDate>Sun, 31 Aug 2025 05:18:50 GMT</lastBuildDate>
+    <lastBuildDate>Sun, 31 Aug 2025 07:18:31 GMT</lastBuildDate>
     <atom:link href="https://ai-news-aggregator.example.com/api/rss" rel="self" type="application/rss+xml" />
     <generator>AI News Aggregator</generator>
     <webMaster>admin@ai-news-aggregator.example.com</webMaster>

@@ -47,6 +47,32 @@ CLAUDE_API_KEY=your-actual-claude-api-key-here
 3. API Keysセクションで新しいAPIキーを作成
 4. 作成されたAPIキーを`.env`ファイルに設定
 
+## 🚀 Vercelデプロイメント
+
+### クイックデプロイ
+
+```bash
+# デプロイ準備（データ処理 + ビルド準備）
+./scripts/prepare-deploy.sh
+
+# Vercelにデプロイ
+./scripts/deploy-vercel.sh --preview  # プレビュー環境
+./scripts/deploy-vercel.sh --prod     # 本番環境
+
+# 手動Vercelデプロイ
+npm install -g vercel
+vercel          # プレビュー
+vercel --prod   # 本番
+```
+
+### GitHub Actions自動デプロイ
+
+- **mainブランチ**: 自動で本番デプロイ
+- **プルリクエスト**: 自動でプレビューデプロイ
+- **手動実行**: GitHub Actionsタブから実行可能
+
+詳細は [デプロイメントガイド](docs/DEPLOYMENT.md) を参照してください。
+
 ## 🐳 Docker環境
 
 ### 利用可能なコマンド

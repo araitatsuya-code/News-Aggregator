@@ -4,37 +4,37 @@
 
   <url>
     <loc>https://ai-news-aggregator.example.com/</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>1</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/summary</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/categories</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/summary</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/categories</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -346,49 +346,49 @@
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/categories/%E5%9B%BD%E5%86%85</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/categories/%E5%9B%BD%E5%86%85</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/categories/%E6%B5%B7%E5%A4%96</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/categories/%E6%B5%B7%E5%A4%96</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/categories/Reddit</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/categories/Reddit</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/categories/%E3%81%9D%E3%81%AE%E4%BB%96</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://ai-news-aggregator.example.com/en/categories/%E3%81%9D%E3%81%AE%E4%BB%96</loc>
-    <lastmod>2025-08-31T05:18:50.036Z</lastmod>
+    <lastmod>2025-08-31T07:18:31.002Z</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.6</priority>
   </url>

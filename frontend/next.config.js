@@ -100,8 +100,17 @@ const nextConfig = {
   
   // 環境変数
   env: {
-    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-news-aggregator.example.com',
-  }
+    NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-news-aggregator.vercel.app',
+  },
+  
+  // Vercel最適化
+  ...(process.env.VERCEL && {
+    // Vercel環境での追加最適化
+    experimental: {
+      ...nextConfig.experimental,
+      serverComponentsExternalPackages: ['sharp'],
+    },
+  })
 }
 
 module.exports = nextConfig
