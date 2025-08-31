@@ -8,9 +8,14 @@
   "published_at": "Published",
   "category": "Category",
   "original_title": "Original Title",
+  "translated": "Translated",
+  "confidence": "Confidence",
+  "external_link": "Open in new tab",
+  "translation_note": "This article has been translated from English",
   "category_filter": {
     "title": "Filter by Category",
     "all": "All",
-    "select": "Select Category"
+    "select": "Select Category",
+    "no_articles_in_category": "No articles in this category"
   }
 }

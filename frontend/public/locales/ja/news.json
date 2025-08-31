@@ -8,9 +8,14 @@
   "published_at": "公開日時",
   "category": "カテゴリ",
   "original_title": "元タイトル",
+  "translated": "翻訳済み",
+  "confidence": "信頼度",
+  "external_link": "外部リンクで開く",
+  "translation_note": "この記事は英語から翻訳されています",
   "category_filter": {
     "title": "カテゴリで絞り込み",
     "all": "すべて",
-    "select": "カテゴリを選択"
+    "select": "カテゴリを選択",
+    "no_articles_in_category": "このカテゴリにはニュースがありません"
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
-import { ReactNode, useState } from 'react'
+import { ReactNode } from 'react'
+import { useRouter } from 'next/router'
 import Header from './Header'
 import Footer from './Footer'
 
@@ -9,12 +10,12 @@ interface LayoutProps {
 }
 
 export default function Layout({ children }: LayoutProps) {
-  const [currentLocale, setCurrentLocale] = useState('ja')
+  const router = useRouter()
+  const currentLocale = router.locale || 'ja'
 
   const handleLocaleChange = (locale: string) => {
-    setCurrentLocale(locale)
-    // For static export, we'll handle locale switching differently
-    // This will be implemented in later tasks
+    // この関数は後方互換性のために残しているが、実際の処理はLanguageSwitcherで行う
+    console.log('Locale change requested:', locale)
   }
 
   return (

@@ -11,5 +11,10 @@
   "generated_at": "生成日時",
   "today_summary": "今日のまとめ",
   "select_date": "日付を選択",
-  "today": "今日"
+  "today": "今日",
+  "articles_count": "記事数",
+  "trends_detected": "個のトレンドを検出",
+  "no_trend_data": "トレンドデータがありません",
+  "no_category_data": "カテゴリデータがありません",
+  "rank": "順位"
 }

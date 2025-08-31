@@ -1,19 +1,33 @@
 import React from 'react';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { NewsItem as NewsItemType } from '../../lib/types';
 
 interface NewsItemProps {
   article: NewsItemType;
   showSummary?: boolean;
-  locale?: string;
 }
 
-export function NewsItem({ article, showSummary = true, locale = 'ja' }: NewsItemProps) {
+/**
+ * ニュース記事項目コンポーネント
+ * 翻訳された記事の場合は元タイトルも表示する
+ */
+export function NewsItem({ article, showSummary = true }: NewsItemProps) {
+  const router = useRouter();
+  const { t } = useTranslation('news');
+  const locale = router.locale || 'ja';
+  /**
+   * 外部リンクをクリックした時の処理
+   * 新しいタブで記事を開く
+   */
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
-    // External link navigation - opens in new tab
     e.preventDefault();
     window.open(article.url, '_blank', 'noopener,noreferrer');
   };
 
+  /**
+   * 日付をロケールに応じてフォーマットする
+   */
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
       year: 'numeric',
@@ -24,17 +38,29 @@ export function NewsItem({ article, showSummary = true, locale = 'ja' }: NewsIte
     });
   };
 
+  /**
+   * 記事が翻訳されているかどうかを判定する
+   */
+  const isTranslated = article.language === 'en' && article.original_title !== article.title;
+
+  /**
+   * 表示するタイトルを決定する
+   * 翻訳記事の場合は翻訳されたタイトルを表示
+   */
+  const displayTitle = isTranslated ? article.title : article.original_title;
+
   return (
     <article className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md transition-shadow duration-200">
+      {/* ヘッダー部分：タイトルとカテゴリ */}
       <div className="flex items-start justify-between mb-3">
         <h2 className="text-lg font-semibold text-gray-900 flex-1 mr-4">
           <a 
             href={article.url}
             onClick={handleClick}
             className="hover:text-blue-600 transition-colors duration-200 cursor-pointer"
-            title={`${article.title} - 外部リンクで開く`}
+            title={`${displayTitle} - ${t('external_link')}`}
           >
-            {article.title}
+            {displayTitle}
           </a>
         </h2>
         <span className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full whitespace-nowrap">
@@ -42,18 +68,29 @@ export function NewsItem({ article, showSummary = true, locale = 'ja' }: NewsIte
         </span>
       </div>
       
-      {article.language === 'en' && article.original_title !== article.title && (
-        <p className="text-sm text-gray-500 mb-2 italic">
-          {locale === 'ja' ? '原題' : 'Original'}: {article.original_title}
-        </p>
+      {/* 翻訳記事の場合の元タイトル表示 */}
+      {isTranslated && (
+        <div className="mb-3 p-3 bg-blue-50 border-l-4 border-blue-200 rounded-r">
+          <p className="text-sm text-blue-700 mb-1">
+            <span className="font-medium">{t('original_title')}:</span>
+          </p>
+          <p className="text-sm text-blue-800 italic">
+            {article.original_title}
+          </p>
+          <p className="text-xs text-blue-600 mt-1">
+            {t('translation_note')}
+          </p>
+        </div>
       )}
       
+      {/* 記事要約 */}
       {showSummary && (
         <p className="text-gray-600 mb-4 leading-relaxed">
           {article.summary}
         </p>
       )}
       
+      {/* メタデータ部分 */}
       <div className="flex items-center justify-between text-sm text-gray-500">
         <div className="flex items-center space-x-4">
           <span className="font-medium">{article.source}</span>
@@ -61,25 +98,32 @@ export function NewsItem({ article, showSummary = true, locale = 'ja' }: NewsIte
           <span>{formatDate(article.published_at)}</span>
         </div>
         <div className="flex items-center space-x-2">
-          {article.language === 'en' && (
-            <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-              {locale === 'ja' ? '翻訳済み' : 'Translated'}
+          {isTranslated && (
+            <span className="bg-green-100 text-green-700 text-xs px-2 py-1 rounded flex items-center">
+              <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M7 2a1 1 0 011 1v1h3a1 1 0 110 2H9.578a18.87 18.87 0 01-1.724 4.78c.29.354.596.696.914 1.026a1 1 0 11-1.44 1.389c-.188-.196-.373-.396-.554-.6a19.098 19.098 0 01-3.107 3.567 1 1 0 01-1.334-1.49 17.087 17.087 0 003.13-3.733 18.992 18.992 0 01-1.487-2.494 1 1 0 111.79-.89c.234.47.489.928.764 1.372.417-.934.752-1.913.997-2.927H3a1 1 0 110-2h3V3a1 1 0 011-1zm6 6a1 1 0 01.894.553l2.991 5.982a.869.869 0 01.02.037l.99 1.98a1 1 0 11-1.79.895L15.383 16h-4.764l-.724 1.447a1 1 0 11-1.788-.894l.99-1.98.019-.038 2.99-5.982A1 1 0 0113 8zm-1.382 6h2.764L13 11.236 11.618 14z" clipRule="evenodd" />
+              </svg>
+              {t('translated')}
             </span>
           )}
-          <span className="text-xs">
-            {locale === 'ja' ? '信頼度' : 'Confidence'}: {Math.round(article.ai_confidence * 100)}%
+          <span className="text-xs flex items-center">
+            <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.44 5.252a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+            </svg>
+            {t('confidence')}: {Math.round(article.ai_confidence * 100)}%
           </span>
         </div>
       </div>
       
+      {/* タグ表示 */}
       {article.tags && article.tags.length > 0 && (
         <div className="mt-3 flex flex-wrap gap-1">
           {article.tags.map((tag, index) => (
             <span 
               key={index}
-              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded"
+              className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded hover:bg-gray-200 transition-colors duration-200"
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>

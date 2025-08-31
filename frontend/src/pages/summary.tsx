@@ -106,7 +106,7 @@ export default function Summary() {
           {error && (
             <div className="max-w-2xl mx-auto">
               <DataError
-                message={error}
+                error={new Error(error)}
                 onRetry={handleRetry}
               />
             </div>
@@ -127,7 +127,6 @@ export default function Summary() {
             <DailySummary
               summary={summary}
               showTrends={true}
-              locale={i18n.language}
             />
           )}
         </div>

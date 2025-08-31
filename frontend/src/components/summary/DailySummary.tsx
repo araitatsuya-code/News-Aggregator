@@ -1,18 +1,22 @@
 import React from 'react';
+import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { DailySummary as DailySummaryType, NewsItem } from '../../lib/types';
 import { NewsItem as NewsItemComponent } from '../news/NewsItem';
 
 interface DailySummaryProps {
   summary: DailySummaryType;
   showTrends?: boolean;
-  locale?: string;
 }
 
 /**
  * 日次サマリーを表示するコンポーネント
  * トレンド情報、カテゴリ別統計、重要ニュースを表示する
  */
-export function DailySummary({ summary, showTrends = true, locale = 'ja' }: DailySummaryProps) {
+export function DailySummary({ summary, showTrends = true }: DailySummaryProps) {
+  const router = useRouter();
+  const { t } = useTranslation('summary');
+  const locale = router.locale || 'ja';
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
@@ -31,17 +35,17 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {/* ヘッダー */}
       <div className="text-center border-b pb-6">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          {locale === 'ja' ? '日次サマリー' : 'Daily Summary'}
+          {t('title')}
         </h1>
         <p className="text-lg text-gray-600">
           {formatDate(summary.date)}
         </p>
         <div className="mt-4 flex justify-center space-x-8 text-sm text-gray-500">
           <span>
-            {locale === 'ja' ? '記事数' : 'Articles'}: {summary.total_articles}
+            {t('articles_count')}: {summary.total_articles}
           </span>
           <span>
-            {locale === 'ja' ? '生成日時' : 'Generated'}: {new Date(summary.generated_at).toLocaleString(locale === 'ja' ? 'ja-JP' : 'en-US')}
+            {t('generated_at')}: {new Date(summary.generated_at).toLocaleString(locale === 'ja' ? 'ja-JP' : 'en-US')}
           </span>
         </div>
       </div>
@@ -49,7 +53,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {/* サマリーテキスト */}
       <div className="bg-blue-50 rounded-lg p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          {locale === 'ja' ? '今日のまとめ' : "Today's Summary"}
+          {t('today_summary')}
         </h2>
         <p className="text-gray-700 leading-relaxed">
           {getSummaryText()}
@@ -60,7 +64,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {showTrends && summary.top_trends.length > 0 && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            {locale === 'ja' ? 'トップトレンド' : 'Top Trends'}
+            {t('top_trends')}
           </h2>
           <div className="flex flex-wrap gap-2">
             {summary.top_trends.map((trend, index) => (
@@ -75,7 +79,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
                     ? 'bg-yellow-100 text-yellow-800'
                     : 'bg-blue-100 text-blue-800'
                 }`}
-                title={`${locale === 'ja' ? '順位' : 'Rank'}: ${index + 1}`}
+                title={`${t('rank')}: ${index + 1}`}
               >
                 <span className="mr-1 text-xs opacity-75">#{index + 1}</span>
                 {trend}
@@ -83,10 +87,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
             ))}
           </div>
           <div className="mt-3 text-xs text-gray-500">
-            {locale === 'ja' 
-              ? `${summary.top_trends.length}個のトレンドを検出` 
-              : `${summary.top_trends.length} trends detected`
-            }
+            {summary.top_trends.length}{t('trends_detected')}
           </div>
         </div>
       )}
@@ -94,10 +95,10 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {showTrends && summary.top_trends.length === 0 && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            {locale === 'ja' ? 'トップトレンド' : 'Top Trends'}
+            {t('top_trends')}
           </h2>
           <div className="text-center py-8 text-gray-500">
-            {locale === 'ja' ? 'トレンドデータがありません' : 'No trend data available'}
+            {t('no_trend_data')}
           </div>
         </div>
       )}
@@ -105,7 +106,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {/* カテゴリ別統計 */}
       <div className="bg-white rounded-lg border border-gray-200 p-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
-          {locale === 'ja' ? 'カテゴリ別内訳' : 'Category Breakdown'}
+          {t('category_breakdown')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {Object.entries(summary.category_breakdown).map(([category, count]) => (
@@ -114,7 +115,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
               className="text-center p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
               role="button"
               tabIndex={0}
-              aria-label={`${category}: ${count} ${locale === 'ja' ? '件' : 'articles'}`}
+              aria-label={`${category}: ${count} ${t('articles_count')}`}
             >
               <div className="text-2xl font-bold text-blue-600">{count}</div>
               <div className="text-sm text-gray-600 capitalize">{category}</div>
@@ -123,7 +124,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
         </div>
         {Object.keys(summary.category_breakdown).length === 0 && (
           <div className="text-center py-8 text-gray-500">
-            {locale === 'ja' ? 'カテゴリデータがありません' : 'No category data available'}
+            {t('no_category_data')}
           </div>
         )}
       </div>
@@ -132,7 +133,7 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
       {summary.significant_news.length > 0 && (
         <div className="bg-white rounded-lg border border-gray-200 p-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            {locale === 'ja' ? '重要ニュース' : 'Significant News'}
+            {t('significant_news')}
           </h2>
           <div className="space-y-4">
             {summary.significant_news.map((article) => (
@@ -140,7 +141,6 @@ export function DailySummary({ summary, showTrends = true, locale = 'ja' }: Dail
                 key={article.id}
                 article={article}
                 showSummary={true}
-                locale={locale}
               />
             ))}
           </div>

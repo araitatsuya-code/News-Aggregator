@@ -11,5 +11,10 @@
   "generated_at": "Generated At",
   "today_summary": "Today's Summary",
   "select_date": "Select Date",
-  "today": "Today"
+  "today": "Today",
+  "articles_count": "Articles",
+  "trends_detected": "trends detected",
+  "no_trend_data": "No trend data available",
+  "no_category_data": "No category data available",
+  "rank": "Rank"
 }

@@ -26,7 +26,7 @@ function NewsListSection() {
   } = useCategoryFilter(latestNews || [])
 
   if (loading) {
-    return <LoadingSpinner message="最新ニュースを読み込み中..." />
+    return <LoadingSpinner />
   }
 
   if (error) {
@@ -44,7 +44,6 @@ function NewsListSection() {
       <NewsList 
         articles={filteredArticles} 
         showSummary={true}
-        emptyMessage="表示するニュースがありません"
       />
     </div>
   )

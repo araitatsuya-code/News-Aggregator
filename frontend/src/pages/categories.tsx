@@ -27,7 +27,7 @@ function CategoriesContent() {
   } = useCategoryFilter(latestNews || [])
 
   if (loading) {
-    return <LoadingSpinner message="カテゴリ情報を読み込み中..." />
+    return <LoadingSpinner />
   }
 
   if (error) {
@@ -48,7 +48,7 @@ function CategoriesContent() {
       {/* Category Statistics */}
       <div className="mb-8 bg-white rounded-lg shadow p-6">
         <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          カテゴリ別統計
+          {t('news:category_filter.title')}
         </h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {availableCategories.map((category) => (
@@ -75,7 +75,6 @@ function CategoriesContent() {
       <NewsList 
         articles={filteredArticles} 
         showSummary={true}
-        emptyMessage="選択されたカテゴリにはニュースがありません"
       />
     </div>
   )
@@ -96,7 +95,7 @@ export default function Categories() {
             {t('common:navigation.categories')}
           </h1>
           <p className="text-xl text-gray-600">
-            カテゴリ別にAIニュースを閲覧できます
+            {t('common:site.description')}
           </p>
         </div>
         

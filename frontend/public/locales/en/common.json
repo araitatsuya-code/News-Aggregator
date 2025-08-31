@@ -10,10 +10,13 @@
   },
   "language": {
     "switch_to_english": "English",
-    "switch_to_japanese": "日本語"
+    "switch_to_japanese": "日本語",
+    "switch_language": "Switch Language",
+    "current_language": "Current Language"
   },
   "footer": {
     "copyright": "© 2024 AI News Aggregator. All rights reserved.",
     "powered_by": "Powered by Claude AI"
-  }
+  },
+  "loading": "Loading page..."
 }

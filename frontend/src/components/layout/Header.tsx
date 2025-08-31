@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useTranslation } from 'next-i18next'
+import LanguageSwitcher from './LanguageSwitcher'
 
 interface HeaderProps {
   currentLocale: string
@@ -17,9 +18,7 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
     setIsMenuOpen(!isMenuOpen)
   }
 
-  const handleLocaleChange = (locale: string) => {
-    onLocaleChange(locale)
-  }
+
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -56,12 +55,7 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
 
           {/* Language Switcher */}
           <div className="hidden md:flex items-center space-x-4">
-            <button
-              onClick={() => handleLocaleChange(currentLocale === 'ja' ? 'en' : 'ja')}
-              className="text-gray-700 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium border border-gray-300 hover:border-gray-400"
-            >
-              {currentLocale === 'ja' ? t('language.switch_to_english') : t('language.switch_to_japanese')}
-            </button>
+            <LanguageSwitcher variant="dropdown" />
           </div>
 
           {/* Mobile menu button */}
@@ -106,15 +100,9 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
               >
                 {t('navigation.categories')}
               </Link>
-              <button
-                onClick={() => {
-                  handleLocaleChange(currentLocale === 'ja' ? 'en' : 'ja')
-                  setIsMenuOpen(false)
-                }}
-                className="text-gray-700 hover:text-gray-900 block px-3 py-2 rounded-md text-base font-medium border border-gray-300 hover:border-gray-400 w-full text-left"
-              >
-                {currentLocale === 'ja' ? t('language.switch_to_english') : t('language.switch_to_japanese')}
-              </button>
+              <div className="px-3 py-2">
+                <LanguageSwitcher variant="button" className="w-full justify-center" />
+              </div>
             </div>
           </div>
         )}
