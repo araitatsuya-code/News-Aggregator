@@ -61,6 +61,7 @@ class AppConfig:
             retention_days=int(os.getenv('RETENTION_DAYS', cls.retention_days)),
             log_level=os.getenv('LOG_LEVEL', cls.log_level),
             log_dir=os.getenv('LOG_DIR', cls.log_dir),
+            reddit_article_limit=int(os.getenv('REDDIT_ARTICLE_LIMIT', cls.reddit_article_limit)),
             max_retries=int(os.getenv('MAX_RETRIES', cls.max_retries)),
             retry_delay=float(os.getenv('RETRY_DELAY', cls.retry_delay))
         )
@@ -298,3 +299,15 @@ def get_default_rss_sources() -> List[RSSSource]:
 def get_categories() -> List[str]:
     """利用可能なカテゴリ一覧"""
     return ["Claude", "国内", "海外", "Reddit", "その他"]
+
+
+# グローバル設定インスタンス
+_config: Optional[AppConfig] = None
+
+
+def get_config() -> AppConfig:
+    """設定インスタンスを取得"""
+    global _config
+    if _config is None:
+        _config = AppConfig.from_env()
+    return _config
