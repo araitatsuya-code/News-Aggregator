@@ -16,6 +16,7 @@ from dateutil import parser as date_parser
 
 from ..types import RSSSource, RawNewsItem
 from ..exceptions import RSSCollectionError
+from ..config import get_config
 
 
 class RSSCollector:
@@ -153,7 +154,18 @@ class RSSCollector:
         articles = []
         today = datetime.now(timezone.utc).date()
         
+        # Redditソースの記事数制限
+        is_reddit = 'reddit' in source.name.lower() or 'reddit' in source.url.lower()
+        config = get_config()
+        reddit_limit = config.reddit_article_limit if is_reddit else None
+        processed_count = 0
+        
         for entry in feed.entries:
+            # Reddit記事の制限チェック
+            if is_reddit and reddit_limit and processed_count >= reddit_limit:
+                self.logger.info(f"Reddit記事を{reddit_limit}件に制限しました: {source.name}")
+                break
+                
             try:
                 article = self.normalize_article(entry, source)
                 if article:
@@ -161,6 +173,8 @@ class RSSCollector:
                     article_date = article.published_at.date()
                     if article_date == today:
                         articles.append(article)
+                        if is_reddit:
+                            processed_count += 1
             except Exception as e:
                 self.logger.warning(f"記事の正規化に失敗 (ソース: {source.name}): {e}")
                 continue

@@ -38,6 +38,9 @@ class AppConfig:
     log_level: str = "INFO"
     log_dir: str = "logs"
     
+    # RSS収集設定
+    reddit_article_limit: int = 20
+    
     # 処理設定
     max_retries: int = 3
     retry_delay: float = 1.0
