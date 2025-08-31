@@ -240,6 +240,41 @@ cd frontend
 npm run dev
 ```
 
+## 🤖 GitHub Actions自動更新
+
+毎日午前9時（JST）に自動でニュースデータを更新するGitHub Actionsワークフローを設定済みです。
+
+### CLAUDE_API_KEYの設定
+GitHub Actionsで自動更新を有効にするには、リポジトリシークレットにClaude APIキーを設定する必要があります。
+
+#### 設定手順：
+1. GitHubリポジトリのページに移動
+2. **Settings** タブをクリック
+3. 左側のサイドバーから **Secrets and variables** → **Actions** を選択
+4. **New repository secret** をクリック
+5. 以下の情報を入力：
+   - **Name**: `CLAUDE_API_KEY`
+   - **Secret**: あなたのClaude APIキー（`sk-ant-api03-...`形式）
+6. **Add secret** をクリックして保存
+
+### ワークフローの実行
+- **自動実行**: 毎日午前9時（JST）= UTC 0時に自動実行
+- **手動実行**: GitHub Actionsタブから「Daily News Update」を手動実行可能
+  - `force_update`オプション：既存のデータがあっても強制的に更新
+
+### ワークフローの機能
+- ✅ Claude APIキーの検証
+- 📊 既存データのチェック（10記事以上あればスキップ）
+- 📰 ニュース収集と要約（最大2時間でタイムアウト）
+- 🗺️ サイトマップとRSSフィードの生成
+- 📝 自動コミット・プッシュ
+- 📋 実行ログのアーティファクト保存
+
+### トラブルシューティング
+- ワークフローが失敗する場合は、GitHub Actionsタブでログを確認
+- CLAUDE_API_KEYが正しく設定されているか確認
+- Claude APIの利用制限に達していないか確認
+
 ## 🤖 使用技術
 
 - **Python 3.13+**: メイン言語
