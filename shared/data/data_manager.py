@@ -220,10 +220,10 @@ class DataManager:
             self.logger.error(f"Failed to save processing metrics: {e}")
             raise
     
-    def _update_latest_news(self, articles: List[NewsItem], limit: int = 20) -> None:
+    def _update_latest_news(self, articles: List[NewsItem], limit: int = 100) -> None:
         """最新ニュースファイルを更新"""
         try:
-            # 最新20件を取得（公開日時でソート）
+            # 最新記事を取得（公開日時でソート）
             # タイムゾーン情報を統一してからソート
             def get_comparable_datetime(article):
                 dt = article.published_at
