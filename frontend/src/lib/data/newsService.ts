@@ -140,4 +140,58 @@ export class NewsService {
       throw new DataLoadError('daily metadata', date);
     }
   }
+
+  /**
+   * Get available dates for summaries by checking the last 30 days
+   * @returns Promise<string[]> Array of available dates in YYYY-MM-DD format
+   */
+  static async getAvailableSummaryDates(): Promise<string[]> {
+    const availableDates: string[] = [];
+    const today = new Date();
+    
+    // 過去30日間をチェック
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateString = date.toISOString().split('T')[0];
+      
+      try {
+        // サマリーファイルが存在するかチェック
+        await this.fetchJSON<DailySummary>(`${this.BASE_PATH}/summaries/${dateString}.json`);
+        availableDates.push(dateString);
+      } catch (error) {
+        // ファイルが存在しない場合はスキップ
+        continue;
+      }
+    }
+    
+    return availableDates;
+  }
+
+  /**
+   * Get available dates for news by checking the last 30 days
+   * @returns Promise<string[]> Array of available dates in YYYY-MM-DD format
+   */
+  static async getAvailableNewsDates(): Promise<string[]> {
+    const availableDates: string[] = [];
+    const today = new Date();
+    
+    // 過去30日間をチェック
+    for (let i = 0; i < 30; i++) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateString = date.toISOString().split('T')[0];
+      
+      try {
+        // ニュースファイルが存在するかチェック
+        await this.fetchJSON<NewsItem[]>(`${this.BASE_PATH}/news/${dateString}/articles.json`);
+        availableDates.push(dateString);
+      } catch (error) {
+        // ファイルが存在しない場合はスキップ
+        continue;
+      }
+    }
+    
+    return availableDates;
+  }
 }

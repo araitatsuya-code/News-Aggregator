@@ -1,5 +1,6 @@
 {
   "title": "日次まとめ",
+  "description": "AIニュースの日次サマリーとトレンド分析",
   "loading": "読み込み中...",
   "error": "サマリーの読み込みに失敗しました",
   "no_summary": "この日のサマリーはありません",
@@ -7,5 +8,8 @@
   "top_trends": "主要トレンド",
   "significant_news": "重要ニュース",
   "category_breakdown": "カテゴリ別内訳",
-  "generated_at": "生成日時"
+  "generated_at": "生成日時",
+  "today_summary": "今日のまとめ",
+  "select_date": "日付を選択",
+  "today": "今日"
 }

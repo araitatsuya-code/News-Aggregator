@@ -4,9 +4,10 @@ import { NewsItem as NewsItemType } from '../../lib/types';
 interface NewsItemProps {
   article: NewsItemType;
   showSummary?: boolean;
+  locale?: string;
 }
 
-export function NewsItem({ article, showSummary = true }: NewsItemProps) {
+export function NewsItem({ article, showSummary = true, locale = 'ja' }: NewsItemProps) {
   const handleClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
     // External link navigation - opens in new tab
     e.preventDefault();
@@ -14,7 +15,7 @@ export function NewsItem({ article, showSummary = true }: NewsItemProps) {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('ja-JP', {
+    return new Date(dateString).toLocaleDateString(locale === 'ja' ? 'ja-JP' : 'en-US', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -43,7 +44,7 @@ export function NewsItem({ article, showSummary = true }: NewsItemProps) {
       
       {article.language === 'en' && article.original_title !== article.title && (
         <p className="text-sm text-gray-500 mb-2 italic">
-          原題: {article.original_title}
+          {locale === 'ja' ? '原題' : 'Original'}: {article.original_title}
         </p>
       )}
       
@@ -62,11 +63,11 @@ export function NewsItem({ article, showSummary = true }: NewsItemProps) {
         <div className="flex items-center space-x-2">
           {article.language === 'en' && (
             <span className="bg-gray-100 text-gray-600 text-xs px-2 py-1 rounded">
-              翻訳済み
+              {locale === 'ja' ? '翻訳済み' : 'Translated'}
             </span>
           )}
           <span className="text-xs">
-            信頼度: {Math.round(article.ai_confidence * 100)}%
+            {locale === 'ja' ? '信頼度' : 'Confidence'}: {Math.round(article.ai_confidence * 100)}%
           </span>
         </div>
       </div>
