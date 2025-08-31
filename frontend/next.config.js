@@ -26,6 +26,10 @@ const nextConfig = {
   experimental: {
     optimizeCss: process.env.NODE_ENV === 'production',
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
+    // Vercel環境での追加最適化
+    ...(process.env.VERCEL && {
+      serverComponentsExternalPackages: ['sharp'],
+    }),
   },
 
   // パフォーマンス最適化
@@ -69,14 +73,7 @@ const nextConfig = {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://ai-news-aggregator.vercel.app',
   },
 
-  // Vercel最適化
-  ...(process.env.VERCEL && {
-    // Vercel環境での追加最適化
-    experimental: {
-      ...nextConfig.experimental,
-      serverComponentsExternalPackages: ['sharp'],
-    },
-  })
+  // Vercel最適化は実験的機能に統合済み
 }
 
 module.exports = nextConfig
