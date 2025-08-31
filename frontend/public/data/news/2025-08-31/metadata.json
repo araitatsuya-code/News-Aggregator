@@ -1,0 +1,15 @@
+{
+  "total": 2,
+  "categories": {
+    "海外": 1,
+    "国内": 1
+  },
+  "sources": {
+    "AI News": 1,
+    "Tech Review": 1
+  },
+  "languages": {
+    "ja": 2
+  },
+  "generated_at": "2025-08-31T11:45:25.275760"
+}

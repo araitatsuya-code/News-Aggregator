@@ -1,0 +1,30 @@
+[
+  {
+    "url": "https://feeds.feedburner.com/oreilly/radar",
+    "category": "海外",
+    "language": "en",
+    "name": "O'Reilly Radar",
+    "enabled": true
+  },
+  {
+    "url": "https://www.reddit.com/r/MachineLearning/.rss",
+    "category": "Reddit",
+    "language": "en",
+    "name": "Reddit ML",
+    "enabled": true
+  },
+  {
+    "url": "https://www.reddit.com/r/artificial/.rss",
+    "category": "Reddit",
+    "language": "en",
+    "name": "Reddit AI",
+    "enabled": true
+  },
+  {
+    "url": "https://techcrunch.com/category/artificial-intelligence/feed/",
+    "category": "海外",
+    "language": "en",
+    "name": "TechCrunch AI",
+    "enabled": true
+  }
+]

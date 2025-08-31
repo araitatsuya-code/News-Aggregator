@@ -1,0 +1,36 @@
+[
+  {
+    "id": "mock-2",
+    "title": "自然言語処理の新技術",
+    "original_title": "New NLP Technology",
+    "summary": "自然言語処理分野で革新的な新技術が発表されました。従来の手法を大幅に上回る性能を実現しています。",
+    "url": "https://example.com/nlp-tech",
+    "source": "Tech Review",
+    "category": "国内",
+    "published_at": "2025-08-31T11:45:25.275266",
+    "language": "ja",
+    "tags": [
+      "NLP",
+      "自然言語処理",
+      "革新"
+    ],
+    "ai_confidence": 0.88
+  },
+  {
+    "id": "mock-1",
+    "title": "AIの最新動向について",
+    "original_title": "Latest AI Trends",
+    "summary": "人工知能技術の最新動向について詳しく解説します。機械学習とディープラーニングの進歩が注目されています。",
+    "url": "https://example.com/ai-trends",
+    "source": "AI News",
+    "category": "海外",
+    "published_at": "2025-08-31T11:45:25.275255",
+    "language": "ja",
+    "tags": [
+      "AI",
+      "機械学習",
+      "技術"
+    ],
+    "ai_confidence": 0.92
+  }
+]
