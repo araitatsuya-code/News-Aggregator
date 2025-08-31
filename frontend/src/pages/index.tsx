@@ -3,7 +3,7 @@ import { useTranslation } from 'next-i18next'
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
 import { NewsService } from '../lib/data/newsService'
-import { useDataLoader } from '../lib/hooks/useDataLoader'
+import { useNewsDataWithFallback } from '../lib/hooks/useDataLoaderWithFallback'
 import { useCategoryFilter } from '../lib/hooks/useCategoryFilter'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { DataError } from '../components/DataError'
@@ -12,8 +12,15 @@ import { NewsList, CategoryFilter } from '../components/news'
 import { NewsItem } from '../lib/types'
 
 function NewsListSection() {
-  const { data: latestNews, loading, error } = useDataLoader<NewsItem[]>(
+  const { 
+    data: latestNews, 
+    loading, 
+    error, 
+    isUsingFallback,
+    retry 
+  } = useNewsDataWithFallback<NewsItem[]>(
     () => NewsService.getLatestNews(20),
+    [], // フォールバックデータは空配列
     []
   )
 
@@ -33,16 +40,35 @@ function NewsListSection() {
     )
   }
 
-  if (error) {
+  if (error && !isUsingFallback) {
     return (
       <div className="py-8 sm:py-12">
-        <DataError error={error} />
+        <DataError 
+          error={error} 
+          onRetry={retry}
+          context="トップページのニュース一覧"
+          showFallback={true}
+        />
       </div>
     )
   }
 
   return (
     <div className="space-y-4 sm:space-y-6">
+      {/* フォールバック使用時の通知 */}
+      {isUsingFallback && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+          <div className="flex items-center">
+            <svg className="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <span className="text-sm text-yellow-800">
+              キャッシュされたデータを表示しています。最新の情報ではない可能性があります。
+            </span>
+          </div>
+        </div>
+      )}
+      
       <CategoryFilter
         categories={availableCategories}
         selectedCategory={selectedCategory}

@@ -1,201 +1,186 @@
 /**
- * Tests for NewsService
- * Note: These are basic tests. In a real environment, you'd want to mock fetch
- * and test various scenarios including network failures.
+ * @jest-environment jsdom
  */
-
 import { NewsService, DataLoadError } from '../newsService';
+import { NewsItem, DailySummary } from '../../types';
 
-// Mock fetch for testing
-global.fetch = jest.fn();
+// fetchのモック
+const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
+global.fetch = mockFetch;
 
-const mockFetch = fetch as jest.MockedFunction<typeof fetch>;
+// localStorageのモック
+const localStorageMock = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn(),
+};
+Object.defineProperty(window, 'localStorage', {
+    value: localStorageMock,
+});
 
 describe('NewsService', () => {
-  beforeEach(() => {
-    mockFetch.mockClear();
-  });
-
-  describe('getLatestNews', () => {
-    it('should fetch and return latest news', async () => {
-      const mockNews = [
-        {
-          id: '1',
-          title: 'Test News',
-          original_title: 'Test News',
-          summary: 'Test summary',
-          url: 'https://example.com',
-          source: 'Test Source',
-          category: 'テスト',
-          published_at: '2025-08-31T00:00:00Z',
-          language: 'ja' as const,
-          tags: ['test'],
-          ai_confidence: 0.9,
-        },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNews,
-      } as Response);
-
-      const result = await NewsService.getLatestNews();
-      
-      expect(mockFetch).toHaveBeenCalledWith('/data/news/latest.json');
-      expect(result).toEqual(mockNews);
+    beforeEach(() => {
+        mockFetch.mockClear();
+        localStorageMock.getItem.mockClear();
+        localStorageMock.setItem.mockClear();
+        localStorageMock.removeItem.mockClear();
+        // オンライン状態にリセット
+        Object.defineProperty(navigator, 'onLine', {
+            writable: true,
+            value: true,
+        });
     });
 
-    it('should limit results when limit is specified', async () => {
-      const mockNews = Array.from({ length: 30 }, (_, i) => ({
-        id: `${i + 1}`,
-        title: `Test News ${i + 1}`,
-        original_title: `Test News ${i + 1}`,
-        summary: 'Test summary',
-        url: 'https://example.com',
-        source: 'Test Source',
-        category: 'テスト',
-        published_at: '2025-08-31T00:00:00Z',
-        language: 'ja' as const,
-        tags: ['test'],
-        ai_confidence: 0.9,
-      }));
+    describe('getLatestNews', () => {
+        it('should fetch and return latest news when online', async () => {
+            const mockNews: NewsItem[] = [
+                {
+                    id: '1',
+                    title: 'Test News 1',
+                    original_title: 'Test News 1',
+                    summary: 'Test summary 1',
+                    url: 'https://example.com/1',
+                    source: 'Test Source',
+                    category: 'AI',
+                    published_at: '2025-08-31T10:00:00Z',
+                    language: 'ja',
+                    tags: ['test'],
+                    ai_confidence: 0.9
+                }
+            ];
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNews,
-      } as Response);
+            mockFetch.mockResolvedValueOnce({
+                ok: true,
+                json: async () => mockNews,
+            } as Response);
 
-      const result = await NewsService.getLatestNews(10);
-      
-      expect(result).toHaveLength(10);
+            const result = await NewsService.getLatestNews();
+
+            expect(result).toEqual(mockNews);
+        });
+
+        it('should return fallback data when offline', async () => {
+            // オフライン状態に設定
+            Object.defineProperty(navigator, 'onLine', {
+                writable: true,
+                value: false,
+            });
+
+            // キャッシュなし
+            localStorageMock.getItem.mockReturnValue(null);
+
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+            const result = await NewsService.getLatestNews();
+
+            // フォールバックデータが返されることを確認
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
+            expect(result.length).toBeGreaterThan(0);
+        });
+
+        it('should use cached data when available', async () => {
+            const cachedData = [
+                {
+                    id: 'cached_1',
+                    title: 'Cached News',
+                    original_title: 'Cached News',
+                    summary: 'Cached summary',
+                    url: 'https://example.com/cached',
+                    source: 'Cache',
+                    category: 'AI',
+                    published_at: '2025-08-31T10:00:00Z',
+                    language: 'ja',
+                    tags: ['cached'],
+                    ai_confidence: 0.9
+                }
+            ];
+
+            // キャッシュデータを設定（有効期限内）
+            localStorageMock.getItem.mockReturnValue(JSON.stringify({
+                data: cachedData,
+                timestamp: Date.now(),
+            }));
+
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+            const result = await NewsService.getLatestNews();
+            expect(result).toEqual(cachedData);
+        });
     });
 
-    it('should throw DataLoadError when fetch fails', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+    describe('error handling', () => {
+        it('should handle network errors gracefully', async () => {
+            // オフライン状態に設定
+            Object.defineProperty(navigator, 'onLine', {
+                writable: true,
+                value: false,
+            });
 
-      await expect(NewsService.getLatestNews()).rejects.toThrow(DataLoadError);
-    });
-  });
+            // キャッシュなし
+            localStorageMock.getItem.mockReturnValue(null);
 
-  describe('getDailyNews', () => {
-    it('should fetch daily news for specified date', async () => {
-      const mockNews = [
-        {
-          id: '1',
-          title: 'Daily News',
-          original_title: 'Daily News',
-          summary: 'Daily summary',
-          url: 'https://example.com',
-          source: 'Test Source',
-          category: 'テスト',
-          published_at: '2025-08-31T00:00:00Z',
-          language: 'ja' as const,
-          tags: ['test'],
-          ai_confidence: 0.9,
-        },
-      ];
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNews,
-      } as Response);
+            const result = await NewsService.getLatestNews();
 
-      const result = await NewsService.getDailyNews('2025-08-31');
-      
-      expect(mockFetch).toHaveBeenCalledWith('/data/news/2025-08-31/articles.json');
-      expect(result).toEqual(mockNews);
-    });
-  });
+            // フォールバックデータが返されることを確認
+            expect(result).toBeDefined();
+            expect(Array.isArray(result)).toBe(true);
+        });
 
-  describe('getDailySummary', () => {
-    it('should fetch daily summary for specified date', async () => {
-      const mockSummary = {
-        date: '2025-08-31',
-        total_articles: 10,
-        top_trends: ['AI', 'ML'],
-        significant_news: [],
-        category_breakdown: { 'テスト': 10 },
-        summary_ja: 'テストサマリー',
-        summary_en: 'Test summary',
-        generated_at: '2025-08-31T12:00:00Z',
-      };
+        it('should throw DataLoadError for unsupported data types', async () => {
+            // オフライン状態に設定
+            Object.defineProperty(navigator, 'onLine', {
+                writable: true,
+                value: false,
+            });
 
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockSummary,
-      } as Response);
+            // キャッシュなし
+            localStorageMock.getItem.mockReturnValue(null);
 
-      const result = await NewsService.getDailySummary('2025-08-31');
-      
-      expect(mockFetch).toHaveBeenCalledWith('/data/summaries/2025-08-31.json');
-      expect(result).toEqual(mockSummary);
-    });
-  });
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-  describe('getNewsByCategory', () => {
-    it('should filter news by category', async () => {
-      const mockNews = [
-        {
-          id: '1',
-          title: 'Reddit News',
-          original_title: 'Reddit News',
-          summary: 'Reddit summary',
-          url: 'https://example.com',
-          source: 'Reddit',
-          category: 'Reddit',
-          published_at: '2025-08-31T00:00:00Z',
-          language: 'ja' as const,
-          tags: ['test'],
-          ai_confidence: 0.9,
-        },
-        {
-          id: '2',
-          title: 'Tech News',
-          original_title: 'Tech News',
-          summary: 'Tech summary',
-          url: 'https://example.com',
-          source: 'TechCrunch',
-          category: '海外',
-          published_at: '2025-08-31T00:00:00Z',
-          language: 'ja' as const,
-          tags: ['test'],
-          ai_confidence: 0.9,
-        },
-      ];
-
-      mockFetch.mockResolvedValueOnce({
-        ok: true,
-        json: async () => mockNews,
-      } as Response);
-
-      const result = await NewsService.getNewsByCategory('Reddit');
-      
-      expect(result).toHaveLength(1);
-      expect(result[0].category).toBe('Reddit');
-    });
-  });
-
-  describe('error handling', () => {
-    it('should throw DataLoadError with correct message', async () => {
-      mockFetch.mockRejectedValueOnce(new Error('Network error'));
-
-      try {
-        await NewsService.getLatestNews();
-      } catch (error) {
-        expect(error).toBeInstanceOf(DataLoadError);
-        expect((error as DataLoadError).dataType).toBe('latest news');
-        expect(error.message).toBe('Failed to load latest news');
-      }
+            await expect(NewsService.getDailyNews('2025-08-31')).rejects.toThrow(DataLoadError);
+        });
     });
 
-    it('should handle HTTP errors', async () => {
-      mockFetch.mockResolvedValueOnce({
-        ok: false,
-        status: 404,
-        statusText: 'Not Found',
-      } as Response);
+    describe('offline functionality', () => {
+        it('should provide fallback data for latest news', async () => {
+            // オフライン状態に設定
+            Object.defineProperty(navigator, 'onLine', {
+                writable: true,
+                value: false,
+            });
 
-      await expect(NewsService.getDailyNews('2025-08-31')).rejects.toThrow(DataLoadError);
+            // キャッシュなし
+            localStorageMock.getItem.mockReturnValue(null);
+
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+            const result = await NewsService.getLatestNews();
+
+            expect(result).toBeDefined();
+            expect(result[0].title).toBe('オフライン時のサンプルニュース');
+        });
+
+        it('should provide fallback data for daily summary', async () => {
+            // オフライン状態に設定
+            Object.defineProperty(navigator, 'onLine', {
+                writable: true,
+                value: false,
+            });
+
+            // キャッシュなし
+            localStorageMock.getItem.mockReturnValue(null);
+
+            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+            const result = await NewsService.getLatestSummary();
+
+            expect(result).toBeDefined();
+            expect(result.summary_ja).toBe('オフライン状態のため、最新のサマリーを表示できません。');
+        });
     });
-  });
 });

@@ -2,6 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
+/* エラーハンドリング関連のアニメーション */
+@keyframes slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-2px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(2px);
+  }
+}
+
+.animate-slide-down {
+  animation: slide-down 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-shake {
+  animation: shake 0.5s ease-in-out;
+}
+
+/* エラー状態のスタイル */
+.error-boundary {
+  @apply bg-red-50 border-2 border-red-200 rounded-lg;
+}
+
+.error-boundary.isolate {
+  @apply border border-red-200 rounded-md;
+}
+
+.data-error {
+  @apply bg-red-50 border border-red-200 rounded-lg;
+}
+
+.data-error.warning {
+  @apply bg-yellow-50 border-yellow-200;
+}
+
+/* オフライン状態のスタイル */
+.offline-banner {
+  @apply fixed top-0 left-0 right-0 z-50 bg-red-600 text-white px-4 py-2 text-center text-sm;
+  animation: slide-down 0.3s ease-out;
+}
+
+.slow-connection-banner {
+  @apply fixed top-0 left-0 right-0 z-40 bg-yellow-600 text-white px-4 py-2 text-center text-sm;
+  animation: slide-down 0.3s ease-out;
+}
+
+/* フォールバック通知のスタイル */
+.fallback-notice {
+  @apply bg-yellow-50 border border-yellow-200 rounded-lg p-4;
+  animation: fade-in 0.3s ease-out;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  .offline-banner,
+  .slow-connection-banner {
+    @apply text-xs px-2 py-1;
+  }
+  
+  .fallback-notice {
+    @apply p-3 text-sm;
+  }
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;

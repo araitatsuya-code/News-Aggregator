@@ -1,33 +1,57 @@
 import { NewsItem, DailySummary } from '../types';
+import { fetchWithOfflineSupport, OfflineManager } from '../utils/offlineManager';
 
 /**
  * Error class for data loading failures
  */
 export class DataLoadError extends Error {
-  constructor(public dataType: string, public date?: string) {
-    super(`Failed to load ${dataType}${date ? ` for ${date}` : ''}`);
+  constructor(public dataType: string, public date?: string, public isOffline: boolean = false) {
+    super(`Failed to load ${dataType}${date ? ` for ${date}` : ''}${isOffline ? ' (offline)' : ''}`);
     this.name = 'DataLoadError';
   }
 }
 
 /**
- * Service class for accessing static JSON data files
+ * Service class for accessing static JSON data files with offline support
  */
 export class NewsService {
   private static readonly BASE_PATH = '/data';
 
   /**
-   * Fetch JSON data with error handling
+   * Fetch JSON data with error handling and offline support
    */
-  private static async fetchJSON<T>(url: string): Promise<T> {
+  private static async fetchJSON<T>(url: string, cacheKey?: string, dataType?: string): Promise<T> {
     try {
+      // オフライン対応のfetchを使用
+      if (cacheKey && dataType) {
+        return await fetchWithOfflineSupport<T>(url, cacheKey, dataType);
+      }
+
+      // 通常のfetch（後方互換性のため）
       const response = await fetch(url);
       if (!response.ok) {
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
-      return await response.json();
+      const data = await response.json();
+      
+      // キャッシュに保存
+      if (cacheKey && dataType) {
+        OfflineManager.saveToOfflineCache(cacheKey, data, dataType);
+      }
+      
+      return data;
     } catch (error) {
       console.error(`Failed to fetch ${url}:`, error);
+      
+      // オフライン時のエラーかチェック
+      const isOffline = OfflineManager.isOffline();
+      if (isOffline && cacheKey) {
+        const cachedData = OfflineManager.getFromOfflineCache<T>(cacheKey);
+        if (cachedData) {
+          return cachedData;
+        }
+      }
+      
       throw error;
     }
   }
@@ -39,10 +63,15 @@ export class NewsService {
    */
   static async getLatestNews(limit: number = 20): Promise<NewsItem[]> {
     try {
-      const articles = await this.fetchJSON<NewsItem[]>(`${this.BASE_PATH}/news/latest.json`);
+      const articles = await this.fetchJSON<NewsItem[]>(
+        `${this.BASE_PATH}/news/latest.json`,
+        'latest_news',
+        'latest_news'
+      );
       return articles.slice(0, limit);
     } catch (error) {
-      throw new DataLoadError('latest news', undefined);
+      const isOffline = OfflineManager.isOffline();
+      throw new DataLoadError('latest news', undefined, isOffline);
     }
   }
 
@@ -53,10 +82,15 @@ export class NewsService {
    */
   static async getDailyNews(date: string): Promise<NewsItem[]> {
     try {
-      const articles = await this.fetchJSON<NewsItem[]>(`${this.BASE_PATH}/news/${date}/articles.json`);
+      const articles = await this.fetchJSON<NewsItem[]>(
+        `${this.BASE_PATH}/news/${date}/articles.json`,
+        `daily_news_${date}`,
+        'daily_news'
+      );
       return articles;
     } catch (error) {
-      throw new DataLoadError('daily news', date);
+      const isOffline = OfflineManager.isOffline();
+      throw new DataLoadError('daily news', date, isOffline);
     }
   }
 
@@ -67,10 +101,15 @@ export class NewsService {
    */
   static async getDailySummary(date: string): Promise<DailySummary> {
     try {
-      const summary = await this.fetchJSON<DailySummary>(`${this.BASE_PATH}/summaries/${date}.json`);
+      const summary = await this.fetchJSON<DailySummary>(
+        `${this.BASE_PATH}/summaries/${date}.json`,
+        `daily_summary_${date}`,
+        'daily_summary'
+      );
       return summary;
     } catch (error) {
-      throw new DataLoadError('daily summary', date);
+      const isOffline = OfflineManager.isOffline();
+      throw new DataLoadError('daily summary', date, isOffline);
     }
   }
 
@@ -80,10 +119,15 @@ export class NewsService {
    */
   static async getLatestSummary(): Promise<DailySummary> {
     try {
-      const summary = await this.fetchJSON<DailySummary>(`${this.BASE_PATH}/summaries/latest.json`);
+      const summary = await this.fetchJSON<DailySummary>(
+        `${this.BASE_PATH}/summaries/latest.json`,
+        'latest_summary',
+        'daily_summary'
+      );
       return summary;
     } catch (error) {
-      throw new DataLoadError('latest summary', undefined);
+      const isOffline = OfflineManager.isOffline();
+      throw new DataLoadError('latest summary', undefined, isOffline);
     }
   }
 

@@ -8,15 +8,32 @@ import { LoadingSpinner } from '../components/LoadingSpinner'
 import { DataError } from '../components/DataError'
 import { useDailySummary } from '../lib/hooks/useDailySummary'
 import { useDateNavigation } from '../lib/hooks/useDateNavigation'
+import { useSummaryDataWithFallback } from '../lib/hooks/useDataLoaderWithFallback'
+import { NewsService } from '../lib/data/newsService'
 
 export default function Summary() {
   const { t, i18n } = useTranslation(['common', 'summary'])
   const { selectedDate, setSelectedDate, availableDates, setAvailableDates } = useDateNavigation()
-  const { summary, loading, error, availableDates: fetchedDates, refetch } = useDailySummary(selectedDate)
+  
+  // フォールバック機能付きのデータローダーを使用
+  const { 
+    data: summary, 
+    loading, 
+    error, 
+    isUsingFallback,
+    retry 
+  } = useSummaryDataWithFallback(
+    () => selectedDate ? NewsService.getDailySummary(selectedDate) : NewsService.getLatestSummary(),
+    undefined,
+    [selectedDate]
+  )
+  
+  // 利用可能な日付の取得（従来の方法を維持）
+  const { availableDates: fetchedDates } = useDailySummary(selectedDate)
   const [showDatePicker, setShowDatePicker] = useState(false)
 
   const handleRetry = () => {
-    refetch()
+    retry()
   }
 
   const formatDateForDisplay = (dateString: string) => {
@@ -183,12 +200,30 @@ export default function Summary() {
             </div>
           )}
 
-          {error && (
+          {error && !isUsingFallback && (
             <div className="max-w-2xl mx-auto py-4">
               <DataError
-                error={new Error(error)}
+                error={error}
                 onRetry={handleRetry}
+                context={`サマリーページ (${selectedDate || '最新'})`}
+                showFallback={true}
               />
+            </div>
+          )}
+
+          {/* フォールバック使用時の通知 */}
+          {isUsingFallback && summary && (
+            <div className="max-w-2xl mx-auto mb-4">
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-center">
+                  <svg className="w-5 h-5 text-yellow-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                  </svg>
+                  <span className="text-sm text-yellow-800">
+                    キャッシュされたサマリーを表示しています。最新の情報ではない可能性があります。
+                  </span>
+                </div>
+              </div>
             </div>
           )}
 
