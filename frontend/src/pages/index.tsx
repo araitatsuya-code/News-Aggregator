@@ -96,7 +96,7 @@ export default function Home() {
     error, 
     isUsingFallback 
   } = useNewsDataWithFallback<NewsItem[]>(
-    () => NewsService.getLatestNews(20),
+    () => NewsService.getLatestNews(100),
     [], // フォールバックデータは空配列
     []
   )

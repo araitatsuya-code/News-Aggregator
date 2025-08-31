@@ -20,7 +20,7 @@ function CategoriesContent() {
     isUsingFallback,
     retry 
   } = useNewsDataWithFallback<NewsItem[]>(
-    () => NewsService.getLatestNews(50), // Load more articles for better category distribution
+    () => NewsService.getLatestNews(100), // Load all articles for better category distribution
     [], // フォールバックデータは空配列
     []
   )

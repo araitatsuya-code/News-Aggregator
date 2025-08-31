@@ -20,7 +20,7 @@ export function NewsList({
   articles, 
   showSummary = true, 
   categoryFilter,
-  itemsPerPage = 20
+  itemsPerPage = 50
 }: NewsListProps) {
   const { t } = useTranslation('news');
   const [currentPage, setCurrentPage] = useState(1);

@@ -208,6 +208,38 @@ frontend/public/data/
     └── metrics_*.json         # 処理メトリクス
 ```
 
+## 🔄 データ更新コマンド
+
+### 記事データ収集
+```bash
+# 仮想環境を有効化
+source venv/bin/activate
+
+# データ収集実行（約60分）
+python3 scripts/main.py
+```
+
+### latest.json手動更新
+フロントエンドで最新データが表示されない場合：
+
+```bash
+# 最新の記事データをlatest.jsonにコピー
+cp frontend/public/data/news/$(date +%Y-%m-%d)/articles.json frontend/public/data/news/latest.json
+
+# サマリーデータも更新
+cp frontend/public/data/summaries/$(date +%Y-%m-%d).json frontend/public/data/summaries/latest.json
+
+# 更新スクリプト使用（推奨）
+source venv/bin/activate
+python3 scripts/update_latest.py --limit 100
+```
+
+### フロントエンド開発サーバー起動
+```bash
+cd frontend
+npm run dev
+```
+
 ## 🤖 使用技術
 
 - **Python 3.13+**: メイン言語
