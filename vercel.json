@@ -1,34 +1,7 @@
 {
-  "version": 2,
-  "name": "ai-news-aggregator",
-  "builds": [
-    {
-      "src": "frontend/package.json",
-      "use": "@vercel/static-build",
-      "config": {
-        "distDir": "out"
-      }
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/frontend/$1"
-    }
-  ],
   "buildCommand": "cd frontend && npm run build",
   "outputDirectory": "frontend/out",
   "installCommand": "cd frontend && npm install",
-  "framework": "nextjs",
-  "functions": {
-    "frontend/src/pages/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/(.*)",
@@ -78,24 +51,7 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "/frontend/public/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/frontend/public/robots.txt"
-    },
-    {
-      "source": "/rss.xml",
-      "destination": "/frontend/public/rss.xml"
-    },
-    {
-      "source": "/rss-en.xml",
-      "destination": "/frontend/public/rss-en.xml"
-    }
-  ],
+
   "redirects": [
     {
       "source": "/news",
@@ -103,7 +59,6 @@
       "permanent": false
     }
   ],
-  "env": {
-    "NEXT_PUBLIC_SITE_URL": "https://ai-news-aggregator.vercel.app"
-  }
+  "cleanUrls": true,
+  "trailingSlash": false
 }

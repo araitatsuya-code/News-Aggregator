@@ -1,13 +1,4 @@
 {
-  "buildCommand": "npm run build:vercel",
-  "outputDirectory": "out",
-  "installCommand": "npm install",
-  "framework": "nextjs",
-  "functions": {
-    "src/pages/api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "headers": [
     {
       "source": "/data/(.*)",
@@ -41,29 +32,7 @@
       ]
     }
   ],
-  "rewrites": [
-    {
-      "source": "/sitemap.xml",
-      "destination": "/sitemap.xml"
-    },
-    {
-      "source": "/robots.txt",
-      "destination": "/robots.txt"
-    },
-    {
-      "source": "/rss.xml",
-      "destination": "/rss.xml"
-    },
-    {
-      "source": "/rss-en.xml",
-      "destination": "/rss-en.xml"
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/news",
-      "destination": "/",
-      "permanent": false
-    }
-  ]
+
+  "cleanUrls": true,
+  "trailingSlash": false
 }
