@@ -7,5 +7,10 @@
   "source": "ソース",
   "published_at": "公開日時",
   "category": "カテゴリ",
-  "original_title": "元タイトル"
+  "original_title": "元タイトル",
+  "category_filter": {
+    "title": "カテゴリで絞り込み",
+    "all": "すべて",
+    "select": "カテゴリを選択"
+  }
 }

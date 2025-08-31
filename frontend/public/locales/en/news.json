@@ -7,5 +7,10 @@
   "source": "Source",
   "published_at": "Published",
   "category": "Category",
-  "original_title": "Original Title"
+  "original_title": "Original Title",
+  "category_filter": {
+    "title": "Filter by Category",
+    "all": "All",
+    "select": "Select Category"
+  }
 }

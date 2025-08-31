@@ -4,10 +4,11 @@ import { serverSideTranslations } from 'next-i18next/serverSideTranslations'
 import Head from 'next/head'
 import { NewsService } from '../lib/data/newsService'
 import { useDataLoader } from '../lib/hooks/useDataLoader'
+import { useCategoryFilter } from '../lib/hooks/useCategoryFilter'
 import { LoadingSpinner } from '../components/LoadingSpinner'
 import { DataError } from '../components/DataError'
 import { ErrorBoundary } from '../components/ErrorBoundary'
-import { NewsList } from '../components/news'
+import { NewsList, CategoryFilter } from '../components/news'
 import { NewsItem } from '../lib/types'
 
 function NewsListSection() {
@@ -15,6 +16,14 @@ function NewsListSection() {
     () => NewsService.getLatestNews(20),
     []
   )
+
+  const {
+    selectedCategory,
+    setSelectedCategory,
+    filteredArticles,
+    articleCounts,
+    availableCategories,
+  } = useCategoryFilter(latestNews || [])
 
   if (loading) {
     return <LoadingSpinner message="最新ニュースを読み込み中..." />
@@ -25,11 +34,19 @@ function NewsListSection() {
   }
 
   return (
-    <NewsList 
-      articles={latestNews || []} 
-      showSummary={true}
-      emptyMessage="表示するニュースがありません"
-    />
+    <div>
+      <CategoryFilter
+        categories={availableCategories}
+        selectedCategory={selectedCategory}
+        onCategoryChange={setSelectedCategory}
+        articleCounts={articleCounts}
+      />
+      <NewsList 
+        articles={filteredArticles} 
+        showSummary={true}
+        emptyMessage="表示するニュースがありません"
+      />
+    </div>
   )
 }
 
