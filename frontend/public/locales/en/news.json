@@ -27,5 +27,11 @@
     "filtered_by": "Filtered by",
     "clear": "Clear",
     "no_articles_in_category": "No articles in this category"
+  },
+  "pagination": {
+    "showing": "Showing {{start}} to {{end}} of {{total}} results",
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page"
   }
 }

@@ -28,7 +28,7 @@ class AppConfig:
     claude_api_key: str
     claude_model: str = "claude-3-haiku-20240307"
     claude_max_tokens: int = 1000
-    claude_batch_size: int = 3
+    claude_batch_size: int = 1
     
     # データ設定
     output_path: str = "frontend/public/data"
@@ -186,22 +186,10 @@ def get_default_rss_sources() -> List[RSSSource]:
             name="Ollama Blog"
         ),
         RSSSource(
-            url="https://blog.langchain.dev/rss.xml",
-            category="海外",
-            language="en",
-            name="LangChain Blog"
-        ),
-        RSSSource(
             url="https://txt.cohere.ai/rss/",
             category="海外",
             language="en",
             name="Cohere Context"
-        ),
-        RSSSource(
-            url="https://blog.pinecone.io/rss/",
-            category="海外",
-            language="en",
-            name="Pinecone Blog"
         ),
         RSSSource(
             url="https://rsshub.app/huggingface/daily-papers",

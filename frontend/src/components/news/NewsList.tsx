@@ -1,30 +1,49 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'next-i18next';
 import { NewsItem as NewsItemType } from '../../lib/types';
 import { NewsItem } from './NewsItem';
+import { Pagination } from './Pagination';
 
 interface NewsListProps {
   articles: NewsItemType[];
   showSummary?: boolean;
   categoryFilter?: string;
+  itemsPerPage?: number;
 }
 
 /**
  * ニュース一覧表示コンポーネント
- * カテゴリフィルタリングと多言語対応を提供
+ * カテゴリフィルタリング、ページング、多言語対応を提供
  * レスポンシブデザインとタッチ操作に対応
  */
 export function NewsList({ 
   articles, 
   showSummary = true, 
-  categoryFilter
+  categoryFilter,
+  itemsPerPage = 20
 }: NewsListProps) {
   const { t } = useTranslation('news');
+  const [currentPage, setCurrentPage] = useState(1);
   
   // カテゴリが指定されている場合はフィルタリング
-  const filteredArticles = categoryFilter 
-    ? articles.filter(article => article.category === categoryFilter)
-    : articles;
+  const filteredArticles = useMemo(() => 
+    categoryFilter 
+      ? articles.filter(article => article.category === categoryFilter)
+      : articles,
+    [articles, categoryFilter]
+  );
+  
+  // ページング用の記事を計算
+  const paginatedArticles = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return filteredArticles.slice(startIndex, endIndex);
+  }, [filteredArticles, currentPage, itemsPerPage]);
+  
+  // カテゴリが変更された時はページをリセット
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [categoryFilter]);
 
   // 記事がない場合の表示
   if (!filteredArticles || filteredArticles.length === 0) {
@@ -80,7 +99,7 @@ export function NewsList({
       
       {/* ニュース記事一覧 */}
       <div className="touch-spacing">
-        {filteredArticles.map((article, index) => (
+        {paginatedArticles.map((article, index) => (
           <div 
             key={article.id}
             className="animate-fade-in"
@@ -93,6 +112,18 @@ export function NewsList({
           </div>
         ))}
       </div>
+      
+      {/* ページング */}
+      {filteredArticles.length > itemsPerPage && (
+        <div className="mt-6 sm:mt-8">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={filteredArticles.length}
+            itemsPerPage={itemsPerPage}
+            onPageChange={setCurrentPage}
+          />
+        </div>
+      )}
       
       {/* モバイル用のページ下部スペース（フローティング要素との重複回避） */}
       <div className="h-4 sm:hidden" />

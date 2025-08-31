@@ -38,8 +38,8 @@ class ClaudeSummarizer:
         
         self.logger = logging.getLogger(__name__)
         
-        # API制限対応: 1分間に40リクエストまで（安全マージン付き）
-        self.throttler = Throttler(rate_limit=40, period=60)
+        # API制限対応: 1分間に30リクエストまで（安全マージン付き）
+        self.throttler = Throttler(rate_limit=30, period=60)
         
         # バッチ処理設定
         self.batch_size = config.claude_batch_size
@@ -298,7 +298,7 @@ Content: {content}
             
             # バッチ間の待機（API制限対応）
             if i + self.batch_size < len(articles):
-                await asyncio.sleep(3)  # レート制限を避けるため3秒待機
+                await asyncio.sleep(45)  # レート制限を避けるため45秒待機
         
         self.logger.info(f"バッチ処理完了: {len(processed_articles)}/{len(articles)} 記事処理成功")
         return processed_articles

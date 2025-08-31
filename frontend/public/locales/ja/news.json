@@ -27,5 +27,11 @@
     "filtered_by": "フィルター中",
     "clear": "クリア",
     "no_articles_in_category": "このカテゴリにはニュースがありません"
+  },
+  "pagination": {
+    "showing": "{{start}}〜{{end}}件を表示（全{{total}}件）",
+    "previous": "前のページ",
+    "next": "次のページ",
+    "page": "ページ"
   }
 }
