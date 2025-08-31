@@ -15,7 +15,9 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from shared.config import AppConfig
-from shared.utils.logger import setup_logger
+from shared.utils.logger import setup_advanced_logger
+from shared.utils.metrics import get_metrics_collector, MetricsCollector
+from shared.utils.dashboard import generate_monitoring_dashboard
 from shared.types import ProcessingMetrics, RawNewsItem, NewsItem, DailySummary
 
 
@@ -30,9 +32,20 @@ class ProcessingPipeline:
             config: アプリケーション設定
         """
         self.config = config
-        self.logger = setup_logger("main", config.log_level, config.log_dir)
         
-        # 処理メトリクス初期化
+        # 高度なロガーを設定（ローテーション・通知機能付き）
+        self.logger = setup_advanced_logger(
+            "main", 
+            config.log_level, 
+            config.log_dir,
+            enable_rotation=True,
+            enable_error_notification=True
+        )
+        
+        # メトリクスコレクターを取得
+        self.metrics_collector = get_metrics_collector()
+        
+        # 処理メトリクス初期化（後方互換性のため保持）
         self.metrics = ProcessingMetrics(
             start_time=datetime.now(),
             end_time=datetime.now(),  # 後で更新
@@ -91,14 +104,19 @@ class ProcessingPipeline:
         try:
             self.logger.info("RSS収集を開始します...")
             
-            async with self.collector:
-                raw_articles = await self.collector.collect_all()
+            with self.metrics_collector.timer("rss_collection"):
+                async with self.collector:
+                    raw_articles = await self.collector.collect_all()
             
+            # メトリクス更新
             self.metrics.articles_collected = len(raw_articles)
+            self.metrics_collector.increment_counter("articles_collected", len(raw_articles))
+            
             self.logger.info(f"RSS収集完了: {len(raw_articles)}件の記事を収集")
             
             if not raw_articles:
                 self.logger.warning("収集された記事がありません")
+                self.metrics_collector.add_warning("収集された記事がありません")
                 return []
             
             return raw_articles
@@ -107,6 +125,7 @@ class ProcessingPipeline:
             error_msg = f"RSS収集エラー: {str(e)}"
             self.logger.error(error_msg)
             self.metrics.errors.append(error_msg)
+            self.metrics_collector.add_error(error_msg)
             
             # RSS収集が完全に失敗した場合でも、前日のデータで継続を試みる
             self.logger.info("前日のデータで処理継続を試みます...")
@@ -169,27 +188,37 @@ class ProcessingPipeline:
         try:
             self.logger.info("AI要約処理を開始します...")
             
-            # バッチ処理で記事を処理
-            batch_size = self.config.claude_batch_size
-            for i in range(0, len(raw_articles), batch_size):
-                batch = raw_articles[i:i + batch_size]
-                
-                try:
-                    batch_results = await self.summarizer.batch_process(batch)
-                    processed_articles.extend(batch_results)
+            with self.metrics_collector.timer("ai_processing"):
+                # バッチ処理で記事を処理
+                batch_size = self.config.claude_batch_size
+                for i in range(0, len(raw_articles), batch_size):
+                    batch = raw_articles[i:i + batch_size]
                     
-                    # API呼び出し回数を記録
-                    self.metrics.api_calls_made += len(batch)
-                    
-                    self.logger.info(f"バッチ処理完了: {i + len(batch)}/{len(raw_articles)}")
-                    
-                except Exception as e:
-                    error_msg = f"バッチ処理エラー (batch {i//batch_size + 1}): {str(e)}"
-                    self.logger.error(error_msg)
-                    self.metrics.errors.append(error_msg)
-                    
-                    # バッチが失敗しても他のバッチは継続処理
-                    continue
+                    try:
+                        with self.metrics_collector.timer(f"batch_{i//batch_size + 1}"):
+                            batch_results = await self.summarizer.batch_process(batch)
+                            processed_articles.extend(batch_results)
+                        
+                        # メトリクス更新
+                        self.metrics.api_calls_made += len(batch)
+                        self.metrics_collector.increment_counter("api_calls_made", len(batch))
+                        self.metrics_collector.increment_counter("articles_processed", len(batch_results))
+                        
+                        if len(batch_results) < len(batch):
+                            failed_count = len(batch) - len(batch_results)
+                            self.metrics_collector.increment_counter("articles_failed", failed_count)
+                        
+                        self.logger.info(f"バッチ処理完了: {i + len(batch)}/{len(raw_articles)}")
+                        
+                    except Exception as e:
+                        error_msg = f"バッチ処理エラー (batch {i//batch_size + 1}): {str(e)}"
+                        self.logger.error(error_msg)
+                        self.metrics.errors.append(error_msg)
+                        self.metrics_collector.add_error(error_msg)
+                        self.metrics_collector.increment_counter("api_calls_failed", len(batch))
+                        
+                        # バッチが失敗しても他のバッチは継続処理
+                        continue
             
             self.metrics.articles_processed = len(processed_articles)
             self.metrics.articles_failed = len(raw_articles) - len(processed_articles)
@@ -202,6 +231,7 @@ class ProcessingPipeline:
             error_msg = f"記事処理エラー: {str(e)}"
             self.logger.error(error_msg)
             self.metrics.errors.append(error_msg)
+            self.metrics_collector.add_error(error_msg)
             return processed_articles  # 部分的な結果でも返す
     
     async def generate_daily_summary(self, articles: List[NewsItem]) -> Optional[DailySummary]:
@@ -323,10 +353,19 @@ class ProcessingPipeline:
         """
         self.logger.info("AI News Aggregator starting...")
         
+        # メトリクス収集開始
+        processing_metrics = self.metrics_collector.start_processing()
+        
         try:
+            # システムメトリクスを定期収集開始
+            system_metrics = self.metrics_collector.collect_system_metrics()
+            self.logger.info(f"システム状態 - CPU: {system_metrics.cpu_percent:.1f}%, "
+                           f"メモリ: {system_metrics.memory_percent:.1f}%")
+            
             # 1. コンポーネント初期化
-            if not await self.initialize_components():
-                return 1
+            with self.metrics_collector.timer("component_initialization"):
+                if not await self.initialize_components():
+                    return 1
             
             # 2. RSS記事収集
             raw_articles = await self.collect_articles()
@@ -338,13 +377,24 @@ class ProcessingPipeline:
             processed_articles = await self.process_articles(raw_articles)
             
             # 4. 日次サマリー生成
-            daily_summary = await self.generate_daily_summary(processed_articles)
+            with self.metrics_collector.timer("summary_generation"):
+                daily_summary = await self.generate_daily_summary(processed_articles)
             
             # 5. データ保存
-            save_success = await self.save_data(processed_articles, daily_summary)
+            with self.metrics_collector.timer("data_saving"):
+                save_success = await self.save_data(processed_articles, daily_summary)
             
             # 6. 結果ログ出力
             self.log_processing_results(processed_articles, daily_summary)
+            
+            # 7. 監視ダッシュボード生成
+            try:
+                with self.metrics_collector.timer("dashboard_generation"):
+                    dashboard_path = generate_monitoring_dashboard()
+                    self.logger.info(f"監視ダッシュボードを更新しました: {dashboard_path}")
+            except Exception as e:
+                self.logger.warning(f"ダッシュボード生成エラー: {e}")
+                self.metrics_collector.add_warning(f"ダッシュボード生成エラー: {e}")
             
             # 処理が部分的にでも成功していれば成功とみなす
             if processed_articles or save_success:
@@ -359,11 +409,30 @@ class ProcessingPipeline:
             self.logger.error(error_msg)
             self.logger.error(f"スタックトレース: {traceback.format_exc()}")
             self.metrics.errors.append(error_msg)
+            self.metrics_collector.add_error(error_msg)
             return 1
         
         finally:
-            # メトリクス保存
+            # メトリクス収集終了
+            final_metrics = self.metrics_collector.end_processing()
+            if final_metrics:
+                self.logger.info(f"最終メトリクス - 処理時間: {final_metrics.duration_seconds:.1f}秒, "
+                               f"成功率: {final_metrics.success_rate:.1%}")
+            
+            # 従来のメトリクス保存（後方互換性）
             self.save_metrics()
+            
+            # システムメトリクス保存
+            try:
+                self.metrics_collector.save_system_metrics()
+            except Exception as e:
+                self.logger.warning(f"システムメトリクス保存エラー: {e}")
+            
+            # 古いメトリクスファイルのクリーンアップ
+            try:
+                self.metrics_collector.cleanup_old_metrics(days=30)
+            except Exception as e:
+                self.logger.warning(f"メトリクスクリーンアップエラー: {e}")
 
 
 async def main():

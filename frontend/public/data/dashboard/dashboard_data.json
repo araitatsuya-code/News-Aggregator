@@ -1,0 +1,325 @@
+{
+  "generated_at": "2025-08-31T15:30:17.537406",
+  "system_status": {
+    "current": {
+      "timestamp": "2025-08-31T15:30:18.543105",
+      "cpu_percent": 22.2,
+      "memory_percent": 69.3,
+      "memory_used_mb": 8649.03125,
+      "memory_available_mb": 7556.78125,
+      "disk_usage_percent": 5.8,
+      "disk_free_gb": 169.35380935668945
+    },
+    "summary_24h": {
+      "period_hours": 24,
+      "sample_count": 4,
+      "cpu": {
+        "avg": 21.7,
+        "max": 24.0,
+        "min": 18.9
+      },
+      "memory": {
+        "avg": 69.2,
+        "max": 69.3,
+        "min": 69.1
+      },
+      "latest": {
+        "timestamp": "2025-08-31T15:30:18.543105",
+        "cpu_percent": 22.2,
+        "memory_percent": 69.3,
+        "memory_used_mb": 8649.03125,
+        "memory_available_mb": 7556.78125,
+        "disk_usage_percent": 5.8,
+        "disk_free_gb": 169.35380935668945
+      }
+    },
+    "status": "healthy"
+  },
+  "processing_metrics": {
+    "latest": {
+      "start_time": "2025-08-31T15:30:11.489861",
+      "end_time": "2025-08-31T15:30:15.498337",
+      "articles_collected": 25,
+      "articles_processed": 20,
+      "articles_failed": 5,
+      "api_calls_made": 4,
+      "api_calls_failed": 0,
+      "errors": [
+        "テストエラー: API制限に達しました"
+      ],
+      "warnings": [
+        "テスト警告: RSS取得で一部ソースが応答しませんでした"
+      ],
+      "memory_usage_mb": 41.140625,
+      "cpu_usage_percent": 0.0,
+      "processing_time_seconds": 0.0,
+      "duration_seconds": 4.008476,
+      "success_rate": 0.8,
+      "api_success_rate": 1.0,
+      "error_count": 1,
+      "warning_count": 1
+    },
+    "recent_24h": [
+      {
+        "duration_seconds": 26.00513,
+        "success_rate": 2.4,
+        "articles_collected": 5,
+        "articles_processed": 12,
+        "articles_failed": -7,
+        "api_calls_made": 13,
+        "error_count": 0
+      },
+      {
+        "duration_seconds": 5.876701,
+        "success_rate": 0.4,
+        "articles_collected": 5,
+        "articles_processed": 2,
+        "articles_failed": 3,
+        "api_calls_made": 3,
+        "error_count": 0
+      },
+      {
+        "duration_seconds": 5.81451,
+        "success_rate": 0.4,
+        "articles_collected": 5,
+        "articles_processed": 2,
+        "articles_failed": 3,
+        "api_calls_made": 3,
+        "error_count": 0
+      },
+      {
+        "duration_seconds": 1800.0,
+        "success_rate": 0.6,
+        "articles_collected": 5,
+        "articles_processed": 3,
+        "articles_failed": 2,
+        "api_calls_made": 3,
+        "error_count": 2
+      },
+      {
+        "duration_seconds": 130.725062,
+        "success_rate": 0.6944444444444444,
+        "articles_collected": 72,
+        "articles_processed": 50,
+        "articles_failed": 22,
+        "api_calls_made": 72,
+        "error_count": 0
+      },
+      {
+        "start_time": "2025-08-31T15:28:56.063678",
+        "end_time": "2025-08-31T15:29:00.070442",
+        "articles_collected": 25,
+        "articles_processed": 20,
+        "articles_failed": 5,
+        "api_calls_made": 4,
+        "api_calls_failed": 0,
+        "errors": [
+          "テストエラー: API制限に達しました"
+        ],
+        "warnings": [
+          "テスト警告: RSS取得で一部ソースが応答しませんでした"
+        ],
+        "memory_usage_mb": 40.671875,
+        "cpu_usage_percent": 0.0,
+        "processing_time_seconds": 0.0,
+        "duration_seconds": 4.006764,
+        "success_rate": 0.8,
+        "api_success_rate": 1.0,
+        "error_count": 1,
+        "warning_count": 1
+      },
+      {
+        "start_time": "2025-08-31T15:30:11.489861",
+        "end_time": "2025-08-31T15:30:15.498337",
+        "articles_collected": 25,
+        "articles_processed": 20,
+        "articles_failed": 5,
+        "api_calls_made": 4,
+        "api_calls_failed": 0,
+        "errors": [
+          "テストエラー: API制限に達しました"
+        ],
+        "warnings": [
+          "テスト警告: RSS取得で一部ソースが応答しませんでした"
+        ],
+        "memory_usage_mb": 41.140625,
+        "cpu_usage_percent": 0.0,
+        "processing_time_seconds": 0.0,
+        "duration_seconds": 4.008476,
+        "success_rate": 0.8,
+        "api_success_rate": 1.0,
+        "error_count": 1,
+        "warning_count": 1
+      }
+    ],
+    "trends": {
+      "avg_success_rate": 0.8706349206349205,
+      "avg_processing_time": 282.34809185714283,
+      "avg_articles_processed": 15.571428571428571,
+      "total_articles": 109,
+      "trend_direction": "declining"
+    }
+  },
+  "log_analysis": {
+    "period_hours": 24,
+    "total_lines": 869,
+    "levels": {
+      "DEBUG": 0,
+      "INFO": 673,
+      "WARNING": 18,
+      "ERROR": 91,
+      "CRITICAL": 0
+    },
+    "loggers": {
+      "cleanup_test": 9,
+      "data_manager_test": 25,
+      "mock_demo": 8,
+      "DashboardGenerator": 3,
+      "test_summarizer": 8,
+      "rss_test": 35,
+      "data_verification": 5,
+      "trend_analysis_test": 10,
+      "MetricsCollector": 24,
+      "real_api_test": 193,
+      "pipeline_demo": 36,
+      "main": 206,
+      "error_test": 14,
+      "test_monitoring": 206
+    },
+    "errors": [
+      "2025-08-31 15:29:02,132 - DashboardGenerator - ERROR - generate_dashboard:52 - ダッシュボード生成エラー: '\\n            margin'",
+      "2025-08-31 15:29:04,158 - DashboardGenerator - ERROR - generate_dashboard:52 - ダッシュボード生成エラー: '\\n            margin'",
+      "2025-08-31 15:28:59,066 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: テストエラー: API制限に達しました",
+      "2025-08-31 15:29:02,136 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: RSS収集エラー: タイムアウトが発生しました",
+      "2025-08-31 15:29:02,136 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: API呼び出しエラー: レート制限に達しました",
+      "2025-08-31 15:29:02,136 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: データ保存エラー: ディスク容量不足です",
+      "2025-08-31 15:29:02,136 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: 予期しないエラー: 不明な例外が発生しました",
+      "2025-08-31 15:30:14,492 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: テストエラー: API制限に達しました",
+      "2025-08-31 15:30:17,536 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: RSS収集エラー: タイムアウトが発生しました",
+      "2025-08-31 15:30:17,536 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: API呼び出しエラー: レート制限に達しました",
+      "2025-08-31 15:30:17,536 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: データ保存エラー: ディスク容量不足です",
+      "2025-08-31 15:30:17,537 - MetricsCollector - ERROR - add_error:169 - メトリクスエラー記録: 予期しないエラー: 不明な例外が発生しました",
+      "2025-08-31 11:49:46,778 - real_api_test - ERROR - test_real_api:217 - ❌ 予期しないエラーが発生しました: ClaudeSummarizer.__init__() got an unexpected keyword argument 'api_key'",
+      "2025-08-31 11:50:08,211 - real_api_test - ERROR - test_real_api:101 - ❌ RSS収集エラー: RSSCollectorは非同期コンテキストマネージャーとして使用してください",
+      "2025-08-31 11:54:16,609 - real_api_test - ERROR - test_real_api:171 - ❌ データ保存エラー: can't compare offset-naive and offset-aware datetimes",
+      "2025-08-31 12:00:19,417 - pipeline_demo - ERROR - main:102 - デモ中にエラーが発生しました: ClaudeSummarizer.__init__() got an unexpected keyword argument 'api_key'",
+      "2025-08-31 12:00:35,816 - pipeline_demo - ERROR - main:98 - デモ中にエラーが発生しました: RSSCollectorは非同期コンテキストマネージャーとして使用してください",
+      "2025-08-31 05:35:06,683 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:06,684 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:07,233 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:07,233 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:07,754 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:07,755 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:08,460 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:08,460 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:09,571 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:09,571 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:11,496 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:11,496 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:15,122 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:15,122 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:21,933 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:21,933 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:35:35,069 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:35:35,070 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:36:01,232 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:36:01,233 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:28,101 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:28,101 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:28,507 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:28,507 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:29,109 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:29,109 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:29,850 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:29,850 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:30,952 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:30,953 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:32,873 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:32,873 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:38:36,474 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:38:36,474 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:04,575 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:04,575 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:04,994 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:04,995 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:05,510 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:05,511 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:06,232 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:06,233 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:07,342 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:07,342 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:09,243 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:09,243 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:12,781 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:12,782 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:19,511 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:19,512 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:32,835 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:32,835 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:39:58,748 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:39:58,748 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:40:50,252 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:40:50,252 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:41:50,631 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:41:50,631 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:42:50,941 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:42:50,941 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:43:51,246 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:43:51,246 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 05:44:51,552 - main - ERROR - initialize_components:80 - コンポーネント初期化エラー: AsyncClient.__init__() got an unexpected keyword argument 'proxies'",
+      "2025-08-31 05:44:51,553 - main - ERROR - save_metrics:315 - メトリクス保存エラー: 'NoneType' object has no attribute 'save_processing_metrics'",
+      "2025-08-31 15:29:02,136 - error_test - ERROR - test_error_scenarios:194 - RSS収集エラー: タイムアウトが発生しました",
+      "2025-08-31 15:29:02,136 - error_test - ERROR - test_error_scenarios:194 - API呼び出しエラー: レート制限に達しました",
+      "2025-08-31 15:29:02,136 - error_test - ERROR - test_error_scenarios:194 - データ保存エラー: ディスク容量不足です",
+      "2025-08-31 15:29:02,136 - error_test - ERROR - test_error_scenarios:194 - 予期しないエラー: 不明な例外が発生しました",
+      "2025-08-31 15:30:17,536 - error_test - ERROR - test_error_scenarios:194 - RSS収集エラー: タイムアウトが発生しました",
+      "2025-08-31 15:30:17,536 - error_test - ERROR - test_error_scenarios:194 - API呼び出しエラー: レート制限に達しました",
+      "2025-08-31 15:30:17,536 - error_test - ERROR - test_error_scenarios:194 - データ保存エラー: ディスク容量不足です",
+      "2025-08-31 15:30:17,536 - error_test - ERROR - test_error_scenarios:194 - 予期しないエラー: 不明な例外が発生しました",
+      "2025-08-31 15:29:00,077 - test_monitoring - ERROR - test_advanced_logging:93 - エラーメッセージ: API呼び出しが失敗しました",
+      "2025-08-31 15:30:15,500 - test_monitoring - ERROR - test_advanced_logging:93 - エラーメッセージ: API呼び出しが失敗しました"
+    ],
+    "warnings": [
+      "2025-08-31 11:39:21,707 - test_summarizer - WARNING - test_summarizer:97 - CLAUDE_API_KEY が設定されていません。実際のAPIテストをスキップします。",
+      "2025-08-31 15:28:59,066 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: テスト警告: RSS取得で一部ソースが応答しませんでした",
+      "2025-08-31 15:29:02,136 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: 一部のRSSソースが応答しません",
+      "2025-08-31 15:29:02,137 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: 処理時間が通常より長くかかっています",
+      "2025-08-31 15:29:02,137 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: メモリ使用量が高くなっています",
+      "2025-08-31 15:30:14,492 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: テスト警告: RSS取得で一部ソースが応答しませんでした",
+      "2025-08-31 15:30:17,537 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: 一部のRSSソースが応答しません",
+      "2025-08-31 15:30:17,537 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: 処理時間が通常より長くかかっています",
+      "2025-08-31 15:30:17,537 - MetricsCollector - WARNING - add_warning:176 - メトリクス警告記録: メモリ使用量が高くなっています",
+      "2025-08-31 11:45:25,275 - pipeline_demo - WARNING - main:33 - 環境変数が設定されていません: CLAUDE_API_KEY environment variable is required",
+      "2025-08-31 15:29:02,136 - error_test - WARNING - test_error_scenarios:205 - 一部のRSSソースが応答しません",
+      "2025-08-31 15:29:02,136 - error_test - WARNING - test_error_scenarios:205 - 処理時間が通常より長くかかっています",
+      "2025-08-31 15:29:02,137 - error_test - WARNING - test_error_scenarios:205 - メモリ使用量が高くなっています",
+      "2025-08-31 15:30:17,537 - error_test - WARNING - test_error_scenarios:205 - 一部のRSSソースが応答しません",
+      "2025-08-31 15:30:17,537 - error_test - WARNING - test_error_scenarios:205 - 処理時間が通常より長くかかっています",
+      "2025-08-31 15:30:17,537 - error_test - WARNING - test_error_scenarios:205 - メモリ使用量が高くなっています",
+      "2025-08-31 15:29:00,077 - test_monitoring - WARNING - test_advanced_logging:92 - 警告メッセージ: 一部のRSSソースが応答しません",
+      "2025-08-31 15:30:15,500 - test_monitoring - WARNING - test_advanced_logging:92 - 警告メッセージ: 一部のRSSソースが応答しません"
+    ]
+  },
+  "performance_trends": {
+    "daily_processing": {
+      "period_days": 7,
+      "note": "日次トレンド分析は今後実装予定"
+    },
+    "system_performance": {
+      "period_days": 7,
+      "note": "システムパフォーマンストレンド分析は今後実装予定"
+    },
+    "error_rates": {
+      "period_days": 7,
+      "note": "エラー率トレンド分析は今後実装予定"
+    }
+  },
+  "alerts": [
+    {
+      "level": "warning",
+      "type": "high_error_rate",
+      "message": "過去1時間でエラーが多発しています: 91件",
+      "timestamp": "2025-08-31T15:30:19.554536"
+    }
+  ]
+}
