@@ -1,9 +1,0 @@
-{
-  "duration_seconds": 130.725062,
-  "success_rate": 0.6944444444444444,
-  "articles_collected": 72,
-  "articles_processed": 50,
-  "articles_failed": 22,
-  "api_calls_made": 72,
-  "error_count": 0
-}

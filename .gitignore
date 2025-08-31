@@ -91,10 +91,7 @@ coverage/
 *.dylib
 
 # Generated data files
-frontend/public/data/news/
-frontend/public/data/summaries/
-frontend/public/data/metrics/
-frontend/public/data/dashboard/
+frontend/public/data/
 frontend/public/rss.xml
-frontend/public/rss-en.xml
+frontend/public/rss-en.xml  
 frontend/public/sitemap.xml

@@ -67,7 +67,7 @@ class ClaudeSummarizer:
                 # 翻訳（英語記事の場合）
                 translated_title = article.title
                 if article.source.language == 'en':
-                    translated_title = await self._translate_to_japanese(article.title)
+                    translated_title = await self._translate_to_japanese(article.title, article.source.name)
                     if not translated_title:
                         translated_title = article.title
                 
@@ -130,24 +130,37 @@ class ClaudeSummarizer:
             self.logger.error(f"要約生成エラー: {e}")
             return None
     
-    async def _translate_to_japanese(self, text: str) -> Optional[str]:
+    async def _translate_to_japanese(self, text: str, source_name: str = "") -> Optional[str]:
         """
         英語テキストを日本語に翻訳
         
         Args:
             text: 翻訳対象テキスト
+            source_name: ソース名（Reddit等の特別処理用）
             
         Returns:
             翻訳結果、失敗時はNone
         """
         try:
-            prompt = f"""
-以下の英語テキストを自然な日本語に翻訳してください。
-技術用語は適切に日本語化し、読みやすい文章にしてください。
+            # Redditタイトルの場合は特別処理
+            if "reddit" in source_name.lower() or text.startswith('[') or text.endswith(']'):
+                prompt = f"""
+以下のRedditタイトルを日本語に翻訳してください。
+- [D], [R], [P]などのタグは削除
+- 冗長な説明は削除してシンプルなタイトルに
+- 技術用語は適切に日本語化
 
-英語テキスト: {text}
+元タイトル: {text}
 
-日本語翻訳:"""
+和訳:"""
+            else:
+                prompt = f"""
+以下の英語タイトルを自然な日本語に翻訳してください。
+技術用語は適切に日本語化し、読みやすいタイトルにしてください。
+
+英語タイトル: {text}
+
+和訳:"""
 
             response = await self.client.messages.create(
                 model=self.config.claude_model,
@@ -155,7 +168,34 @@ class ClaudeSummarizer:
                 messages=[{"role": "user", "content": prompt}]
             )
             
-            return response.content[0].text.strip()
+            result = response.content[0].text.strip()
+            
+            # 不要なプレフィックス・サフィックスを削除
+            prefixes_to_remove = [
+                "和訳：", "和訳:", "日本語翻訳：", "日本語翻訳:", 
+                "翻訳：", "翻訳:", "日本語：", "日本語:",
+                "以下は英語テキストを自然な日本語に翻訳したものです。", 
+                "タイトルごとに以下のように翻訳しました。",
+                "以下のように翻訳しました：", "以下のように翻訳しました:",
+                "翻訳結果：", "翻訳結果:", "タイトル："
+            ]
+            
+            # プレフィックス削除
+            for prefix in prefixes_to_remove:
+                if result.startswith(prefix):
+                    result = result[len(prefix):].strip()
+            
+            # 改行文字を削除し、余分な空白を整理
+            result = result.replace('\n', '').strip()
+            
+            # 重複した同じ内容を削除（例：「v1.0.97\n\nバージョン1.0.97」→「v1.0.97」）
+            lines = [line.strip() for line in result.split('\n') if line.strip()]
+            if len(lines) > 1 and lines[0] in lines[1]:
+                result = lines[0]
+            elif len(lines) > 1 and all(line == lines[0] for line in lines):
+                result = lines[0]
+            
+            return result
             
         except Exception as e:
             self.logger.error(f"翻訳エラー: {e}")
