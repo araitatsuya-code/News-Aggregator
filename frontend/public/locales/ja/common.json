@@ -1,0 +1,19 @@
+{
+  "site": {
+    "title": "AIニュースまとめ",
+    "description": "最新のAI関連ニュースを自動収集・要約してお届けします"
+  },
+  "navigation": {
+    "home": "ホーム",
+    "daily_summary": "日次まとめ",
+    "categories": "カテゴリ"
+  },
+  "language": {
+    "switch_to_english": "English",
+    "switch_to_japanese": "日本語"
+  },
+  "footer": {
+    "copyright": "© 2024 AIニュースまとめ. All rights reserved.",
+    "powered_by": "Powered by Claude AI"
+  }
+}

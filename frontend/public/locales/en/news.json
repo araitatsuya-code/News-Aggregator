@@ -1,0 +1,11 @@
+{
+  "title": "Latest News",
+  "loading": "Loading...",
+  "error": "Failed to load news",
+  "no_articles": "No articles available",
+  "read_more": "Read more",
+  "source": "Source",
+  "published_at": "Published",
+  "category": "Category",
+  "original_title": "Original Title"
+}

@@ -1,0 +1,11 @@
+{
+  "title": "日次まとめ",
+  "loading": "読み込み中...",
+  "error": "サマリーの読み込みに失敗しました",
+  "no_summary": "この日のサマリーはありません",
+  "total_articles": "記事総数",
+  "top_trends": "主要トレンド",
+  "significant_news": "重要ニュース",
+  "category_breakdown": "カテゴリ別内訳",
+  "generated_at": "生成日時"
+}
