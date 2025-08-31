@@ -1,0 +1,1 @@
+# Shared module for common data types and utilities

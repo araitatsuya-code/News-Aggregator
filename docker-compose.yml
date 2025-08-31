@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  news-processor:
+    build: .
+    container_name: ai-news-processor
+    environment:
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - OUTPUT_PATH=/app/frontend/public/data
+      - RETENTION_DAYS=${RETENTION_DAYS:-30}
+    volumes:
+      - ./frontend/public/data:/app/frontend/public/data
+      - ./logs:/app/logs
+    restart: unless-stopped
+    
+  # 開発用サービス（後で追加予定）
+  frontend-dev:
+    image: node:18-alpine
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    profiles:
+      - dev
