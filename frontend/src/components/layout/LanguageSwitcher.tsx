@@ -29,14 +29,15 @@ export default function LanguageSwitcher({
    * 現在のパスを維持しながら言語のみを変更
    */
   const switchLanguage = (locale: string) => {
-    const { pathname, asPath, query } = router
+    const { pathname } = router
 
     // 静的エクスポート用の言語切替処理
     // 実際のルーティングではなく、ローカルストレージに保存して再読み込み
     localStorage.setItem('preferred-locale', locale)
 
-    // Next.jsのルーター機能を使用して言語を切り替え
-    router.push({ pathname, query }, asPath, { locale })
+    // カテゴリフィルターをクリアして言語切り替え（エラー回避）
+    // クエリパラメータを含めると同一URL遷移エラーが発生するため除外
+    router.push(pathname, pathname, { locale })
 
     setIsDropdownOpen(false)
   }

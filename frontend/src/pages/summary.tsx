@@ -34,6 +34,12 @@ export default function Summary() {
   // 利用可能な日付の取得（従来の方法を維持）
   const { availableDates: fetchedDates } = useDailySummary(selectedDate)
   const [showDatePicker, setShowDatePicker] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  // クライアントサイドでのマウント後にstateを有効化（Hydration エラー回避）
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleRetry = () => {
     retry()
@@ -72,6 +78,18 @@ export default function Summary() {
   const seoMetadata = summary 
     ? getDailySummarySEOMetadata(summary, router.locale || 'ja')
     : getDefaultSEOMetadata(router.locale || 'ja')
+
+  // クライアントサイドマウント前はローディング表示（Hydration エラー回避）
+  if (!mounted) {
+    return (
+      <>
+        <SEOHead metadata={seoMetadata} />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <LoadingSpinner />
+        </div>
+      </>
+    )
+  }
 
   return (
     <>
