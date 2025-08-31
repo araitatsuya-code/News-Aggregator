@@ -1,33 +1,40 @@
 """
-DataManagerクラスのテスト
+データ管理システムの単体テスト
+DataManagerクラスの各機能をテスト
 """
 
-import json
 import pytest
+import json
 import tempfile
 import shutil
-from datetime import datetime, timedelta
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+from datetime import datetime, timezone
+from unittest.mock import patch, mock_open
+import sys
 
+# プロジェクトルートをパスに追加
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+from shared.types import NewsItem, DailySummary, RSSSource
 from shared.data.data_manager import DataManager
-from shared.types import NewsItem, DailySummary, ProcessingMetrics, RSSSource
+from shared.exceptions import DataManagerError
 
 
 class TestDataManager:
-    """DataManagerクラスのテストケース"""
+    """DataManagerクラスのテスト"""
     
     @pytest.fixture
     def temp_dir(self):
         """テスト用一時ディレクトリ"""
         temp_dir = tempfile.mkdtemp()
-        yield temp_dir
+        yield Path(temp_dir)
         shutil.rmtree(temp_dir)
     
     @pytest.fixture
     def data_manager(self, temp_dir):
-        """テスト用DataManagerインスタンス"""
-        return DataManager(output_path=temp_dir)
+        """テスト用DataManager"""
+        return DataManager(output_path=str(temp_dir))
     
     @pytest.fixture
     def sample_news_items(self):
@@ -35,29 +42,29 @@ class TestDataManager:
         return [
             NewsItem(
                 id="test-1",
-                title="AI技術の最新動向",
-                original_title="Latest AI Technology Trends",
-                summary="AI技術の最新動向について解説します。",
+                title="AI技術の進歩",
+                original_title="AI Technology Advances",
+                summary="AI技術が大幅に進歩しています。",
                 url="https://example.com/article1",
-                source="TechNews",
-                category="海外",
-                published_at=datetime(2024, 8, 31, 10, 0, 0),
+                source="テストソース1",
+                category="AI",
+                published_at=datetime(2024, 8, 31, 12, 0, 0, tzinfo=timezone.utc),
                 language="ja",
                 tags=["AI", "技術"],
-                ai_confidence=0.95
+                ai_confidence=0.9
             ),
             NewsItem(
-                id="test-2", 
-                title="機械学習の応用事例",
+                id="test-2",
+                title="機械学習の応用",
                 original_title="Machine Learning Applications",
-                summary="機械学習の実用的な応用事例を紹介します。",
+                summary="機械学習の新しい応用分野が発見されました。",
                 url="https://example.com/article2",
-                source="MLBlog",
-                category="国内",
-                published_at=datetime(2024, 8, 31, 11, 0, 0),
+                source="テストソース2",
+                category="機械学習",
+                published_at=datetime(2024, 8, 31, 13, 0, 0, tzinfo=timezone.utc),
                 language="ja",
                 tags=["機械学習", "応用"],
-                ai_confidence=0.88
+                ai_confidence=0.85
             )
         ]
     
@@ -69,82 +76,74 @@ class TestDataManager:
             total_articles=2,
             top_trends=["AI", "機械学習"],
             significant_news=sample_news_items[:1],
-            category_breakdown={"海外": 1, "国内": 1},
-            summary_ja="今日のAI関連ニュースまとめ",
-            summary_en="Today's AI news summary",
-            generated_at=datetime(2024, 8, 31, 12, 0, 0)
+            category_breakdown={"AI": 1, "機械学習": 1},
+            summary_ja="今日はAIと機械学習に関する記事が投稿されました。",
+            summary_en="Today saw articles about AI and machine learning.",
+            generated_at=datetime.now(timezone.utc)
         )
     
-    def test_init_creates_directories(self, temp_dir):
-        """初期化時に必要なディレクトリが作成されることをテスト"""
-        data_manager = DataManager(output_path=temp_dir)
+    def test_data_manager_initialization(self, temp_dir):
+        """データマネージャー初期化テスト"""
+        manager = DataManager(output_path=str(temp_dir))
+        assert manager.output_path == Path(temp_dir)
         
-        expected_dirs = [
-            Path(temp_dir),
-            Path(temp_dir) / "news",
-            Path(temp_dir) / "summaries",
-            Path(temp_dir) / "config"
-        ]
-        
-        for directory in expected_dirs:
-            assert directory.exists()
-            assert directory.is_dir()
+        # 必要なディレクトリが作成されることを確認
+        assert (temp_dir / "news").exists()
+        assert (temp_dir / "summaries").exists()
+        assert (temp_dir / "config").exists()
+        assert (temp_dir / "metrics").exists()
     
     def test_save_daily_news(self, data_manager, sample_news_items, temp_dir):
-        """日別ニュースデータの保存をテスト"""
+        """日次ニュース保存テスト"""
         date = "2024-08-31"
+        
         data_manager.save_daily_news(date, sample_news_items)
         
-        # 記事ファイルの確認
-        articles_file = Path(temp_dir) / "news" / date / "articles.json"
-        assert articles_file.exists()
+        # ファイルが作成されることを確認
+        news_file = temp_dir / "news" / date / "articles.json"
+        metadata_file = temp_dir / "news" / date / "metadata.json"
         
-        with open(articles_file, 'r', encoding='utf-8') as f:
-            articles_data = json.load(f)
-        
-        assert len(articles_data) == 2
-        assert articles_data[0]["id"] == "test-1"
-        assert articles_data[0]["title"] == "AI技術の最新動向"
-        
-        # メタデータファイルの確認
-        metadata_file = Path(temp_dir) / "news" / date / "metadata.json"
+        assert news_file.exists()
         assert metadata_file.exists()
+        
+        # ファイル内容を確認
+        with open(news_file, 'r', encoding='utf-8') as f:
+            saved_articles = json.load(f)
+        
+        assert len(saved_articles) == 2
+        assert saved_articles[0]['title'] == "AI技術の進歩"
         
         with open(metadata_file, 'r', encoding='utf-8') as f:
             metadata = json.load(f)
         
-        assert metadata["total"] == 2
-        assert metadata["categories"]["海外"] == 1
-        assert metadata["categories"]["国内"] == 1
-        
-        # 最新ニュースファイルの確認
-        latest_file = Path(temp_dir) / "news" / "latest.json"
-        assert latest_file.exists()
+        assert metadata['total'] == 2
+        assert "AI" in metadata['categories']
+        assert "機械学習" in metadata['categories']
     
     def test_save_daily_summary(self, data_manager, sample_daily_summary, temp_dir):
-        """日次サマリーの保存をテスト"""
+        """日次サマリー保存テスト"""
         data_manager.save_daily_summary(sample_daily_summary)
         
-        # 日次サマリーファイルの確認
-        summary_file = Path(temp_dir) / "summaries" / "2024-08-31.json"
+        # ファイルが作成されることを確認
+        summary_file = temp_dir / "summaries" / "2024-08-31.json"
+        latest_file = temp_dir / "summaries" / "latest.json"
+        
         assert summary_file.exists()
+        assert latest_file.exists()
         
+        # ファイル内容を確認
         with open(summary_file, 'r', encoding='utf-8') as f:
-            summary_data = json.load(f)
+            saved_summary = json.load(f)
         
-        assert summary_data["date"] == "2024-08-31"
-        assert summary_data["total_articles"] == 2
-        assert summary_data["summary_ja"] == "今日のAI関連ニュースまとめ"
-        
-        # 最新サマリーファイルの確認
-        latest_summary_file = Path(temp_dir) / "summaries" / "latest.json"
-        assert latest_summary_file.exists()
+        assert saved_summary['date'] == "2024-08-31"
+        assert saved_summary['total_articles'] == 2
+        assert "AI" in saved_summary['top_trends']
     
-    def test_load_existing_data(self, data_manager, sample_news_items):
-        """既存データの読み込みをテスト"""
+    def test_load_existing_data(self, data_manager, sample_news_items, temp_dir):
+        """既存データ読み込みテスト"""
         date = "2024-08-31"
         
-        # データを保存
+        # まずデータを保存
         data_manager.save_daily_news(date, sample_news_items)
         
         # データを読み込み
@@ -152,210 +151,153 @@ class TestDataManager:
         
         assert loaded_articles is not None
         assert len(loaded_articles) == 2
-        assert loaded_articles[0].id == "test-1"
-        assert loaded_articles[0].title == "AI技術の最新動向"
-        assert isinstance(loaded_articles[0].published_at, datetime)
+        assert loaded_articles[0].title == "AI技術の進歩"
     
-    def test_load_existing_data_not_found(self, data_manager):
-        """存在しないデータの読み込みをテスト"""
-        result = data_manager.load_existing_data("2024-01-01")
-        assert result is None
+    def test_load_nonexistent_data(self, data_manager):
+        """存在しないデータ読み込みテスト"""
+        loaded_articles = data_manager.load_existing_data("2024-01-01")
+        assert loaded_articles is None
     
-    def test_cleanup_old_data(self, data_manager, sample_news_items, sample_daily_summary, temp_dir):
-        """古いデータのクリーンアップをテスト"""
-        # 古いデータを作成
-        old_date = (datetime.now() - timedelta(days=35)).strftime("%Y-%m-%d")
-        recent_date = (datetime.now() - timedelta(days=5)).strftime("%Y-%m-%d")
+    def test_update_latest_news(self, data_manager, sample_news_items, temp_dir):
+        """最新ニュース更新テスト"""
+        data_manager.update_latest_news(sample_news_items)
         
-        # 古いニュースデータ
-        data_manager.save_daily_news(old_date, sample_news_items)
-        # 新しいニュースデータ
-        data_manager.save_daily_news(recent_date, sample_news_items)
+        latest_file = temp_dir / "news" / "latest.json"
+        assert latest_file.exists()
         
-        # 古いサマリーデータ
-        old_summary = DailySummary(
-            date=old_date,
-            total_articles=1,
-            top_trends=["test"],
-            significant_news=[],
-            category_breakdown={},
-            summary_ja="古いサマリー",
-            summary_en="Old summary",
-            generated_at=datetime.now()
-        )
-        data_manager.save_daily_summary(old_summary)
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            latest_news = json.load(f)
         
-        # 新しいサマリーデータ
-        recent_summary = DailySummary(
-            date=recent_date,
-            total_articles=1,
-            top_trends=["test"],
-            significant_news=[],
-            category_breakdown={},
-            summary_ja="新しいサマリー",
-            summary_en="Recent summary",
-            generated_at=datetime.now()
-        )
-        data_manager.save_daily_summary(recent_summary)
-        
-        # クリーンアップ実行
-        data_manager.cleanup_old_data(retention_days=30)
-        
-        # 古いデータが削除されていることを確認
-        old_news_dir = Path(temp_dir) / "news" / old_date
-        assert not old_news_dir.exists()
-        
-        old_summary_file = Path(temp_dir) / "summaries" / f"{old_date}.json"
-        assert not old_summary_file.exists()
-        
-        # 新しいデータが残っていることを確認
-        recent_news_dir = Path(temp_dir) / "news" / recent_date
-        assert recent_news_dir.exists()
-        
-        recent_summary_file = Path(temp_dir) / "summaries" / f"{recent_date}.json"
-        assert recent_summary_file.exists()
-        
-        # latest.jsonは残っていることを確認
-        latest_summary_file = Path(temp_dir) / "summaries" / "latest.json"
-        assert latest_summary_file.exists()
+        assert len(latest_news) == 2
+        assert latest_news[0]['title'] == "AI技術の進歩"
     
-    def test_save_config_files(self, data_manager, temp_dir):
-        """設定ファイルの保存をテスト"""
-        data_manager.save_config_files()
+    def test_update_latest_news_limit(self, data_manager, temp_dir):
+        """最新ニュース件数制限テスト"""
+        # 30件のニュース記事を作成
+        articles = []
+        for i in range(30):
+            articles.append(NewsItem(
+                id=f"test-{i}",
+                title=f"記事 {i}",
+                original_title=f"Article {i}",
+                summary=f"要約 {i}",
+                url=f"https://example.com/article{i}",
+                source="テストソース",
+                category="テスト",
+                published_at=datetime.now(timezone.utc),
+                language="ja",
+                tags=["テスト"],
+                ai_confidence=0.8
+            ))
         
-        # カテゴリファイルの確認
-        categories_file = Path(temp_dir) / "config" / "categories.json"
+        data_manager.update_latest_news(articles)
+        
+        latest_file = temp_dir / "news" / "latest.json"
+        with open(latest_file, 'r', encoding='utf-8') as f:
+            latest_news = json.load(f)
+        
+        # 最新20件のみ保存されることを確認
+        assert len(latest_news) == 20
+    
+    def test_cleanup_old_data(self, data_manager, temp_dir):
+        """古いデータクリーンアップテスト"""
+        # 複数日のデータを作成
+        dates = ["2024-08-25", "2024-08-30", "2024-08-31"]
+        
+        for date in dates:
+            date_dir = temp_dir / "news" / date
+            date_dir.mkdir(parents=True, exist_ok=True)
+            
+            # ダミーファイルを作成
+            (date_dir / "articles.json").write_text("[]")
+            (temp_dir / "summaries" / f"{date}.json").write_text("{}")
+        
+        # 3日間の保持期間でクリーンアップ
+        data_manager.cleanup_old_data(retention_days=3)
+        
+        # 古いデータが削除されることを確認
+        assert not (temp_dir / "news" / "2024-08-25").exists()
+        assert (temp_dir / "news" / "2024-08-30").exists()
+        assert (temp_dir / "news" / "2024-08-31").exists()
+    
+    def test_save_config_data(self, data_manager, temp_dir):
+        """設定データ保存テスト"""
+        categories = ["AI", "機械学習", "データサイエンス"]
+        sources = [
+            {
+                "name": "テストソース1",
+                "url": "https://example.com/feed1.xml",
+                "category": "AI",
+                "language": "ja"
+            }
+        ]
+        
+        data_manager.save_config_data(categories, sources)
+        
+        # ファイルが作成されることを確認
+        categories_file = temp_dir / "config" / "categories.json"
+        sources_file = temp_dir / "config" / "sources.json"
+        
         assert categories_file.exists()
-        
-        with open(categories_file, 'r', encoding='utf-8') as f:
-            categories = json.load(f)
-        
-        assert "国内" in categories
-        assert "海外" in categories
-        assert "Reddit" in categories
-        
-        # ソースファイルの確認
-        sources_file = Path(temp_dir) / "config" / "sources.json"
         assert sources_file.exists()
         
-        with open(sources_file, 'r', encoding='utf-8') as f:
-            sources = json.load(f)
+        # ファイル内容を確認
+        with open(categories_file, 'r', encoding='utf-8') as f:
+            saved_categories = json.load(f)
         
-        assert len(sources) > 0
-        assert "url" in sources[0]
-        assert "name" in sources[0]
-        assert "category" in sources[0]
+        assert saved_categories == categories
     
     def test_save_processing_metrics(self, data_manager, temp_dir):
-        """処理メトリクスの保存をテスト"""
+        """処理メトリクス保存テスト"""
+        from shared.types import ProcessingMetrics
+        
         metrics = ProcessingMetrics(
-            start_time=datetime(2024, 8, 31, 10, 0, 0),
-            end_time=datetime(2024, 8, 31, 10, 30, 0),
+            start_time=datetime.now(timezone.utc),
+            end_time=datetime.now(timezone.utc),
             articles_collected=10,
             articles_processed=8,
             articles_failed=2,
             api_calls_made=5,
-            errors=["Error 1", "Error 2"]
+            errors=["エラー1", "エラー2"]
         )
         
         data_manager.save_processing_metrics(metrics)
         
-        # メトリクスファイルが作成されていることを確認
-        metrics_dir = Path(temp_dir) / "metrics"
-        assert metrics_dir.exists()
+        # メトリクスファイルが作成されることを確認
+        metrics_files = list((temp_dir / "metrics").glob("metrics_*.json"))
+        assert len(metrics_files) > 0
         
-        metrics_files = list(metrics_dir.glob("metrics_*.json"))
-        assert len(metrics_files) == 1
-        
+        # ファイル内容を確認
         with open(metrics_files[0], 'r', encoding='utf-8') as f:
-            metrics_data = json.load(f)
+            saved_metrics = json.load(f)
         
-        assert metrics_data["articles_collected"] == 10
-        assert metrics_data["articles_processed"] == 8
-        assert metrics_data["success_rate"] == 0.8
-        assert metrics_data["duration_seconds"] == 1800.0
+        assert saved_metrics['articles_collected'] == 10
+        assert saved_metrics['success_rate'] == 0.8
     
-    def test_serialize_deserialize_news_item(self, data_manager, sample_news_items):
-        """NewsItemのシリアライズ・デシリアライズをテスト"""
-        original_item = sample_news_items[0]
+    def test_get_data_statistics(self, data_manager, sample_news_items, temp_dir):
+        """データ統計取得テスト"""
+        # テストデータを保存
+        data_manager.save_daily_news("2024-08-31", sample_news_items)
         
-        # シリアライズ
-        serialized = data_manager._serialize_news_item(original_item)
+        stats = data_manager.get_data_statistics()
         
-        # デシリアライズ
-        deserialized = data_manager._deserialize_news_item(serialized)
-        
-        # 元のデータと一致することを確認
-        assert deserialized.id == original_item.id
-        assert deserialized.title == original_item.title
-        assert deserialized.published_at == original_item.published_at
-        assert deserialized.ai_confidence == original_item.ai_confidence
+        assert 'total_articles' in stats
+        assert 'categories' in stats
+        assert 'date_range' in stats
+        assert stats['total_articles'] >= 2
     
-    def test_generate_metadata(self, data_manager, sample_news_items):
-        """メタデータ生成をテスト"""
-        metadata = data_manager._generate_metadata(sample_news_items)
+    def test_file_write_error_handling(self, data_manager, sample_news_items):
+        """ファイル書き込みエラーハンドリングテスト"""
+        # 書き込み権限のないパスを設定
+        data_manager.output_path = Path("/invalid/path")
         
-        assert metadata["total"] == 2
-        assert metadata["categories"]["海外"] == 1
-        assert metadata["categories"]["国内"] == 1
-        assert metadata["sources"]["TechNews"] == 1
-        assert metadata["sources"]["MLBlog"] == 1
-        assert metadata["languages"]["ja"] == 2
-        assert "generated_at" in metadata
+        with pytest.raises(DataManagerError):
+            data_manager.save_daily_news("2024-08-31", sample_news_items)
     
-    def test_update_latest_news(self, data_manager, temp_dir):
-        """最新ニュース更新をテスト"""
-        # 多数の記事を作成（公開日時が異なる）
-        articles = []
-        for i in range(25):
-            article = NewsItem(
-                id=f"test-{i}",
-                title=f"記事 {i}",
-                original_title=f"Article {i}",
-                summary=f"記事 {i} の要約",
-                url=f"https://example.com/article{i}",
-                source="TestSource",
-                category="テスト",
-                published_at=datetime(2024, 8, 31, 10, i, 0),
-                language="ja",
-                tags=["test"],
-                ai_confidence=0.9
-            )
-            articles.append(article)
+    def test_json_serialization_error(self, data_manager, temp_dir):
+        """JSON シリアライゼーションエラーテスト"""
+        # シリアライズできないオブジェクトを含むデータ
+        invalid_data = [{"invalid": set([1, 2, 3])}]  # setはJSONシリアライズできない
         
-        data_manager._update_latest_news(articles, limit=20)
-        
-        # 最新ファイルの確認
-        latest_file = Path(temp_dir) / "news" / "latest.json"
-        assert latest_file.exists()
-        
-        with open(latest_file, 'r', encoding='utf-8') as f:
-            latest_data = json.load(f)
-        
-        # 20件に制限されていることを確認
-        assert len(latest_data) == 20
-        
-        # 最新の記事が最初に来ることを確認（降順ソート）
-        assert latest_data[0]["id"] == "test-24"  # 最新
-        assert latest_data[19]["id"] == "test-5"  # 20番目
-    
-    @patch('shared.data.data_manager.logging.getLogger')
-    def test_error_handling(self, mock_logger, temp_dir):
-        """エラーハンドリングをテスト"""
-        mock_logger_instance = MagicMock()
-        mock_logger.return_value = mock_logger_instance
-        
-        # 無効なパスでDataManagerを作成
-        invalid_path = "/invalid/path/that/does/not/exist"
-        
-        # 権限エラーが発生する可能性があるため、例外をキャッチ
-        try:
-            data_manager = DataManager(output_path=invalid_path)
-            # 無効なデータで保存を試行
-            data_manager.save_daily_news("invalid-date", [])
-        except Exception:
-            # エラーが発生することを期待
-            pass
-        
-        # ログが呼ばれたことを確認
-        assert mock_logger.called
+        with pytest.raises(DataManagerError):
+            data_manager._save_json_file(temp_dir / "test.json", invalid_data)

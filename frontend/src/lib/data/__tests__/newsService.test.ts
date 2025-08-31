@@ -1,186 +1,317 @@
 /**
- * @jest-environment jsdom
+ * NewsServiceクラスのテスト
+ * データアクセス層の機能をテスト
  */
-import { NewsService, DataLoadError } from '../newsService';
-import { NewsItem, DailySummary } from '../../types';
+
+import { NewsService } from '../newsService'
+import { NewsItem, DailySummary } from '@/lib/types'
 
 // fetchのモック
-const mockFetch = jest.fn() as jest.MockedFunction<typeof fetch>;
-global.fetch = mockFetch;
+global.fetch = jest.fn()
 
-// localStorageのモック
-const localStorageMock = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    removeItem: jest.fn(),
-    clear: jest.fn(),
-};
-Object.defineProperty(window, 'localStorage', {
-    value: localStorageMock,
-});
+// モックデータ
+const mockNewsItems: NewsItem[] = [
+  {
+    id: 'test-1',
+    title: 'AI技術の進歩',
+    original_title: 'AI Technology Advances',
+    summary: 'AI技術が大幅に進歩しています。',
+    url: 'https://example.com/article1',
+    source: 'テストソース1',
+    category: 'AI',
+    published_at: '2024-08-31T12:00:00Z',
+    language: 'ja',
+    tags: ['AI', '技術'],
+    ai_confidence: 0.9
+  },
+  {
+    id: 'test-2',
+    title: '機械学習の応用',
+    original_title: 'Machine Learning Applications',
+    summary: '機械学習の新しい応用分野が発見されました。',
+    url: 'https://example.com/article2',
+    source: 'テストソース2',
+    category: '機械学習',
+    published_at: '2024-08-31T13:00:00Z',
+    language: 'ja',
+    tags: ['機械学習', '応用'],
+    ai_confidence: 0.85
+  }
+]
+
+const mockDailySummary: DailySummary = {
+  date: '2024-08-31',
+  total_articles: 2,
+  top_trends: ['AI', '機械学習'],
+  significant_news: [mockNewsItems[0]],
+  category_breakdown: { 'AI': 1, '機械学習': 1 },
+  summary_ja: '今日はAIと機械学習に関する記事が投稿されました。',
+  summary_en: 'Today saw articles about AI and machine learning.',
+  generated_at: '2024-08-31T18:00:00Z'
+}
 
 describe('NewsService', () => {
-    beforeEach(() => {
-        mockFetch.mockClear();
-        localStorageMock.getItem.mockClear();
-        localStorageMock.setItem.mockClear();
-        localStorageMock.removeItem.mockClear();
-        // オンライン状態にリセット
-        Object.defineProperty(navigator, 'onLine', {
-            writable: true,
-            value: true,
-        });
-    });
+  beforeEach(() => {
+    // 各テスト前にfetchモックをリセット
+    jest.clearAllMocks()
+  })
 
-    describe('getLatestNews', () => {
-        it('should fetch and return latest news when online', async () => {
-            const mockNews: NewsItem[] = [
-                {
-                    id: '1',
-                    title: 'Test News 1',
-                    original_title: 'Test News 1',
-                    summary: 'Test summary 1',
-                    url: 'https://example.com/1',
-                    source: 'Test Source',
-                    category: 'AI',
-                    published_at: '2025-08-31T10:00:00Z',
-                    language: 'ja',
-                    tags: ['test'],
-                    ai_confidence: 0.9
-                }
-            ];
+  describe('getLatestNews', () => {
+    it('最新ニュースを正しく取得する', async () => {
+      // fetchのモックレスポンスを設定
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
 
-            mockFetch.mockResolvedValueOnce({
-                ok: true,
-                json: async () => mockNews,
-            } as Response);
+      const result = await NewsService.getLatestNews()
 
-            const result = await NewsService.getLatestNews();
+      expect(fetch).toHaveBeenCalledWith('/data/news/latest.json')
+      expect(result).toEqual(mockNewsItems)
+    })
 
-            expect(result).toEqual(mockNews);
-        });
+    it('件数制限が正しく適用される', async () => {
+      const manyItems = Array.from({ length: 30 }, (_, i) => ({
+        ...mockNewsItems[0],
+        id: `test-${i}`,
+        title: `記事 ${i}`
+      }))
 
-        it('should return fallback data when offline', async () => {
-            // オフライン状態に設定
-            Object.defineProperty(navigator, 'onLine', {
-                writable: true,
-                value: false,
-            });
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => manyItems
+      })
 
-            // キャッシュなし
-            localStorageMock.getItem.mockReturnValue(null);
+      const result = await NewsService.getLatestNews(10)
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      expect(result).toHaveLength(10)
+    })
 
-            const result = await NewsService.getLatestNews();
+    it('ネットワークエラーを適切に処理する', async () => {
+      ;(fetch as jest.Mock).mockRejectedValueOnce(new Error('Network error'))
 
-            // フォールバックデータが返されることを確認
-            expect(result).toBeDefined();
-            expect(Array.isArray(result)).toBe(true);
-            expect(result.length).toBeGreaterThan(0);
-        });
+      await expect(NewsService.getLatestNews()).rejects.toThrow('最新ニュースの取得に失敗しました')
+    })
 
-        it('should use cached data when available', async () => {
-            const cachedData = [
-                {
-                    id: 'cached_1',
-                    title: 'Cached News',
-                    original_title: 'Cached News',
-                    summary: 'Cached summary',
-                    url: 'https://example.com/cached',
-                    source: 'Cache',
-                    category: 'AI',
-                    published_at: '2025-08-31T10:00:00Z',
-                    language: 'ja',
-                    tags: ['cached'],
-                    ai_confidence: 0.9
-                }
-            ];
+    it('HTTPエラーを適切に処理する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found'
+      })
 
-            // キャッシュデータを設定（有効期限内）
-            localStorageMock.getItem.mockReturnValue(JSON.stringify({
-                data: cachedData,
-                timestamp: Date.now(),
-            }));
+      await expect(NewsService.getLatestNews()).rejects.toThrow('最新ニュースの取得に失敗しました')
+    })
+  })
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+  describe('getDailyNews', () => {
+    it('指定日のニュースを正しく取得する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
 
-            const result = await NewsService.getLatestNews();
-            expect(result).toEqual(cachedData);
-        });
-    });
+      const result = await NewsService.getDailyNews('2024-08-31')
 
-    describe('error handling', () => {
-        it('should handle network errors gracefully', async () => {
-            // オフライン状態に設定
-            Object.defineProperty(navigator, 'onLine', {
-                writable: true,
-                value: false,
-            });
+      expect(fetch).toHaveBeenCalledWith('/data/news/2024-08-31/articles.json')
+      expect(result).toEqual(mockNewsItems)
+    })
 
-            // キャッシュなし
-            localStorageMock.getItem.mockReturnValue(null);
+    it('存在しない日付のデータを適切に処理する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      })
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      const result = await NewsService.getDailyNews('2024-01-01')
 
-            const result = await NewsService.getLatestNews();
+      expect(result).toEqual([])
+    })
 
-            // フォールバックデータが返されることを確認
-            expect(result).toBeDefined();
-            expect(Array.isArray(result)).toBe(true);
-        });
+    it('不正な日付フォーマットでエラーを投げる', async () => {
+      await expect(NewsService.getDailyNews('invalid-date')).rejects.toThrow('不正な日付フォーマットです')
+    })
+  })
 
-        it('should throw DataLoadError for unsupported data types', async () => {
-            // オフライン状態に設定
-            Object.defineProperty(navigator, 'onLine', {
-                writable: true,
-                value: false,
-            });
+  describe('getDailySummary', () => {
+    it('指定日のサマリーを正しく取得する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockDailySummary
+      })
 
-            // キャッシュなし
-            localStorageMock.getItem.mockReturnValue(null);
+      const result = await NewsService.getDailySummary('2024-08-31')
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      expect(fetch).toHaveBeenCalledWith('/data/summaries/2024-08-31.json')
+      expect(result).toEqual(mockDailySummary)
+    })
 
-            await expect(NewsService.getDailyNews('2025-08-31')).rejects.toThrow(DataLoadError);
-        });
-    });
+    it('存在しない日付のサマリーでnullを返す', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        status: 404
+      })
 
-    describe('offline functionality', () => {
-        it('should provide fallback data for latest news', async () => {
-            // オフライン状態に設定
-            Object.defineProperty(navigator, 'onLine', {
-                writable: true,
-                value: false,
-            });
+      const result = await NewsService.getDailySummary('2024-01-01')
 
-            // キャッシュなし
-            localStorageMock.getItem.mockReturnValue(null);
+      expect(result).toBeNull()
+    })
+  })
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+  describe('getNewsByCategory', () => {
+    it('カテゴリ別ニュースを正しく取得する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
 
-            const result = await NewsService.getLatestNews();
+      const result = await NewsService.getNewsByCategory('AI')
 
-            expect(result).toBeDefined();
-            expect(result[0].title).toBe('オフライン時のサンプルニュース');
-        });
+      // 最新ニュースを取得してフィルタリング
+      expect(fetch).toHaveBeenCalledWith('/data/news/latest.json')
+      expect(result).toHaveLength(1)
+      expect(result[0].category).toBe('AI')
+    })
 
-        it('should provide fallback data for daily summary', async () => {
-            // オフライン状態に設定
-            Object.defineProperty(navigator, 'onLine', {
-                writable: true,
-                value: false,
-            });
+    it('存在しないカテゴリで空配列を返す', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
 
-            // キャッシュなし
-            localStorageMock.getItem.mockReturnValue(null);
+      const result = await NewsService.getNewsByCategory('存在しないカテゴリ')
 
-            mockFetch.mockRejectedValueOnce(new Error('Network error'));
+      expect(result).toEqual([])
+    })
+  })
 
-            const result = await NewsService.getLatestSummary();
+  describe('getAvailableDates', () => {
+    it('利用可能な日付一覧を正しく取得する', async () => {
+      const mockMetadata = {
+        available_dates: ['2024-08-31', '2024-08-30', '2024-08-29']
+      }
 
-            expect(result).toBeDefined();
-            expect(result.summary_ja).toBe('オフライン状態のため、最新のサマリーを表示できません。');
-        });
-    });
-});
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockMetadata
+      })
+
+      const result = await NewsService.getAvailableDates()
+
+      expect(fetch).toHaveBeenCalledWith('/data/config/metadata.json')
+      expect(result).toEqual(['2024-08-31', '2024-08-30', '2024-08-29'])
+    })
+  })
+
+  describe('getCategories', () => {
+    it('カテゴリ一覧を正しく取得する', async () => {
+      const mockCategories = ['AI', '機械学習', 'データサイエンス']
+
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockCategories
+      })
+
+      const result = await NewsService.getCategories()
+
+      expect(fetch).toHaveBeenCalledWith('/data/config/categories.json')
+      expect(result).toEqual(mockCategories)
+    })
+  })
+
+  describe('searchNews', () => {
+    it('キーワード検索が正しく動作する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
+
+      const result = await NewsService.searchNews('AI')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].title).toContain('AI')
+    })
+
+    it('複数キーワードでの検索が正しく動作する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
+
+      const result = await NewsService.searchNews('AI 技術')
+
+      expect(result).toHaveLength(1)
+      expect(result[0].title).toContain('AI')
+      expect(result[0].title).toContain('技術')
+    })
+
+    it('検索結果が見つからない場合は空配列を返す', async () => {
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockNewsItems
+      })
+
+      const result = await NewsService.searchNews('存在しないキーワード')
+
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('キャッシュ機能', () => {
+    it('同じリクエストがキャッシュされる', async () => {
+      ;(fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => mockNewsItems
+      })
+
+      // 最初のリクエスト
+      await NewsService.getLatestNews()
+      // 2回目のリクエスト
+      await NewsService.getLatestNews()
+
+      // fetchは1回だけ呼ばれることを確認（キャッシュが効いている）
+      expect(fetch).toHaveBeenCalledTimes(1)
+    })
+
+    it('キャッシュクリアが正しく動作する', async () => {
+      ;(fetch as jest.Mock).mockResolvedValue({
+        ok: true,
+        json: async () => mockNewsItems
+      })
+
+      // 最初のリクエスト
+      await NewsService.getLatestNews()
+      
+      // キャッシュクリア
+      NewsService.clearCache()
+      
+      // 2回目のリクエスト
+      await NewsService.getLatestNews()
+
+      // fetchが2回呼ばれることを確認（キャッシュがクリアされている）
+      expect(fetch).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('データ検証', () => {
+    it('不正なニュースデータを適切にフィルタリングする', async () => {
+      const invalidData = [
+        mockNewsItems[0],
+        { ...mockNewsItems[1], title: '' }, // 不正なデータ
+        null, // null値
+        undefined // undefined値
+      ]
+
+      ;(fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: async () => invalidData
+      })
+
+      const result = await NewsService.getLatestNews()
+
+      // 有効なデータのみが返されることを確認
+      expect(result).toHaveLength(1)
+      expect(result[0]).toEqual(mockNewsItems[0])
+    })
+  })
+})

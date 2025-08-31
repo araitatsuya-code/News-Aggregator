@@ -20,7 +20,7 @@ const nextConfig = {
   
   // 実験的機能
   experimental: {
-    optimizeCss: true,
+    optimizeCss: process.env.NODE_ENV === 'production',
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
   },
   

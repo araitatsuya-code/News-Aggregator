@@ -12,6 +12,9 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "type-check": "tsc --noEmit",
     "generate-sitemap": "node scripts/generate-sitemap.js",
     "optimize": "npm run type-check && npm run lint && npm run test && npm run build:analyze"
@@ -26,6 +29,7 @@
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",
+    "@playwright/test": "^1.40.0",
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.0.0",
     "@testing-library/user-event": "^14.5.1",
@@ -35,6 +39,7 @@
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
     "compression-webpack-plugin": "^10.0.0",
+    "critters": "^0.0.16",
     "cssnano": "^6.0.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.5",

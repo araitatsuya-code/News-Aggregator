@@ -1,4 +1,5 @@
 import type { AppProps } from 'next/app'
+import Head from 'next/head'
 import { appWithTranslation } from 'next-i18next'
 import { useEffect } from 'react'
 import Layout from '@/components/layout/Layout'
@@ -37,13 +38,18 @@ function App({ Component, pageProps }: AppProps) {
   }, [])
 
   return (
-    <ErrorBoundary>
-      <GlobalErrorHandler>
-        <Layout>
-          <Component {...pageProps} />
-        </Layout>
-      </GlobalErrorHandler>
-    </ErrorBoundary>
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <ErrorBoundary>
+        <GlobalErrorHandler>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </GlobalErrorHandler>
+      </ErrorBoundary>
+    </>
   )
 }
 

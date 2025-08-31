@@ -1,18 +1,34 @@
 # AI News Aggregator
 
-AI技術関連のニュースを自動収集・要約・翻訳するシステムです。
+AI技術関連のニュースを自動収集・要約・翻訳するシステムです。Pythonによるデータ処理とNext.jsによるフロントエンドを組み合わせ、Docker化された統合環境で動作します。
 
-## 🚀 セットアップ
+## 🚀 クイックスタート
 
-### 1. 依存関係のインストール
+### Docker環境での起動（推奨）
+
+```bash
+# 初回セットアップ
+make setup
+
+# 環境変数ファイルを編集してClaude APIキーを設定
+# .envファイルのCLAUDE_API_KEYを実際の値に変更
+
+# 開発環境を起動
+make dev
+
+# または、バックグラウンドで起動
+make dev-bg
+```
+
+### 手動セットアップ
+
+#### 1. 依存関係のインストール
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 2. 環境変数の設定
-
-`.env.example`ファイルを`.env`にコピーして、APIキーを設定してください：
+#### 2. 環境変数の設定
 
 ```bash
 cp .env.example .env
@@ -24,12 +40,72 @@ cp .env.example .env
 CLAUDE_API_KEY=your-actual-claude-api-key-here
 ```
 
-### 3. Claude APIキーの取得
+#### 3. Claude APIキーの取得
 
 1. [Anthropic Console](https://console.anthropic.com/)にアクセス
 2. アカウントを作成またはログイン
 3. API Keysセクションで新しいAPIキーを作成
 4. 作成されたAPIキーを`.env`ファイルに設定
+
+## 🐳 Docker環境
+
+### 利用可能なコマンド
+
+```bash
+# ヘルプを表示
+make help
+
+# 環境変数の検証
+make validate
+
+# 開発環境
+make dev          # フォアグラウンドで起動
+make dev-bg       # バックグラウンドで起動
+
+# 本番環境
+make prod         # フォアグラウンドで起動
+make prod-bg      # バックグラウンドで起動
+
+# サービス管理
+make up           # サービス起動
+make down         # サービス停止
+make restart      # サービス再起動
+make logs         # ログ表示
+make status       # 状態確認
+
+# テスト
+make test         # Pythonテスト実行
+make test-frontend # フロントエンドテスト実行
+make test-all     # 全テスト実行
+
+# クリーンアップ
+make clean        # コンテナとボリューム削除
+make clean-all    # 全リソース削除
+```
+
+### Docker Compose構成
+
+- **news-processor**: Pythonデータ処理コンテナ
+- **frontend-dev**: Next.js開発サーバー
+- **frontend-prod**: Next.js本番サーバー
+- **nginx**: リバースプロキシ（本番環境）
+- **redis**: キャッシュサーバー（オプション）
+
+### 環境別起動方法
+
+```bash
+# 開発環境（ホットリロード有効）
+./scripts/docker-start.sh --env dev --build
+
+# 本番環境（最適化ビルド）
+./scripts/docker-start.sh --env prod --build --detach
+
+# Docker Secretsを使用
+./scripts/docker-start.sh --env prod --secrets
+
+# 環境変数検証のみ
+./scripts/docker-start.sh --validate
+```
 
 ## 🧪 テスト実行
 

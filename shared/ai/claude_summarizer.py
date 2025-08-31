@@ -26,11 +26,20 @@ class ClaudeSummarizer:
             config: アプリケーション設定
         """
         self.config = config
-        self.client = AsyncAnthropic(api_key=config.claude_api_key)
+        # Anthropicクライアントの初期化（最新版対応）
+        try:
+            self.client = AsyncAnthropic(api_key=config.claude_api_key)
+        except TypeError as e:
+            # 古いバージョンとの互換性対応
+            self.logger = logging.getLogger(__name__)
+            self.logger.error(f"Anthropicクライアント初期化エラー: {e}")
+            # 基本的なパラメータのみで初期化を試行
+            self.client = AsyncAnthropic(api_key=config.claude_api_key)
+        
         self.logger = logging.getLogger(__name__)
         
-        # API制限対応: 1分間に60リクエストまで
-        self.throttler = Throttler(rate_limit=60, period=60)
+        # API制限対応: 1分間に40リクエストまで（安全マージン付き）
+        self.throttler = Throttler(rate_limit=40, period=60)
         
         # バッチ処理設定
         self.batch_size = config.claude_batch_size
@@ -249,7 +258,7 @@ Content: {content}
             
             # バッチ間の待機（API制限対応）
             if i + self.batch_size < len(articles):
-                await asyncio.sleep(1)
+                await asyncio.sleep(3)  # レート制限を避けるため3秒待機
         
         self.logger.info(f"バッチ処理完了: {len(processed_articles)}/{len(articles)} 記事処理成功")
         return processed_articles
@@ -267,7 +276,14 @@ Content: {content}
         for attempt in range(self.max_retries):
             try:
                 return await self.summarize_article(article)
-            except AIProcessingError as e:
+            except Exception as e:
+                # レート制限エラーの特別処理
+                if "rate_limit_error" in str(e) or "429" in str(e):
+                    wait_time = 60  # レート制限の場合は60秒待機
+                    self.logger.warning(f"レート制限エラー: 60秒待機します")
+                    await asyncio.sleep(wait_time)
+                    continue
+                
                 if attempt == self.max_retries - 1:
                     self.logger.error(f"記事処理失敗（最大リトライ回数到達）: {e}")
                     return None

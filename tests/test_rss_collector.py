@@ -1,276 +1,235 @@
 """
-RSS収集システムのテスト
+RSS収集システムの単体テスト
+RSSCollectorクラスの各機能をテスト
 """
 
-import asyncio
 import pytest
+import asyncio
+from unittest.mock import Mock, patch, AsyncMock
 from datetime import datetime, timezone
-from unittest.mock import Mock, AsyncMock, patch
-from typing import List
+from pathlib import Path
+import sys
 
-from shared.collectors.rss_collector import RSSCollector
+# プロジェクトルートをパスに追加
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
 from shared.types import RSSSource, RawNewsItem
+from shared.collectors.rss_collector import RSSCollector
 from shared.exceptions import RSSCollectionError
 
 
 class TestRSSCollector:
-    """RSSCollectorのテストクラス"""
+    """RSSCollectorクラスのテスト"""
     
     @pytest.fixture
-    def sample_sources(self) -> List[RSSSource]:
-        """テスト用のRSSソース"""
+    def sample_sources(self):
+        """テスト用RSSソース"""
         return [
             RSSSource(
                 url="https://example.com/feed1.xml",
-                category="テスト",
+                category="国内",
                 language="ja",
-                name="テストフィード1"
+                name="テストソース1"
             ),
             RSSSource(
                 url="https://example.com/feed2.xml",
-                category="テスト",
+                category="海外",
                 language="en",
-                name="テストフィード2"
+                name="テストソース2"
             )
         ]
     
     @pytest.fixture
-    def sample_rss_content(self) -> str:
-        """テスト用のRSSコンテンツ"""
-        return """<?xml version="1.0" encoding="UTF-8"?>
-        <rss version="2.0">
-            <channel>
-                <title>テストフィード</title>
-                <description>テスト用のRSSフィード</description>
-                <item>
-                    <title>AIの最新動向について</title>
-                    <link>https://example.com/article1</link>
-                    <description>AIの最新動向に関する記事です。</description>
-                    <pubDate>Mon, 01 Jan 2024 12:00:00 GMT</pubDate>
-                </item>
-                <item>
-                    <title>機械学習の応用事例</title>
-                    <link>https://example.com/article2</link>
-                    <description>機械学習の応用事例について解説します。</description>
-                    <pubDate>Mon, 01 Jan 2024 13:00:00 GMT</pubDate>
-                </item>
-            </channel>
-        </rss>"""
+    def collector(self, sample_sources):
+        """テスト用RSSCollector"""
+        return RSSCollector(sample_sources)
     
-    @pytest.mark.asyncio
-    async def test_collect_all_success(self, sample_sources, sample_rss_content):
-        """正常な記事収集のテスト"""
-        collector = RSSCollector(sample_sources)
-        
-        # HTTPレスポンスをモック
-        mock_response = AsyncMock()
-        mock_response.status = 200
-        mock_response.text = AsyncMock(return_value=sample_rss_content)
-        
-        with patch('aiohttp.ClientSession.get') as mock_get:
-            mock_get.return_value.__aenter__.return_value = mock_response
-            
-            async with collector:
-                articles = await collector.collect_all()
-        
-        # 結果の検証（重複除去により2記事になる）
-        assert len(articles) == 2  # 重複除去後の記事数
-        assert all(isinstance(article, RawNewsItem) for article in articles)
-        assert articles[0].title == "AIの最新動向について"
-        assert articles[0].url == "https://example.com/article1"
-    
-    @pytest.mark.asyncio
-    async def test_collect_with_http_error(self, sample_sources):
-        """HTTP エラー時のテスト"""
-        collector = RSSCollector(sample_sources, max_retries=1)
-        
-        # HTTP 404エラーをモック
-        mock_response = AsyncMock()
-        mock_response.status = 404
-        mock_response.reason = "Not Found"
-        
-        with patch('aiohttp.ClientSession.get') as mock_get:
-            mock_get.return_value.__aenter__.return_value = mock_response
-            
-            async with collector:
-                articles = await collector.collect_all()
-        
-        # エラーが発生してもプログラムは継続し、空のリストが返される
-        assert articles == []
-    
-    @pytest.mark.asyncio
-    async def test_collect_with_retry(self, sample_sources, sample_rss_content):
-        """リトライ機能のテスト"""
-        collector = RSSCollector(sample_sources, max_retries=2)
-        
-        # 最初は失敗、2回目は成功するようにモック
-        mock_response_error = AsyncMock()
-        mock_response_error.status = 500
-        mock_response_error.reason = "Internal Server Error"
-        
-        mock_response_success = AsyncMock()
-        mock_response_success.status = 200
-        mock_response_success.text = AsyncMock(return_value=sample_rss_content)
-        
-        with patch('aiohttp.ClientSession.get') as mock_get:
-            mock_get.return_value.__aenter__.side_effect = [
-                mock_response_error,  # 1回目は失敗
-                mock_response_success,  # 2回目は成功
-                mock_response_success,  # 2つ目のソース用
+    @pytest.fixture
+    def mock_feed_data(self):
+        """モックRSSフィードデータ"""
+        return {
+            'entries': [
+                {
+                    'title': 'Test Article 1',
+                    'link': 'https://example.com/article1',
+                    'published_parsed': datetime(2024, 8, 31, 12, 0, 0).timetuple(),
+                    'summary': 'Test summary 1',
+                    'id': 'article-1'
+                },
+                {
+                    'title': 'Test Article 2',
+                    'link': 'https://example.com/article2',
+                    'published_parsed': datetime(2024, 8, 31, 13, 0, 0).timetuple(),
+                    'summary': 'Test summary 2',
+                    'id': 'article-2'
+                }
             ]
-            
-            async with collector:
-                articles = await collector.collect_all()
-        
-        # リトライが成功して記事が取得される
-        assert len(articles) > 0
+        }
     
-    def test_normalize_article(self, sample_sources):
-        """記事正規化のテスト"""
+    def test_collector_initialization(self, sample_sources):
+        """コレクター初期化テスト"""
         collector = RSSCollector(sample_sources)
-        source = sample_sources[0]
+        assert len(collector.sources) == 2
+        assert collector.sources[0].name == "テストソース1"
+    
+    @patch('shared.collectors.rss_collector.feedparser.parse')
+    def test_parse_feed_success(self, mock_parse, collector, mock_feed_data, sample_sources):
+        """正常なRSSフィード解析テスト"""
+        mock_parse.return_value = mock_feed_data
         
-        # モックエントリ
-        mock_entry = Mock()
-        mock_entry.title = "テスト記事"
-        mock_entry.link = "https://example.com/test"
-        mock_entry.published_parsed = (2024, 1, 1, 12, 0, 0, 0, 1, 0)
-        mock_entry.summary = "テスト記事の要約"
+        articles = collector.parse_feed(sample_sources[0])
         
-        article = collector.normalize_article(mock_entry, source)
+        assert len(articles) == 2
+        assert articles[0].title == 'Test Article 1'
+        assert articles[0].url == 'https://example.com/article1'
+        assert articles[0].source.name == "テストソース1"
+    
+    @patch('shared.collectors.rss_collector.feedparser.parse')
+    def test_parse_feed_empty(self, mock_parse, collector, sample_sources):
+        """空のRSSフィード解析テスト"""
+        mock_parse.return_value = {'entries': []}
         
-        assert article is not None
-        assert article.title == "テスト記事"
-        assert article.url == "https://example.com/test"
-        assert article.source == source
-        assert article.content == "テスト記事の要約"
+        articles = collector.parse_feed(sample_sources[0])
+        
+        assert len(articles) == 0
+    
+    @patch('shared.collectors.rss_collector.feedparser.parse')
+    def test_parse_feed_error(self, mock_parse, collector, sample_sources):
+        """RSSフィード解析エラーテスト"""
+        mock_parse.side_effect = Exception("Network error")
+        
+        with pytest.raises(RSSCollectionError):
+            collector.parse_feed(sample_sources[0])
+    
+    def test_normalize_article(self, collector, sample_sources):
+        """記事正規化テスト"""
+        entry = {
+            'title': 'Test Article',
+            'link': 'https://example.com/article',
+            'published_parsed': datetime(2024, 8, 31, 12, 0, 0).timetuple(),
+            'summary': 'Test summary',
+            'id': 'article-1'
+        }
+        
+        article = collector.normalize_article(entry, sample_sources[0])
+        
+        assert article.title == 'Test Article'
+        assert article.url == 'https://example.com/article'
+        assert article.source.name == "テストソース1"
         assert isinstance(article.published_at, datetime)
     
-    def test_normalize_article_with_invalid_data(self, sample_sources):
-        """無効なデータでの記事正規化テスト"""
-        collector = RSSCollector(sample_sources)
-        source = sample_sources[0]
+    def test_normalize_article_missing_fields(self, collector, sample_sources):
+        """必須フィールド欠損時の記事正規化テスト"""
+        entry = {
+            'title': 'Test Article',
+            # linkが欠損
+            'published_parsed': datetime(2024, 8, 31, 12, 0, 0).timetuple(),
+        }
         
-        # タイトルがないエントリ
-        mock_entry = Mock()
-        mock_entry.title = ""
-        mock_entry.link = "https://example.com/test"
-        
-        article = collector.normalize_article(mock_entry, source)
-        assert article is None
-        
-        # URLがないエントリ
-        mock_entry.title = "テスト記事"
-        mock_entry.link = ""
-        
-        article = collector.normalize_article(mock_entry, source)
+        article = collector.normalize_article(entry, sample_sources[0])
         assert article is None
     
-    def test_deduplicate(self, sample_sources):
-        """重複除去のテスト"""
-        collector = RSSCollector(sample_sources)
-        source = sample_sources[0]
-        
-        # 重複する記事を作成
+    def test_deduplicate_articles(self, collector, sample_sources):
+        """重複記事除去テスト"""
         articles = [
             RawNewsItem(
-                title="同じタイトル",
+                title="同じ記事",
                 url="https://example.com/article1",
                 published_at=datetime.now(timezone.utc),
-                source=source
+                source=sample_sources[0],
+                content="内容1"
             ),
             RawNewsItem(
-                title="同じタイトル",  # タイトルが重複
-                url="https://example.com/article2",
+                title="同じ記事",  # 同じタイトル
+                url="https://example.com/article2",  # 異なるURL
                 published_at=datetime.now(timezone.utc),
-                source=source
+                source=sample_sources[1],
+                content="内容2"
             ),
             RawNewsItem(
-                title="異なるタイトル",
-                url="https://example.com/article1",  # URLが重複
-                published_at=datetime.now(timezone.utc),
-                source=source
-            ),
-            RawNewsItem(
-                title="ユニークなタイトル",
+                title="異なる記事",
                 url="https://example.com/article3",
                 published_at=datetime.now(timezone.utc),
-                source=source
+                source=sample_sources[0],
+                content="内容3"
             )
         ]
         
         deduplicated = collector.deduplicate(articles)
         
-        # 重複が除去されて2件になる
+        # 重複除去により2件になることを確認
         assert len(deduplicated) == 2
-        assert deduplicated[0].title == "同じタイトル"
-        assert deduplicated[1].title == "ユニークなタイトル"
+        titles = [article.title for article in deduplicated]
+        assert "同じ記事" in titles
+        assert "異なる記事" in titles
     
-    def test_generate_title_hash(self, sample_sources):
-        """タイトルハッシュ生成のテスト"""
-        collector = RSSCollector(sample_sources)
+    @pytest.mark.asyncio
+    @patch('shared.collectors.rss_collector.RSSCollector.parse_feed')
+    async def test_collect_all_success(self, mock_parse_feed, collector, sample_sources):
+        """全ソース収集成功テスト"""
+        # モックの戻り値を設定
+        mock_parse_feed.side_effect = [
+            [RawNewsItem(
+                title="記事1",
+                url="https://example.com/1",
+                published_at=datetime.now(timezone.utc),
+                source=sample_sources[0]
+            )],
+            [RawNewsItem(
+                title="記事2",
+                url="https://example.com/2",
+                published_at=datetime.now(timezone.utc),
+                source=sample_sources[1]
+            )]
+        ]
         
-        # 同じ内容のタイトル（大文字小文字、空白の違い）
-        title1 = "AI Technology News"
-        title2 = "ai technology news"
-        title3 = "AI  Technology   News"  # 余分な空白
+        articles = await collector.collect_all()
         
-        hash1 = collector._generate_title_hash(title1)
-        hash2 = collector._generate_title_hash(title2)
-        hash3 = collector._generate_title_hash(title3)
-        
-        # 正規化により同じハッシュになる
-        assert hash1 == hash2 == hash3
-        
-        # 異なるタイトルは異なるハッシュ
-        different_title = "Machine Learning Update"
-        different_hash = collector._generate_title_hash(different_title)
-        assert different_hash != hash1
+        assert len(articles) == 2
+        assert mock_parse_feed.call_count == 2
     
-    def test_parse_published_date(self, sample_sources):
-        """公開日時解析のテスト"""
-        collector = RSSCollector(sample_sources)
+    @pytest.mark.asyncio
+    @patch('shared.collectors.rss_collector.RSSCollector.parse_feed')
+    async def test_collect_all_partial_failure(self, mock_parse_feed, collector, sample_sources):
+        """一部ソース失敗時の収集テスト"""
+        # 最初のソースは成功、2番目は失敗
+        mock_parse_feed.side_effect = [
+            [RawNewsItem(
+                title="記事1",
+                url="https://example.com/1",
+                published_at=datetime.now(timezone.utc),
+                source=sample_sources[0]
+            )],
+            RSSCollectionError("テストソース2", "接続エラー")
+        ]
         
-        # struct_time形式
-        mock_entry = Mock()
-        mock_entry.published_parsed = (2024, 1, 1, 12, 0, 0, 0, 1, 0)
+        articles = await collector.collect_all()
         
-        date = collector._parse_published_date(mock_entry)
-        assert isinstance(date, datetime)
-        assert date.year == 2024
-        assert date.month == 1
-        assert date.day == 1
-        
-        # 文字列形式
-        mock_entry = Mock()
-        mock_entry.published = "Mon, 01 Jan 2024 12:00:00 GMT"
-        delattr(mock_entry, 'published_parsed')
-        
-        date = collector._parse_published_date(mock_entry)
-        assert isinstance(date, datetime)
-        assert date.year == 2024
+        # 成功したソースの記事のみ取得されることを確認
+        assert len(articles) == 1
+        assert articles[0].title == "記事1"
     
-    def test_extract_content(self, sample_sources):
-        """コンテンツ抽出のテスト"""
-        collector = RSSCollector(sample_sources)
+    def test_generate_article_id(self, collector):
+        """記事ID生成テスト"""
+        article_id = collector._generate_article_id("Test Title", "https://example.com/test")
         
-        # summary形式
-        mock_entry = Mock()
-        mock_entry.summary = "記事の要約です"
+        assert isinstance(article_id, str)
+        assert len(article_id) > 0
         
-        content = collector._extract_content(mock_entry)
-        assert content == "記事の要約です"
+        # 同じ入力に対して同じIDが生成されることを確認
+        article_id2 = collector._generate_article_id("Test Title", "https://example.com/test")
+        assert article_id == article_id2
+    
+    def test_is_ai_related_content(self, collector):
+        """AI関連コンテンツ判定テスト"""
+        # AI関連キーワードを含むタイトル
+        assert collector._is_ai_related("Machine Learning Breakthrough")
+        assert collector._is_ai_related("人工知能の最新動向")
+        assert collector._is_ai_related("Deep Learning Model")
+        assert collector._is_ai_related("ChatGPTの新機能")
         
-        # content形式（リスト）
-        mock_entry = Mock()
-        mock_entry.content = [{'value': 'コンテンツの内容'}]
-        delattr(mock_entry, 'summary')
-        
-        content = collector._extract_content(mock_entry)
-        assert content == "コンテンツの内容"
-        
-        # コンテンツがない場合
-        mock_entry = Mock()
-        
-        content = collector._extract_content(mock_entry)
-        assert content is None
+        # AI関連でないタイトル
+        assert not collector._is_ai_related("Weather Forecast")
+        assert not collector._is_ai_related("料理レシピ")
+        assert not collector._is_ai_related("Sports News")

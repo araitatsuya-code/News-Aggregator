@@ -28,7 +28,7 @@ class AppConfig:
     claude_api_key: str
     claude_model: str = "claude-3-haiku-20240307"
     claude_max_tokens: int = 1000
-    claude_batch_size: int = 5
+    claude_batch_size: int = 3
     
     # データ設定
     output_path: str = "frontend/public/data"

@@ -1,0 +1,37 @@
+# Next.js開発用Dockerfile
+FROM node:18-alpine
+
+# 必要なパッケージのインストール
+RUN apk add --no-cache curl
+
+# セキュリティ強化：非rootユーザーの作成
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nextjs -u 1001
+
+# 作業ディレクトリ設定
+WORKDIR /app
+
+# パッケージファイルのコピー
+COPY package*.json ./
+
+# 依存関係のインストール
+RUN npm install
+
+# アプリケーションファイルのコピー
+COPY --chown=nextjs:nodejs . .
+
+# 開発用設定ファイルで上書き
+COPY --chown=nextjs:nodejs next.config.dev.js ./next.config.js
+
+# 非rootユーザーに切り替え
+USER nextjs
+
+# ポート公開
+EXPOSE 3000
+
+# 環境変数設定
+ENV NODE_ENV=development
+ENV NEXT_TELEMETRY_DISABLED=1
+
+# 開発サーバー起動
+CMD ["npm", "run", "dev"]

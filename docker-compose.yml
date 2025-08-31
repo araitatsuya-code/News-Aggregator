@@ -1,27 +1,161 @@
-version: '3.8'
-
 services:
+  # Pythonデータ処理サービス（本番用）
   news-processor:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: production
     container_name: ai-news-processor
     environment:
       - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-haiku-20240307}
+      - CLAUDE_MAX_TOKENS=${CLAUDE_MAX_TOKENS:-1000}
+      - CLAUDE_BATCH_SIZE=${CLAUDE_BATCH_SIZE:-3}
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_DIR=/app/logs
       - OUTPUT_PATH=/app/frontend/public/data
       - RETENTION_DAYS=${RETENTION_DAYS:-30}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+      - RETRY_DELAY=${RETRY_DELAY:-1.0}
+      - PYTHONPATH=/app
     volumes:
       - ./frontend/public/data:/app/frontend/public/data
       - ./logs:/app/logs
+      - news-processor-cache:/app/.cache
     restart: unless-stopped
-    
-  # 開発用サービス（後で追加予定）
-  frontend-dev:
-    image: node:18-alpine
-    working_dir: /app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; import os; sys.exit(0 if os.path.exists('/app/logs') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ai-news-network
+    profiles:
+      - prod
+
+  # Pythonデータ処理サービス（開発用）
+  news-processor-dev:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+      target: development
+    container_name: ai-news-processor-dev
+    environment:
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY}
+      - CLAUDE_MODEL=${CLAUDE_MODEL:-claude-3-haiku-20240307}
+      - CLAUDE_MAX_TOKENS=${CLAUDE_MAX_TOKENS:-1000}
+      - CLAUDE_BATCH_SIZE=${CLAUDE_BATCH_SIZE:-3}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_DIR=/app/logs
+      - OUTPUT_PATH=/app/frontend/public/data
+      - RETENTION_DAYS=${RETENTION_DAYS:-30}
+      - MAX_RETRIES=${MAX_RETRIES:-3}
+      - RETRY_DELAY=${RETRY_DELAY:-1.0}
+      - PYTHONPATH=/app
     volumes:
-      - ./frontend:/app
-    ports:
-      - "3000:3000"
-    command: sh -c "npm install && npm run dev"
+      - ./frontend/public/data:/app/frontend/public/data
+      - ./logs:/app/logs
+      - ./scripts:/app/scripts
+      - ./shared:/app/shared
+      - ./tests:/app/tests
+      - news-processor-cache:/app/.cache
+    # 開発環境では自動実行せず、待機状態にする
+    command: ["tail", "-f", "/dev/null"]
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import sys; import os; sys.exit(0 if os.path.exists('/app/logs') else 1)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - ai-news-network
     profiles:
       - dev
+    
+  # Next.jsフロントエンド開発サービス
+  frontend-dev:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.dev
+    container_name: ai-news-frontend-dev
+    working_dir: /app
+    environment:
+      - NODE_ENV=development
+      - NEXT_TELEMETRY_DISABLED=1
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    depends_on:
+      - news-processor
+    profiles:
+      - dev
+    networks:
+      - ai-news-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    
+  # Next.jsフロントエンド本番サービス
+  frontend-prod:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: ai-news-frontend-prod
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - ./frontend/public/data:/app/public/data:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - news-processor
+    profiles:
+      - prod
+    networks:
+      - ai-news-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # 開発用データベース（将来の拡張用）
+  redis:
+    image: redis:7-alpine
+    container_name: ai-news-redis
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    profiles:
+      - dev
+      - cache
+    networks:
+      - ai-news-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  news-processor-cache:
+    driver: local
+  redis-data:
+    driver: local
+
+networks:
+  ai-news-network:
+    driver: bridge
