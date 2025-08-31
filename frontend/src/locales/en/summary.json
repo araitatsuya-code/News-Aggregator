@@ -1,0 +1,11 @@
+{
+  "title": "Daily Summary",
+  "loading": "Loading...",
+  "error": "Failed to load summary",
+  "no_summary": "No summary available for this date",
+  "total_articles": "Total Articles",
+  "top_trends": "Top Trends",
+  "significant_news": "Significant News",
+  "category_breakdown": "Category Breakdown",
+  "generated_at": "Generated At"
+}

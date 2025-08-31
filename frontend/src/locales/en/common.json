@@ -1,0 +1,19 @@
+{
+  "site": {
+    "title": "AI News Aggregator",
+    "description": "Automatically collect and summarize the latest AI-related news"
+  },
+  "navigation": {
+    "home": "Home",
+    "daily_summary": "Daily Summary",
+    "categories": "Categories"
+  },
+  "language": {
+    "switch_to_english": "English",
+    "switch_to_japanese": "日本語"
+  },
+  "footer": {
+    "copyright": "© 2024 AI News Aggregator. All rights reserved.",
+    "powered_by": "Powered by Claude AI"
+  }
+}
