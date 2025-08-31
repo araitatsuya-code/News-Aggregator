@@ -58,10 +58,10 @@ export class NewsService {
 
   /**
    * Get the latest news articles (up to specified limit)
-   * @param limit Maximum number of articles to return (default: 20)
+   * @param limit Maximum number of articles to return (default: 100)
    * @returns Promise<NewsItem[]>
    */
-  static async getLatestNews(limit: number = 20): Promise<NewsItem[]> {
+  static async getLatestNews(limit: number = 100): Promise<NewsItem[]> {
     try {
       const articles = await this.fetchJSON<NewsItem[]>(
         `${this.BASE_PATH}/news/latest.json`,
