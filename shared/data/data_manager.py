@@ -224,7 +224,16 @@ class DataManager:
         """最新ニュースファイルを更新"""
         try:
             # 最新20件を取得（公開日時でソート）
-            sorted_articles = sorted(articles, key=lambda x: x.published_at, reverse=True)
+            # タイムゾーン情報を統一してからソート
+            def get_comparable_datetime(article):
+                dt = article.published_at
+                if dt.tzinfo is None:
+                    # naive datetimeの場合、UTCとして扱う
+                    from datetime import timezone
+                    dt = dt.replace(tzinfo=timezone.utc)
+                return dt
+            
+            sorted_articles = sorted(articles, key=get_comparable_datetime, reverse=True)
             latest_articles = sorted_articles[:limit]
             
             latest_file = self.output_path / "news" / "latest.json"

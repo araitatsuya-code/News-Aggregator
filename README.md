@@ -1,99 +1,120 @@
 # AI News Aggregator
 
-AI関連のニュースを自動収集・要約し、日本語と英語で提供するWebアプリケーション
+AI技術関連のニュースを自動収集・要約・翻訳するシステムです。
 
-## プロジェクト構成
+## 🚀 セットアップ
 
-```
-ai-news-aggregator/
-├── shared/                 # 共通モジュール
-│   ├── types.py           # データ型定義
-│   ├── config.py          # 設定管理
-│   ├── exceptions.py      # カスタム例外
-│   └── utils/
-│       └── logger.py      # ログ機能
-├── scripts/               # データ処理スクリプト
-│   └── main.py           # メイン処理
-├── frontend/             # Next.jsフロントエンド（後で実装）
-│   └── public/data/      # 生成されるJSONデータ
-├── tests/                # テストファイル
-├── logs/                 # ログファイル
-├── requirements.txt      # Python依存関係
-├── Dockerfile           # Docker設定
-├── docker-compose.yml   # Docker Compose設定
-└── .env.example         # 環境変数例
+### 1. 依存関係のインストール
+
+```bash
+pip install -r requirements.txt
 ```
 
-## セットアップ
+### 2. 環境変数の設定
 
-### 1. 環境変数設定
+`.env.example`ファイルを`.env`にコピーして、APIキーを設定してください：
 
 ```bash
 cp .env.example .env
-# .envファイルを編集してCLAUDE_API_KEYを設定
 ```
 
-### 2. Docker使用の場合
+`.env`ファイルを編集して、Claude APIキーを設定：
+
+```env
+CLAUDE_API_KEY=your-actual-claude-api-key-here
+```
+
+### 3. Claude APIキーの取得
+
+1. [Anthropic Console](https://console.anthropic.com/)にアクセス
+2. アカウントを作成またはログイン
+3. API Keysセクションで新しいAPIキーを作成
+4. 作成されたAPIキーを`.env`ファイルに設定
+
+## 🧪 テスト実行
+
+### 基本テスト
 
 ```bash
-# ビルドと実行
-docker-compose up --build news-processor
+# 全テストを実行
+python -m pytest tests/ -v
 
-# 開発環境（フロントエンド含む）
-docker-compose --profile dev up
+# DataManagerのテスト
+python -m pytest tests/test_data_manager.py -v
+
+# AI要約器のテスト
+python -m pytest tests/test_claude_summarizer.py -v
 ```
 
-### 3. ローカル開発の場合
+### デモスクリプト
 
 ```bash
-# Python依存関係インストール
-pip install -r requirements.txt
+# モックデータでのデモ
+python scripts/test_data_manager.py
 
-# テスト実行
-pytest tests/
+# リアルAPIテスト（APIキー必須）
+python scripts/test_real_api.py
 
-# メイン処理実行
-python scripts/main.py
+# クリーンアップ機能テスト
+python scripts/test_cleanup.py
 ```
 
-## 環境変数
+## 📁 プロジェクト構造
 
-| 変数名 | 必須 | デフォルト | 説明 |
-|--------|------|------------|------|
-| CLAUDE_API_KEY | ✓ | - | Claude API キー |
-| CLAUDE_MODEL | - | claude-3-haiku-20240307 | 使用するClaudeモデル |
-| LOG_LEVEL | - | INFO | ログレベル |
-| OUTPUT_PATH | - | frontend/public/data | データ出力パス |
-| RETENTION_DAYS | - | 30 | データ保持日数 |
-
-## 開発
-
-### テスト実行
-
-```bash
-# 全テスト実行
-pytest
-
-# 特定テスト実行
-pytest tests/test_basic_setup.py
-
-# カバレッジ付きテスト
-pytest --cov=shared --cov=scripts
+```
+├── shared/                 # 共通モジュール
+│   ├── ai/                # AI関連（Claude要約器）
+│   ├── collectors/        # データ収集（RSS）
+│   ├── data/             # データ管理
+│   └── utils/            # ユーティリティ
+├── tests/                # テストファイル
+├── scripts/              # デモ・テストスクリプト
+├── frontend/public/data/ # 出力データ（JSON）
+└── logs/                 # ログファイル
 ```
 
-### コード品質チェック
+## 🔧 設定オプション
 
-```bash
-# フォーマット
-black shared/ scripts/ tests/
+`.env`ファイルで以下の設定が可能です：
 
-# リント
-flake8 shared/ scripts/ tests/
+| 変数名 | 説明 | デフォルト値 |
+|--------|------|-------------|
+| `CLAUDE_API_KEY` | Claude APIキー（必須） | - |
+| `CLAUDE_MODEL` | 使用するClaudeモデル | claude-3-haiku-20240307 |
+| `CLAUDE_MAX_TOKENS` | 最大トークン数 | 1000 |
+| `OUTPUT_PATH` | データ出力先 | frontend/public/data |
+| `RETENTION_DAYS` | データ保持日数 | 30 |
+| `LOG_LEVEL` | ログレベル | INFO |
 
-# 型チェック
-mypy shared/ scripts/
+## 📊 出力データ形式
+
+システムは以下の構造でJSONデータを出力します：
+
+```
+frontend/public/data/
+├── news/
+│   ├── YYYY-MM-DD/
+│   │   ├── articles.json      # 日別記事データ
+│   │   └── metadata.json      # 統計情報
+│   └── latest.json            # 最新記事
+├── summaries/
+│   ├── YYYY-MM-DD.json        # 日次サマリー
+│   └── latest.json            # 最新サマリー
+├── config/
+│   ├── categories.json        # カテゴリ設定
+│   └── sources.json          # RSS源設定
+└── metrics/
+    └── metrics_*.json         # 処理メトリクス
 ```
 
-## ライセンス
+## 🤖 使用技術
+
+- **Python 3.13+**: メイン言語
+- **Anthropic Claude**: AI要約・翻訳
+- **feedparser**: RSS解析
+- **aiohttp**: 非同期HTTP通信
+- **pytest**: テストフレームワーク
+
+## 📝 ライセンス
 
 MIT License

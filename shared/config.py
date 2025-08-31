@@ -6,7 +6,19 @@
 import os
 from typing import Optional, List
 from dataclasses import dataclass
+from pathlib import Path
 from .types import RSSSource
+
+# .envファイルを読み込み
+try:
+    from dotenv import load_dotenv
+    # プロジェクトルートの.envファイルを読み込み
+    env_path = Path(__file__).parent.parent / '.env'
+    if env_path.exists():
+        load_dotenv(env_path)
+except ImportError:
+    # python-dotenvがインストールされていない場合はスキップ
+    pass
 
 
 @dataclass
