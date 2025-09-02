@@ -43,7 +43,10 @@ def setup_logger(
     logger.handlers.clear()
     
     # ログレベル設定
-    logger.setLevel(getattr(logging, level.upper()))
+    if isinstance(level, str):
+        logger.setLevel(getattr(logging, level.upper()))
+    else:
+        logger.setLevel(level)
     
     # フォーマッター
     formatter = logging.Formatter(
@@ -250,7 +253,10 @@ def setup_advanced_logger(
     logger.handlers.clear()
     
     # ログレベル設定
-    logger.setLevel(getattr(logging, level.upper()))
+    if isinstance(level, str):
+        logger.setLevel(getattr(logging, level.upper()))
+    else:
+        logger.setLevel(level)
     
     # フォーマッター
     detailed_formatter = logging.Formatter(
