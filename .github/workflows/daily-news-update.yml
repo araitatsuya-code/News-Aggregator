@@ -1,11 +1,7 @@
 name: Daily News Update
 
 on:
-  # 毎日午前9時（JST）に実行 = UTC 0時
-  schedule:
-    - cron: '0 0 * * *'
-  
-  # 手動実行も可能
+  # 手動実行のみ
   workflow_dispatch:
     inputs:
       force_update:
