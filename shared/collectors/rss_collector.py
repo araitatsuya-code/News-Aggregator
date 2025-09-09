@@ -42,7 +42,7 @@ class RSSCollector:
         self._session = aiohttp.ClientSession(
             timeout=aiohttp.ClientTimeout(total=self.timeout),
             headers={
-                'User-Agent': 'AI-News-Aggregator/1.0 (RSS Reader)'
+                'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }
         )
         return self
