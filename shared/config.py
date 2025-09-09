@@ -24,11 +24,31 @@ except ImportError:
 @dataclass
 class AppConfig:
     """アプリケーション設定"""
-    # API設定
-    claude_api_key: str
+    # Claude API設定
+    claude_api_key: Optional[str] = None
     claude_model: str = "claude-3-haiku-20240307"
     claude_max_tokens: int = 1000
     claude_batch_size: int = 1
+    
+    # OpenAI API設定
+    openai_api_key: Optional[str] = None
+    openai_model: str = "gpt-4o"
+    openai_max_tokens: int = 500
+    openai_batch_size: int = 10
+    
+    # Gemini API設定
+    gemini_api_key: Optional[str] = None
+    gemini_model: str = "gemini-1.5-pro"
+    gemini_max_tokens: int = 500
+    gemini_batch_size: int = 5
+    
+    # ローカルモデル設定
+    use_local_model: bool = False
+    local_model_url: str = "http://localhost:11434"
+    local_model_name: str = "llama3.1"
+    
+    # AI プロバイダー優先順位
+    preferred_providers: List[str] = None
     
     # データ設定
     output_path: str = "frontend/public/data"
@@ -48,15 +68,47 @@ class AppConfig:
     @classmethod
     def from_env(cls) -> 'AppConfig':
         """環境変数から設定を読み込み"""
+        # 少なくとも1つのAPIキーが必要
         claude_api_key = os.getenv('CLAUDE_API_KEY')
-        if not claude_api_key:
-            raise ValueError("CLAUDE_API_KEY environment variable is required")
+        openai_api_key = os.getenv('OPENAI_API_KEY')
+        gemini_api_key = os.getenv('GEMINI_API_KEY')
+        use_local_model = os.getenv('USE_LOCAL_MODEL', 'false').lower() == 'true'
+        
+        if not any([claude_api_key, openai_api_key, gemini_api_key, use_local_model]):
+            raise ValueError("少なくとも1つのAI APIキーまたはローカルモデルの設定が必要です")
+        
+        # 優先順位設定
+        preferred_providers = os.getenv('PREFERRED_PROVIDERS', 'openai,claude,gemini,local').split(',')
+        preferred_providers = [p.strip() for p in preferred_providers if p.strip()]
         
         return cls(
+            # Claude設定
             claude_api_key=claude_api_key,
             claude_model=os.getenv('CLAUDE_MODEL', cls.claude_model),
             claude_max_tokens=int(os.getenv('CLAUDE_MAX_TOKENS', cls.claude_max_tokens)),
             claude_batch_size=int(os.getenv('CLAUDE_BATCH_SIZE', cls.claude_batch_size)),
+            
+            # OpenAI設定
+            openai_api_key=openai_api_key,
+            openai_model=os.getenv('OPENAI_MODEL', cls.openai_model),
+            openai_max_tokens=int(os.getenv('OPENAI_MAX_TOKENS', cls.openai_max_tokens)),
+            openai_batch_size=int(os.getenv('OPENAI_BATCH_SIZE', cls.openai_batch_size)),
+            
+            # Gemini設定
+            gemini_api_key=gemini_api_key,
+            gemini_model=os.getenv('GEMINI_MODEL', cls.gemini_model),
+            gemini_max_tokens=int(os.getenv('GEMINI_MAX_TOKENS', cls.gemini_max_tokens)),
+            gemini_batch_size=int(os.getenv('GEMINI_BATCH_SIZE', cls.gemini_batch_size)),
+            
+            # ローカルモデル設定
+            use_local_model=use_local_model,
+            local_model_url=os.getenv('LOCAL_MODEL_URL', cls.local_model_url),
+            local_model_name=os.getenv('LOCAL_MODEL_NAME', cls.local_model_name),
+            
+            # プロバイダー優先順位
+            preferred_providers=preferred_providers,
+            
+            # その他設定
             output_path=os.getenv('OUTPUT_PATH', cls.output_path),
             retention_days=int(os.getenv('RETENTION_DAYS', cls.retention_days)),
             log_level=os.getenv('LOG_LEVEL', cls.log_level),

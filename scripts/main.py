@@ -70,7 +70,7 @@ class ProcessingPipeline:
         """
         try:
             from shared.collectors.rss_collector import RSSCollector
-            from shared.ai.claude_summarizer import ClaudeSummarizer
+            from shared.ai.multi_summarizer import MultiAISummarizer
             from shared.data.data_manager import DataManager
             from shared.config import get_default_rss_sources
             
@@ -79,9 +79,14 @@ class ProcessingPipeline:
             self.collector = RSSCollector(rss_sources)
             self.logger.info(f"RSS収集器を初期化しました: {len(rss_sources)}ソース")
             
-            # AI要約器を初期化
-            self.summarizer = ClaudeSummarizer(self.config)
-            self.logger.info("AI要約器を初期化しました")
+            # マルチAI要約器を初期化
+            self.summarizer = MultiAISummarizer(self.config)
+            self.logger.info("マルチAI要約器を初期化しました")
+            
+            # プロバイダー状態をログ出力
+            provider_status = self.summarizer.get_provider_status()
+            available_providers = [name for name, status in provider_status.items() if status['available']]
+            self.logger.info(f"利用可能なAIプロバイダー: {', '.join(available_providers)}")
             
             # データ管理器を初期化
             self.data_manager = DataManager(self.config.output_path)

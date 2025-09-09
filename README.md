@@ -34,18 +34,32 @@ pip install -r requirements.txt
 cp .env.example .env
 ```
 
-`.env`ファイルを編集して、Claude APIキーを設定：
+`.env`ファイルを編集して、少なくとも1つのAI APIキーを設定：
 
 ```env
-CLAUDE_API_KEY=your-actual-claude-api-key-here
+# 推奨：OpenAI（高速・安価）
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# または Claude（高品質）
+CLAUDE_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# 複数設定でフォールバック機能を活用
+PREFERRED_PROVIDERS=openai,claude,gemini
 ```
 
-#### 3. Claude APIキーの取得
+#### 3. AI APIキーの取得
 
+**OpenAI（推奨）**:
+1. [OpenAI Platform](https://platform.openai.com/)にアクセス
+2. API Keysセクションで新しいAPIキーを作成
+
+**Claude**:
 1. [Anthropic Console](https://console.anthropic.com/)にアクセス
-2. アカウントを作成またはログイン
-3. API Keysセクションで新しいAPIキーを作成
-4. 作成されたAPIキーを`.env`ファイルに設定
+2. API Keysセクションで新しいAPIキーを作成
+
+**Gemini**:
+1. [Google AI Studio](https://aistudio.google.com/)にアクセス
+2. API Keyを作成
 
 ## 🚀 Vercelデプロイメント
 
@@ -180,9 +194,12 @@ python scripts/test_cleanup.py
 
 | 変数名              | 説明                   | デフォルト値            |
 | ------------------- | ---------------------- | ----------------------- |
-| `CLAUDE_API_KEY`    | Claude APIキー（必須） | -                       |
-| `CLAUDE_MODEL`      | 使用するClaudeモデル   | claude-3-haiku-20240307 |
-| `CLAUDE_MAX_TOKENS` | 最大トークン数         | 1000                    |
+| `OPENAI_API_KEY`    | OpenAI APIキー（推奨） | -                       |
+| `CLAUDE_API_KEY`    | Claude APIキー         | -                       |
+| `GEMINI_API_KEY`    | Gemini APIキー         | -                       |
+| `PREFERRED_PROVIDERS` | プロバイダー優先順位 | openai,claude,gemini,local |
+| `OPENAI_MODEL`      | OpenAIモデル           | gpt-4o                  |
+| `CLAUDE_MODEL`      | Claudeモデル           | claude-3-haiku-20240307 |
 | `OUTPUT_PATH`       | データ出力先           | frontend/public/data    |
 | `RETENTION_DAYS`    | データ保持日数         | 30                      |
 | `LOG_LEVEL`         | ログレベル             | INFO                    |
@@ -275,10 +292,48 @@ GitHub Actionsで自動更新を有効にするには、リポジトリシーク
 - CLAUDE_API_KEYが正しく設定されているか確認
 - Claude APIの利用制限に達していないか確認
 
+## 🤖 マルチプロバイダーAIシステム
+
+本システムは複数のAIプロバイダーを使い分けることで、レート制限の回避とコスト最適化を実現しています。
+
+### 対応プロバイダー
+
+| プロバイダー | 特徴 | レート制限 | 推奨用途 |
+|------------|------|-----------|----------|
+| **OpenAI GPT-4o** | 高速・安価 | 500req/min | メイン処理（推奨） |
+| **Claude** | 高品質 | 50req/min | 重要記事・分析 |
+| **Google Gemini** | 大容量 | 300req/min | 長文処理 |
+| **ローカルモデル** | 無料 | 無制限 | 開発・テスト |
+
+### 設定例
+
+```bash
+# 最小設定（OpenAIのみ）
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# マルチプロバイダー設定
+OPENAI_API_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+CLAUDE_API_KEY=sk-ant-api03-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+GEMINI_API_KEY=AIzaSyxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# プロバイダー優先順位
+PREFERRED_PROVIDERS=openai,claude,gemini,local
+```
+
+### 自動フォールバック機能
+
+- プロバイダーがレート制限に達すると自動で別のプロバイダーに切り替え
+- エラー発生時の自動リトライ機能
+- 記事を複数プロバイダーに分散して並行処理
+
+詳細は [マルチプロバイダーAIシステム](docs/multi-provider-ai-system.md) を参照してください。
+
 ## 🤖 使用技術
 
 - **Python 3.13+**: メイン言語
-- **Anthropic Claude**: AI要約・翻訳
+- **OpenAI GPT-4o**: 高速AI要約・翻訳（推奨）
+- **Anthropic Claude**: 高品質AI要約・翻訳
+- **Google Gemini**: 大容量AI処理
 - **feedparser**: RSS解析
 - **aiohttp**: 非同期HTTP通信
 - **pytest**: テストフレームワーク
