@@ -5,27 +5,48 @@
 
 set -e
 
-# カラー出力用の定数
+# スクリプトのディレクトリを取得
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+# ユーティリティスクリプトを読み込み
+source "$SCRIPT_DIR/utils/error-handler.sh"
+source "$SCRIPT_DIR/utils/detailed-logger.sh"
+source "$SCRIPT_DIR/utils/progress-logger.sh"
+
+# カラー出力用の定数（後方互換性のため保持）
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-# ログ関数
+# ログ関数（後方互換性のため保持、内部的には統一ログシステムを使用）
 log_info() {
+    if command -v detailed_log_info >/dev/null 2>&1; then
+        detailed_log_info "$1" "vercel"
+    fi
     echo -e "${BLUE}[INFO]${NC} $1"
 }
 
 log_success() {
+    if command -v detailed_log_info >/dev/null 2>&1; then
+        detailed_log_info "$1" "vercel" "{\"level\":\"success\"}"
+    fi
     echo -e "${GREEN}[SUCCESS]${NC} $1"
 }
 
 log_warning() {
+    if command -v detailed_log_warn >/dev/null 2>&1; then
+        detailed_log_warn "$1" "vercel"
+    fi
     echo -e "${YELLOW}[WARNING]${NC} $1"
 }
 
 log_error() {
+    if command -v detailed_log_error >/dev/null 2>&1; then
+        detailed_log_error "$1" "vercel"
+    fi
     echo -e "${RED}[ERROR]${NC} $1"
 }
 

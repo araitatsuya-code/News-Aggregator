@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ユーティリティスクリプトを読み込み
+source "$SCRIPT_DIR/utils/error-handler.sh"
+source "$SCRIPT_DIR/utils/detailed-logger.sh"
 source "$SCRIPT_DIR/utils/progress-logger.sh"
 source "$SCRIPT_DIR/utils/time-tracker.sh"
 source "$SCRIPT_DIR/utils/venv-manager.sh"
@@ -187,7 +189,22 @@ initialize() {
     # プロジェクトルートに移動
     cd "$PROJECT_ROOT"
     
-    # ログ設定
+    # エラーハンドラーを初期化
+    local error_log_file="${LOG_FILE%.log}_error.log"
+    init_error_handler "$error_log_file"
+    
+    # 詳細ログシステムを初期化
+    local log_level="info"
+    local log_format="text"
+    if [[ "$VERBOSE_MODE" == "true" ]]; then
+        log_level="debug"
+        log_format="json"
+    fi
+    
+    local detailed_log_file="${LOG_FILE%.log}_detailed.log"
+    init_detailed_logger "$detailed_log_file" "$log_level" "$log_format"
+    
+    # 基本ログ設定
     set_log_file "$LOG_FILE"
     
     if [[ "$VERBOSE_MODE" == "true" ]]; then
@@ -200,9 +217,13 @@ initialize() {
     init_time_tracker
     
     log_info "AI News Aggregator ワンコマンドデプロイメント開始"
+    detailed_log_info "ワンコマンドデプロイメント開始" "main" "{\"deploy_env\":\"$DEPLOY_ENV\",\"skip_data\":$SKIP_DATA_COLLECTION,\"verbose\":$VERBOSE_MODE,\"backup\":$BACKUP_ENABLED}"
+    
     log_info "実行時刻: $(date '+%Y-%m-%d %H:%M:%S')"
     log_info "作業ディレクトリ: $PROJECT_ROOT"
     log_info "ログファイル: $LOG_FILE"
+    log_info "詳細ログファイル: $detailed_log_file"
+    log_info "エラーログファイル: $error_log_file"
     log_info "デプロイ環境: $DEPLOY_ENV"
     
     if [[ "$SKIP_DATA_COLLECTION" == "true" ]]; then
@@ -513,53 +534,33 @@ handle_step_failure() {
     local failed_step="$1"
     local error_message="$2"
     
-    log_error "ステップ '$failed_step' でエラーが発生しました: $error_message"
+    # 統一エラーハンドリングを使用
+    case "$failed_step" in
+        "環境確認")
+            handle_error "$ERROR_TYPE_ENVIRONMENT" "ステップ '$failed_step' でエラーが発生しました: $error_message" 1 "step:$failed_step"
+            ;;
+        "仮想環境有効化")
+            handle_error "$ERROR_TYPE_ENVIRONMENT" "ステップ '$failed_step' でエラーが発生しました: $error_message" 1 "step:$failed_step"
+            ;;
+        "データ収集")
+            handle_error "$ERROR_TYPE_EXTERNAL_COMMAND" "ステップ '$failed_step' でエラーが発生しました: $error_message" 1 "step:$failed_step"
+            ;;
+        "Vercelデプロイ")
+            handle_error "$ERROR_TYPE_EXTERNAL_COMMAND" "ステップ '$failed_step' でエラーが発生しました: $error_message" 1 "step:$failed_step"
+            ;;
+        *)
+            handle_error "$ERROR_TYPE_UNKNOWN" "ステップ '$failed_step' でエラーが発生しました: $error_message" 1 "step:$failed_step"
+            ;;
+    esac
+    
+    # 詳細ログに記録
+    detailed_log_error "ステップ失敗: $failed_step" "workflow" "{\"step\":\"$failed_step\",\"error\":\"$error_message\",\"action\":\"step_failure\"}"
     
     # ワークフローデータを更新
     update_workflow_data "$failed_step" "failed" "$error_message"
     
-    # 回復手順の提示
-    echo
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo "❌ エラー回復手順"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    echo
-    
-    case "$failed_step" in
-        "環境確認")
-            echo "環境確認エラーの対処法:"
-            echo "1. プロジェクトルートディレクトリで実行していることを確認"
-            echo "2. 必要なファイルが存在することを確認:"
-            echo "   - requirements.txt"
-            echo "   - scripts/main.py"
-            echo "   - frontend/package.json"
-            echo "3. 権限を確認: ls -la"
-            ;;
-        "仮想環境有効化")
-            echo "仮想環境エラーの対処法:"
-            echo "1. 仮想環境を作成: python3 -m venv venv"
-            echo "2. 依存関係をインストール: source venv/bin/activate && pip install -r requirements.txt"
-            echo "3. 再度実行: $0 $*"
-            ;;
-        "データ収集")
-            echo "データ収集エラーの対処法:"
-            echo "1. 個別にデータ収集を実行: ./scripts/deploy-data-only.sh --verbose"
-            echo "2. APIキーの設定を確認: cat .env"
-            echo "3. ネットワーク接続を確認"
-            echo "4. データ収集をスキップしてデプロイ: $0 --skip-data $*"
-            ;;
-        "Vercelデプロイ")
-            echo "Vercelデプロイエラーの対処法:"
-            echo "1. Vercel CLIの認証を確認: vercel whoami"
-            echo "2. プロジェクト設定を確認: vercel link"
-            echo "3. 個別にデプロイを実行: ./scripts/deploy-vercel.sh --check"
-            echo "4. ビルドのみ実行: ./scripts/deploy-vercel.sh --build-only"
-            ;;
-    esac
-    
-    echo
-    echo "詳細なログ: $LOG_FILE"
-    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    # エラー統計を表示
+    show_error_summary
 }
 
 # メイン処理を実行

@@ -11,6 +11,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 # ユーティリティスクリプトを読み込み
+source "$SCRIPT_DIR/utils/error-handler.sh"
+source "$SCRIPT_DIR/utils/detailed-logger.sh"
 source "$SCRIPT_DIR/utils/progress-logger.sh"
 source "$SCRIPT_DIR/utils/time-tracker.sh"
 source "$SCRIPT_DIR/utils/venv-manager.sh"
