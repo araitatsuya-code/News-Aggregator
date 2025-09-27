@@ -61,17 +61,56 @@ PREFERRED_PROVIDERS=openai,claude,gemini
 1. [Google AI Studio](https://aistudio.google.com/)にアクセス
 2. API Keyを作成
 
-## 🚀 Vercelデプロイメント
+## 🚀 ワンコマンドデプロイメント
 
-### クイックデプロイ
+### 新機能：統合デプロイメント
+
+記事収集からVercelデプロイまでを1つのコマンドで実行できます。
 
 ```bash
-# デプロイ準備（データ処理 + ビルド準備）
-./scripts/prepare-deploy.sh
+# プレビュー環境への完全デプロイ
+make deploy-full
 
-# Vercelにデプロイ
-./scripts/deploy-vercel.sh --preview  # プレビュー環境
-./scripts/deploy-vercel.sh --prod     # 本番環境
+# 本番環境への完全デプロイ
+make deploy-full-prod
+
+# データ準備のみ（デプロイ前の確認用）
+make deploy-data
+
+# Vercelデプロイのみ（データ収集スキップ）
+make deploy-only          # プレビュー環境
+make deploy-only-prod     # 本番環境
+```
+
+### 詳細なデプロイオプション
+
+```bash
+# フルデプロイ（全ワークフロー実行）
+./scripts/deploy-full.sh --env preview    # プレビュー環境
+./scripts/deploy-full.sh --env prod       # 本番環境
+
+# オプション付きフルデプロイ
+./scripts/deploy-full.sh --prod --backup  # バックアップ付き本番デプロイ
+./scripts/deploy-full.sh --skip-data      # データ収集スキップ
+./scripts/deploy-full.sh --verbose        # 詳細ログ出力
+
+# データ準備のみ
+./scripts/deploy-data-only.sh             # 基本実行
+./scripts/deploy-data-only.sh --verbose   # 詳細ログ付き
+./scripts/deploy-data-only.sh --backup    # バックアップ付き
+
+# Vercelデプロイのみ
+./scripts/deploy-vercel.sh --preview      # プレビュー環境
+./scripts/deploy-vercel.sh --prod         # 本番環境
+```
+
+### 従来のデプロイ方法
+
+```bash
+# 手動ステップ実行
+source venv/bin/activate
+python3 scripts/main.py
+./scripts/deploy-vercel.sh --prod
 
 # 手動Vercelデプロイ
 npm install -g vercel
@@ -116,6 +155,13 @@ make status       # 状態確認
 make test         # Pythonテスト実行
 make test-frontend # フロントエンドテスト実行
 make test-all     # 全テスト実行
+
+# ワンコマンドデプロイメント
+make deploy-full      # フルデプロイ（プレビュー環境）
+make deploy-full-prod # フルデプロイ（本番環境）
+make deploy-data      # データ準備のみ
+make deploy-only      # Vercelデプロイのみ（プレビュー）
+make deploy-only-prod # Vercelデプロイのみ（本番）
 
 # クリーンアップ
 make clean        # コンテナとボリューム削除
@@ -225,9 +271,32 @@ frontend/public/data/
     └── metrics_*.json         # 処理メトリクス
 ```
 
-## 🔄 データ更新コマンド
+## 🔄 データ更新とデプロイワークフロー
 
-### 記事データ収集
+### ワンコマンドデプロイの実行ステップ
+
+`make deploy-full` または `./scripts/deploy-full.sh` を実行すると、以下のステップが自動実行されます：
+
+1. **環境確認** (約5秒)
+   - 仮想環境の存在確認と有効化
+   - 必要なファイルとディレクトリの確認
+
+2. **データ収集** (約45-60分)
+   - RSS記事の収集
+   - AI要約の生成
+   - 翻訳処理
+
+3. **データコピー** (約2秒)
+   - latest.jsonファイルの更新
+   - データファイルの整理
+
+4. **Vercelデプロイ** (約2-3分)
+   - フロントエンドのビルド
+   - Vercelへのデプロイ
+
+**総実行時間**: 約50-65分
+
+### 記事データ収集（従来の方法）
 ```bash
 # 仮想環境を有効化
 source venv/bin/activate
@@ -291,6 +360,80 @@ GitHub Actionsで自動更新を有効にするには、リポジトリシーク
 - ワークフローが失敗する場合は、GitHub Actionsタブでログを確認
 - CLAUDE_API_KEYが正しく設定されているか確認
 - Claude APIの利用制限に達していないか確認
+
+## 🔧 ワンコマンドデプロイのトラブルシューティング
+
+### よくある問題と解決方法
+
+#### 1. 仮想環境エラー
+```bash
+# エラー: 仮想環境が見つからない
+# 解決方法: 仮想環境を作成
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+#### 2. データ収集エラー
+```bash
+# エラー: APIキーが設定されていない
+# 解決方法: .envファイルを確認
+cp .env.example .env
+# .envファイルを編集してAPIキーを設定
+
+# エラー: データ収集が長時間実行される
+# 解決方法: ログを確認
+tail -f logs/deploy-full-*.log
+```
+
+#### 3. Vercelデプロイエラー
+```bash
+# エラー: Vercel CLIがインストールされていない
+# 解決方法: Vercel CLIをインストール
+npm install -g vercel
+
+# エラー: データファイルが見つからない
+# 解決方法: データ準備を先に実行
+make deploy-data
+```
+
+#### 4. バックアップ・復元機能
+```bash
+# 利用可能なバックアップを確認
+./scripts/deploy-full.sh --list-backups
+
+# バックアップから復元
+./scripts/deploy-full.sh --restore backup-20240115_143022
+
+# バックアップ付きデプロイ
+./scripts/deploy-full.sh --prod --backup
+```
+
+#### 5. ログファイルの確認
+```bash
+# 最新のログファイルを確認
+ls -la logs/deploy-full-*.log | tail -1
+
+# リアルタイムログ監視
+tail -f logs/deploy-full-$(date +%Y%m%d)*.log
+
+# エラーログのみ表示
+grep -i error logs/deploy-full-*.log
+```
+
+#### 6. 段階的デプロイ
+問題が発生した場合は、段階的にデプロイを実行してください：
+
+```bash
+# ステップ1: データ準備のみ
+make deploy-data
+
+# ステップ2: データ確認
+ls -la frontend/public/data/news/latest.json
+
+# ステップ3: Vercelデプロイのみ
+make deploy-only
+```
 
 ## 🤖 マルチプロバイダーAIシステム
 
