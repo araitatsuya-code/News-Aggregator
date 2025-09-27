@@ -491,7 +491,7 @@ show_help() {
 
 例:
   init_error_handler "logs/error.log"
-  safe_execute "python3 scripts/main.py"
+  safe_execute "python3 scripts/core/main.py"
   handle_error \$ERROR_TYPE_NETWORK "APIへの接続に失敗しました"
 EOF
 }

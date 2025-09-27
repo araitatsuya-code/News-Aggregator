@@ -140,8 +140,8 @@ check_environment() {
     fi
     
     # main.pyの存在確認
-    if [[ ! -f "scripts/main.py" ]]; then
-        log_error "scripts/main.py が見つかりません"
+    if [[ ! -f "scripts/core/main.py" ]]; then
+        log_error "scripts/core/main.py が見つかりません"
         return 1
     fi
     
@@ -206,7 +206,7 @@ execute_data_collection() {
     log_info "記事収集・要約処理を実行中..."
     
     if [[ "$VERBOSE_MODE" == "true" ]]; then
-        log_debug "実行コマンド: python3 scripts/main.py"
+        log_debug "実行コマンド: python3 scripts/core/main.py"
     fi
     
     # プログレスバーを表示しながら実行
@@ -214,10 +214,10 @@ execute_data_collection() {
     
     # バックグラウンドでmain.pyを実行
     if [[ "$VERBOSE_MODE" == "true" ]]; then
-        python3 scripts/main.py 2>&1 | tee -a "$LOG_FILE" &
+        python3 scripts/core/main.py 2>&1 | tee -a "$LOG_FILE" &
         main_py_pid=$!
     else
-        python3 scripts/main.py >> "$LOG_FILE" 2>&1 &
+        python3 scripts/core/main.py >> "$LOG_FILE" 2>&1 &
         main_py_pid=$!
     fi
     
@@ -270,10 +270,10 @@ execute_data_copy() {
     log_info "latest.jsonファイルを更新中..."
     
     if [[ "$VERBOSE_MODE" == "true" ]]; then
-        log_debug "実行コマンド: python3 scripts/update_latest.py"
+        log_debug "実行コマンド: python3 scripts/core/update_latest.py"
     fi
     
-    if python3 scripts/update_latest.py >> "$LOG_FILE" 2>&1; then
+    if python3 scripts/core/update_latest.py >> "$LOG_FILE" 2>&1; then
         log_success "latest.jsonファイルの更新が完了しました"
     else
         log_error "latest.jsonファイルの更新に失敗しました"
@@ -806,9 +806,9 @@ main() {
     echo
     echo "次のステップ:"
     echo "1. Vercelデプロイを実行:"
-    echo "   ./scripts/deploy-vercel.sh --prod"
+    echo "   ./scripts/deploy/deploy-vercel.sh --prod"
     echo "   または"
-    echo "   ./scripts/deploy-vercel.sh --preview"
+    echo "   ./scripts/deploy/deploy-vercel.sh --preview"
     echo
     echo "オプション:"
     echo "- 統計データをJSONでエクスポート: export_data_statistics_json [ファイル名]"

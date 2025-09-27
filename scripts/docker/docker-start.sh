@@ -98,7 +98,7 @@ print_info "プロファイル: $PROFILE"
 
 # 環境変数の検証
 print_info "環境変数の検証を実行中..."
-if python3 scripts/validate_env.py; then
+if python3 scripts/core/validate_env.py; then
     print_success "環境変数の検証が完了しました"
 else
     print_error "環境変数の検証に失敗しました"

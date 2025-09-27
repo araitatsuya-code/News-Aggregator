@@ -560,7 +560,7 @@ show_help() {
 例:
   init_detailed_logger "logs/deploy-detail.log" "info" "json"
   detailed_log_step_start "データ収集" 1 5
-  detailed_log_command "python3 scripts/main.py" 0 120
+  detailed_log_command "python3 scripts/core/main.py" 0 120
   detailed_log_step_complete "データ収集" 120 "success"
   finalize_detailed_logger
 EOF

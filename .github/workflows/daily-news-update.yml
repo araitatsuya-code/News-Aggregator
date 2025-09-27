@@ -83,7 +83,7 @@ jobs:
         if: steps.check-data.outputs.should_update == 'true'
         run: |
           echo "🚀 Starting news collection..."
-          timeout 5400 python scripts/main.py || {
+          timeout 5400 python scripts/core/main.py || {
             exit_code=$?
             if [ $exit_code -eq 124 ]; then
               echo "⏰ News collection timed out after 1.5 hours"

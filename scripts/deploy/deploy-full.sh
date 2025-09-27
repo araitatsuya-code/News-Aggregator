@@ -251,9 +251,9 @@ check_environment() {
     
     # 必要なスクリプトファイルの存在確認
     local required_scripts=(
-        "scripts/main.py"
-        "scripts/deploy-data-only.sh"
-        "scripts/deploy-vercel.sh"
+        "scripts/core/main.py"
+        "scripts/deploy/deploy-data-only.sh"
+        "scripts/deploy/deploy-vercel.sh"
     )
     
     for script in "${required_scripts[@]}"; do
@@ -1183,8 +1183,8 @@ cleanup() {
         echo "トラブルシューティング:"
         echo "1. ログファイルを確認: $LOG_FILE"
         echo "2. 個別のスクリプトを実行して問題を特定:"
-        echo "   - データ準備のみ: ./scripts/deploy-data-only.sh --verbose"
-        echo "   - Vercelデプロイのみ: ./scripts/deploy-vercel.sh --check"
+        echo "   - データ準備のみ: ./scripts/deploy/deploy-data-only.sh --verbose"
+        echo "   - Vercelデプロイのみ: ./scripts/deploy/deploy-vercel.sh --check"
         echo "3. 環境設定を確認:"
         echo "   - 仮想環境: source venv/bin/activate"
         echo "   - 依存関係: pip install -r requirements.txt"

@@ -253,7 +253,7 @@ show_venv_setup_instructions() {
    pip install -r requirements.txt
 
 4. 再度デプロイスクリプトを実行:
-   ./scripts/deploy-full.sh
+   ./scripts/deploy/deploy-full.sh
 
 注意: 
 - Python 3.6 以上が必要です

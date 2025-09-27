@@ -447,7 +447,7 @@ COPY shared/ ./shared/
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
   CMD python -c "import requests; requests.get('http://localhost:8000/health')"
 
-CMD ["python", "scripts/main.py"]
+CMD ["python", "scripts/core/main.py"]
 ```
 
 ### CI/CD パイプライン

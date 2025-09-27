@@ -23,14 +23,14 @@ scripts/
 
 #### フルデプロイワークフロー
 1. **環境確認**: 仮想環境の存在確認と有効化
-2. **データ収集**: `python3 scripts/main.py` の実行
+2. **データ収集**: `python3 scripts/core/main.py` の実行
 3. **データコピー**: latest.jsonファイルの更新
 4. **デプロイ**: Vercelへのデプロイ実行
 5. **完了報告**: 実行時間とサマリーの表示
 
 #### データ準備ワークフロー
 1. **環境確認**: 仮想環境の存在確認と有効化
-2. **データ収集**: `python3 scripts/main.py` の実行
+2. **データ収集**: `python3 scripts/core/main.py` の実行
 3. **データコピー**: latest.jsonファイルの更新
 4. **統計表示**: 生成されたデータの統計情報表示
 
@@ -40,7 +40,7 @@ scripts/
 
 ```bash
 #!/bin/bash
-# 使用方法: ./scripts/deploy-full.sh [--env preview|prod] [--skip-data] [--verbose]
+# 使用方法: ./scripts/deploy/deploy-full.sh [--env preview|prod] [--skip-data] [--verbose]
 
 主要機能:
 - コマンドライン引数の解析

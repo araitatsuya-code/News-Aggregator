@@ -67,6 +67,33 @@ PREFERRED_PROVIDERS=openai,claude,gemini
 
 記事収集からVercelデプロイまでを1つのコマンドで実行できます。
 
+### スクリプト構造
+
+```
+scripts/
+├── deploy/          # デプロイ関連スクリプト
+│   ├── deploy-full.sh       # フルデプロイメント
+│   ├── deploy-data-only.sh  # データ準備のみ
+│   ├── deploy-vercel.sh     # Vercelデプロイのみ
+│   └── prepare-deploy.sh    # デプロイ準備
+├── core/            # メイン処理スクリプト
+│   ├── main.py             # データ収集メイン処理
+│   ├── update_latest.py    # latest.json更新
+│   ├── validate_env.py     # 環境検証
+│   └── demo_full_pipeline.py # デモ用パイプライン
+├── test/            # テスト関連スクリプト
+│   └── test_*.py           # 各種テストスクリプト
+├── docker/          # Docker関連スクリプト
+│   ├── docker-start.sh     # Docker起動
+│   └── docker-cleanup.sh   # Docker クリーンアップ
+└── utils/           # ユーティリティスクリプト
+    ├── venv-manager.sh     # 仮想環境管理
+    ├── progress-logger.sh  # 進行状況表示
+    ├── time-tracker.sh     # 実行時間計測
+    ├── error-handler.sh    # エラーハンドリング
+    └── detailed-logger.sh  # 詳細ログ出力
+```
+
 ```bash
 # プレビュー環境への完全デプロイ
 make deploy-full
@@ -86,22 +113,22 @@ make deploy-only-prod     # 本番環境
 
 ```bash
 # フルデプロイ（全ワークフロー実行）
-./scripts/deploy-full.sh --env preview    # プレビュー環境
-./scripts/deploy-full.sh --env prod       # 本番環境
+./scripts/deploy/deploy-full.sh --env preview    # プレビュー環境
+./scripts/deploy/deploy-full.sh --env prod       # 本番環境
 
 # オプション付きフルデプロイ
-./scripts/deploy-full.sh --prod --backup  # バックアップ付き本番デプロイ
-./scripts/deploy-full.sh --skip-data      # データ収集スキップ
-./scripts/deploy-full.sh --verbose        # 詳細ログ出力
+./scripts/deploy/deploy-full.sh --prod --backup  # バックアップ付き本番デプロイ
+./scripts/deploy/deploy-full.sh --skip-data      # データ収集スキップ
+./scripts/deploy/deploy-full.sh --verbose        # 詳細ログ出力
 
 # データ準備のみ
-./scripts/deploy-data-only.sh             # 基本実行
-./scripts/deploy-data-only.sh --verbose   # 詳細ログ付き
-./scripts/deploy-data-only.sh --backup    # バックアップ付き
+./scripts/deploy/deploy-data-only.sh             # 基本実行
+./scripts/deploy/deploy-data-only.sh --verbose   # 詳細ログ付き
+./scripts/deploy/deploy-data-only.sh --backup    # バックアップ付き
 
 # Vercelデプロイのみ
-./scripts/deploy-vercel.sh --preview      # プレビュー環境
-./scripts/deploy-vercel.sh --prod         # 本番環境
+./scripts/deploy/deploy-vercel.sh --preview      # プレビュー環境
+./scripts/deploy/deploy-vercel.sh --prod         # 本番環境
 ```
 
 ### 従来のデプロイ方法
@@ -109,8 +136,8 @@ make deploy-only-prod     # 本番環境
 ```bash
 # 手動ステップ実行
 source venv/bin/activate
-python3 scripts/main.py
-./scripts/deploy-vercel.sh --prod
+python3 scripts/core/main.py
+./scripts/deploy/deploy-vercel.sh --prod
 
 # 手動Vercelデプロイ
 npm install -g vercel
@@ -180,10 +207,10 @@ make clean-all    # 全リソース削除
 
 ```bash
 # 開発環境（ホットリロード有効）
-./scripts/docker-start.sh --env dev --build
+./scripts/docker/docker-start.sh --env dev --build
 
 # 本番環境（最適化ビルド）
-./scripts/docker-start.sh --env prod --build --detach
+./scripts/docker/docker-start.sh --env prod --build --detach
 
 # Docker Secretsを使用
 ./scripts/docker-start.sh --env prod --secrets

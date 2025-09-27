@@ -88,7 +88,7 @@ def main():
     if result:
         print("🎉 APIキーの検証が成功しました!")
         print("💡 リアルAPIテストを実行できます:")
-        print("   python scripts/test_real_api.py")
+        print("   python scripts/test/test_real_api.py")
     else:
         print("❌ APIキーの検証に失敗しました")
         print("💡 以下を確認してください:")

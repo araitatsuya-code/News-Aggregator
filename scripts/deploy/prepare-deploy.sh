@@ -193,7 +193,7 @@ if [[ "$BUILD_ONLY" != true ]]; then
     
     # データ処理の実行
     log_info "ニュースデータを処理中..."
-    if python scripts/main.py; then
+    if python scripts/core/main.py; then
         log_success "データ処理が完了しました"
     else
         log_warning "データ処理でエラーが発生しましたが、継続します"
@@ -320,8 +320,8 @@ cat << EOF
 
 次のステップ:
 1. Vercelにデプロイ:
-   ./scripts/deploy-vercel.sh --preview  # プレビュー環境
-   ./scripts/deploy-vercel.sh --prod     # 本番環境
+   ./scripts/deploy/deploy-vercel.sh --preview  # プレビュー環境
+   ./scripts/deploy/deploy-vercel.sh --prod     # 本番環境
 
 2. GitHub Actionsでの自動デプロイ:
    - mainブランチにプッシュすると自動で本番デプロイ

@@ -235,4 +235,4 @@ echo "イメージ数: $(docker images -q | wc -l)"
 echo "ボリューム数: $(docker volume ls -q | wc -l)"
 echo "ネットワーク数: $(docker network ls -q | wc -l)"
 
-print_info "再起動する場合: ./scripts/docker-start.sh"
+print_info "再起動する場合: ./scripts/docker/docker-start.sh"

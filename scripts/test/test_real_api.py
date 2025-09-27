@@ -246,7 +246,7 @@ def main():
         print()
         print("💡 APIキーを設定してからテストを実行してください:")
         print("   export CLAUDE_API_KEY='your-api-key-here'")
-        print("   python scripts/test_real_api.py")
+        print("   python scripts/test/test_real_api.py")
         return
     
     print("✅ CLAUDE_API_KEY が設定されています")

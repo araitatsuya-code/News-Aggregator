@@ -113,7 +113,7 @@ def validate_files() -> List[str]:
     missing_files = []
     required_files = [
         "requirements.txt",
-        "scripts/main.py",
+        "scripts/core/main.py",
         "shared/config.py",
     ]
     

@@ -26,7 +26,7 @@
   - _要件: 要件2_
 
 - [x] 2.1 データ準備スクリプトの基本構造作成
-  - scripts/deploy-data-only.shを作成し、コマンドライン引数解析機能を実装する
+  - scripts/deploy/deploy-data-only.shを作成し、コマンドライン引数解析機能を実装する
   - --verbose, --backup, --skip-validationオプションの処理を含める
   - _要件: 要件2.1, 要件2.2_
 
@@ -61,7 +61,7 @@
   - _要件: 要件1_
 
 - [x] 4.1 メインスクリプトの基本構造作成
-  - scripts/deploy-full.shを作成し、コマンドライン引数解析機能を実装する
+  - scripts/deploy/deploy-full.shを作成し、コマンドライン引数解析機能を実装する
   - --env, --skip-data, --verbose, --backupオプションの処理を含める
   - _要件: 要件1.1, 要件1.2_
 

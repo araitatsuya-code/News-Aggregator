@@ -253,7 +253,7 @@ check_data_files() {
     # データディレクトリの存在確認
     if [[ ! -d "$data_dir" ]]; then
         log_error "データディレクトリが見つかりません: $data_dir"
-        log_error "対処法: scripts/main.py を実行してデータを生成してください"
+        log_error "対処法: scripts/core/main.py を実行してデータを生成してください"
         return 1
     fi
     
@@ -324,8 +324,8 @@ check_data_files() {
         log_error ""
         log_error "データファイルに問題があります。以下の手順で解決してください:"
         log_error "1. 仮想環境を有効化: source venv/bin/activate"
-        log_error "2. データ収集を実行: python3 scripts/main.py"
-        log_error "3. データ準備スクリプトを使用: ./scripts/deploy-data-only.sh"
+        log_error "2. データ収集を実行: python3 scripts/core/main.py"
+        log_error "3. データ準備スクリプトを使用: ./scripts/deploy/deploy-data-only.sh"
         log_error ""
         return 1
     fi
