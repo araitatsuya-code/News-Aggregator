@@ -77,7 +77,23 @@ test-frontend: ## フロントエンドテストを実行
 	@echo "🧪 フロントエンドテストを実行中..."
 	@cd frontend && npm test
 
-test-all: test test-frontend ## 全てのテストを実行
+test-unit: ## 単体テストを実行
+	@echo "🧪 単体テストを実行中..."
+	@./tests/unit/run_all_unit_tests.sh
+
+test-integration: ## 統合テストを実行
+	@echo "🧪 統合テストを実行中..."
+	@./tests/integration/run_integration_tests.sh
+
+test-integration-verbose: ## 統合テストを詳細出力で実行
+	@echo "🧪 統合テストを詳細出力で実行中..."
+	@./tests/integration/run_integration_tests.sh --verbose
+
+test-integration-clean: ## キャッシュクリア後に統合テストを実行
+	@echo "🧪 キャッシュクリア後に統合テストを実行中..."
+	@./tests/integration/run_integration_tests.sh --clean --verbose
+
+test-all: test test-frontend test-unit test-integration ## 全てのテストを実行
 
 # データ処理
 process: ## データ処理を手動実行

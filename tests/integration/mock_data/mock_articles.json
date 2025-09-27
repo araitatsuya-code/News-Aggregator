@@ -1,0 +1,27 @@
+{
+  "articles": [
+    {
+      "id": "test_001",
+      "title": "テスト記事1",
+      "summary": "これはテスト用の記事です",
+      "url": "https://example.com/test1",
+      "published": "2024-01-15T10:00:00Z",
+      "category": "AI",
+      "source": "test_source"
+    },
+    {
+      "id": "test_002", 
+      "title": "テスト記事2",
+      "summary": "これも別のテスト用記事です",
+      "url": "https://example.com/test2",
+      "published": "2024-01-15T11:00:00Z",
+      "category": "ML",
+      "source": "test_source"
+    }
+  ],
+  "metadata": {
+    "generated_at": "2024-01-15T12:00:00Z",
+    "total_articles": 2,
+    "sources": ["test_source"]
+  }
+}

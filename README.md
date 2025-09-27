@@ -179,9 +179,12 @@ make logs         # ログ表示
 make status       # 状態確認
 
 # テスト
-make test         # Pythonテスト実行
-make test-frontend # フロントエンドテスト実行
-make test-all     # 全テスト実行
+make test                    # Pythonテスト実行
+make test-frontend          # フロントエンドテスト実行
+make test-unit              # 単体テスト実行
+make test-integration       # 統合テスト実行
+make test-integration-verbose # 統合テスト（詳細出力）
+make test-all               # 全テスト実行
 
 # ワンコマンドデプロイメント
 make deploy-full      # フルデプロイ（プレビュー環境）
@@ -232,6 +235,32 @@ python -m pytest tests/test_data_manager.py -v
 
 # AI要約器のテスト
 python -m pytest tests/test_claude_summarizer.py -v
+```
+
+### 単体テスト
+
+```bash
+# 単体テストを実行
+make test-unit
+
+# または直接実行
+./tests/unit/run_all_unit_tests.sh
+```
+
+### 統合テスト
+
+```bash
+# 統合テストを実行
+make test-integration
+
+# 詳細出力で実行
+make test-integration-verbose
+
+# キャッシュクリア後に実行
+make test-integration-clean
+
+# または直接実行
+./tests/integration/run_integration_tests.sh --verbose
 ```
 
 ### デモスクリプト

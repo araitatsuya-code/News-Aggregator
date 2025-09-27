@@ -1,0 +1,10 @@
+{
+  "sources": [
+    {
+      "name": "test_source",
+      "url": "https://example.com/feed.xml",
+      "category": "AI"
+    }
+  ],
+  "categories": ["AI", "ML", "Tech"]
+}
