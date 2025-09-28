@@ -19,10 +19,12 @@ readonly EMPTY_CHAR="░"
 readonly PROGRESS_WIDTH=50
 
 # ログレベル
-readonly LOG_LEVEL_DEBUG=0
-readonly LOG_LEVEL_INFO=1
-readonly LOG_LEVEL_WARN=2
-readonly LOG_LEVEL_ERROR=3
+if [[ -z "${LOG_LEVEL_DEBUG:-}" ]]; then
+    readonly LOG_LEVEL_DEBUG=0
+    readonly LOG_LEVEL_INFO=1
+    readonly LOG_LEVEL_WARN=2
+    readonly LOG_LEVEL_ERROR=3
+fi
 
 # グローバル変数
 CURRENT_LOG_LEVEL=${LOG_LEVEL_INFO}

@@ -8,14 +8,16 @@ set -e
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ユーティリティスクリプトを読み込み
-source "$SCRIPT_DIR/utils/error-handler.sh"
-source "$SCRIPT_DIR/utils/detailed-logger.sh"
-source "$SCRIPT_DIR/utils/progress-logger.sh"
-source "$SCRIPT_DIR/utils/time-tracker.sh"
-source "$SCRIPT_DIR/utils/venv-manager.sh"
+source "$PROJECT_ROOT/scripts/utils/error-handler.sh"
+source "$PROJECT_ROOT/scripts/utils/detailed-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/progress-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/time-tracker.sh"
+source "$PROJECT_ROOT/scripts/utils/venv-manager.sh"
+source "$PROJECT_ROOT/scripts/utils/parallel-processor.sh"
+source "$PROJECT_ROOT/scripts/utils/deployment-optimizer.sh"
 
 # デフォルト設定
 DEPLOY_ENV="preview"
@@ -340,9 +342,9 @@ except Exception as e:
 "
 }
 
-# データ収集結果を検証し、次のステップに渡すデータを準備
+# データ収集結果を検証し、次のステップに渡すデータを準備（並列処理対応）
 validate_and_prepare_data() {
-    log_info "データ収集結果を検証中..."
+    log_info "データ収集結果を検証中（並列処理）..."
     
     # 必須データファイルの存在確認
     local required_files=(
@@ -355,18 +357,66 @@ validate_and_prepare_data() {
     local categories=()
     local sources=()
     
+    # 並列処理を初期化
+    init_parallel_processor
+    
+    # ファイル存在確認（並列）
+    local job_count=0
     for file in "${required_files[@]}"; do
         if [[ ! -f "$file" ]]; then
             log_error "必須データファイルが見つかりません: $file"
             ((validation_errors++))
         else
-            # JSONファイルの構文チェック
-            if ! python3 -m json.tool "$file" >/dev/null 2>&1; then
-                log_error "JSONファイルの構文エラー: $file"
-                ((validation_errors++))
-            fi
+            # 並列JSON検証ジョブを追加
+            local validate_command="python3 -m json.tool '$file' >/dev/null 2>&1"
+            add_parallel_job "validate_$(basename "$file")" "$validate_command" "JSON検証: $(basename "$file")"
+            ((job_count++))
         fi
     done
+    
+    # 追加のJSONファイルも並列検証
+    local additional_json_files=()
+    while IFS= read -r -d '' file; do
+        additional_json_files+=("$file")
+    done < <(find frontend/public/data -name "*.json" -type f -print0 2>/dev/null | head -20)  # 最大20ファイル
+    
+    for file in "${additional_json_files[@]}"; do
+        # 必須ファイルは既にチェック済みなのでスキップ
+        local is_required=false
+        for required_file in "${required_files[@]}"; do
+            if [[ "$file" == "$required_file" ]]; then
+                is_required=true
+                break
+            fi
+        done
+        
+        if [[ "$is_required" == "false" ]]; then
+            local validate_command="python3 -m json.tool '$file' >/dev/null 2>&1"
+            add_parallel_job "validate_extra_$(basename "$file")" "$validate_command" "追加JSON検証: $(basename "$file")"
+            ((job_count++))
+        fi
+    done
+    
+    # 並列検証を実行
+    if [[ $job_count -gt 0 ]]; then
+        log_info "並列JSON検証実行中: $job_count ファイル"
+        
+        if ! execute_parallel_jobs 60; then  # 1分タイムアウト
+            log_error "並列JSON検証に失敗しました"
+            show_parallel_results
+            ((validation_errors++))
+        else
+            log_success "並列JSON検証が完了しました"
+            
+            # 失敗したジョブをカウント
+            local failed_validations=$(grep "|failed|" "$JOB_RESULTS_FILE" 2>/dev/null | wc -l || echo "0")
+            if [[ $failed_validations -gt 0 ]]; then
+                log_error "JSON検証で $failed_validations 個のファイルに問題が見つかりました"
+                show_parallel_results
+                validation_errors=$((validation_errors + failed_validations))
+            fi
+        fi
+    fi
     
     if [[ $validation_errors -gt 0 ]]; then
         log_error "データ検証で $validation_errors 個のエラーが見つかりました"
@@ -582,6 +632,9 @@ main() {
     # ワークフローデータを初期化
     init_workflow_data
     
+    # デプロイメント最適化を初期化
+    init_deployment_optimizer
+    
     # バックアップディレクトリを作成（バックアップが有効な場合）
     if [[ "$BACKUP_ENABLED" == "true" ]]; then
         create_backup_directory
@@ -624,9 +677,14 @@ main() {
     
     echo
     
-    # ステップ1: 環境確認と仮想環境有効化
+    # ステップ1: 環境確認と仮想環境有効化（最適化版）
     start_step "環境確認と仮想環境有効化"
     start_step_timer "環境確認"
+    
+    # パイプライン最適化を実行
+    if ! optimize_deployment_pipeline "full"; then
+        log_warn "パイプライン最適化に失敗しましたが、処理を続行します"
+    fi
     
     if ! check_environment; then
         handle_step_failure "環境確認" "環境確認に失敗しました"
@@ -750,6 +808,9 @@ main() {
     # 実行時間統計を表示
     show_time_statistics
     
+    # 最適化サマリーを表示
+    show_optimization_summary
+    
     # 完了サマリーを表示
     show_deployment_summary
 }
@@ -845,14 +906,14 @@ create_backup_directory() {
 EOF
 }
 
-# データファイルをバックアップ
+# データファイルをバックアップ（並列処理対応）
 backup_data_files() {
     if [[ "$BACKUP_ENABLED" != "true" ]]; then
         log_debug "バックアップはスキップされました"
         return 0
     fi
     
-    log_info "データファイルのバックアップを作成中..."
+    log_info "データファイルのバックアップを作成中（並列処理）..."
     
     local data_dir="frontend/public/data"
     local backup_data_dir="$CURRENT_BACKUP_DIR/data"
@@ -867,32 +928,57 @@ backup_data_files() {
     # データディレクトリをバックアップ
     mkdir -p "$backup_data_dir"
     
-    # 各データタイプを個別にバックアップ
+    # 並列処理を初期化
+    init_parallel_processor
+    
+    # 各データタイプを並列でバックアップ
     local data_types=("news" "summaries" "config" "metrics" "dashboard")
+    local job_count=0
     
     for data_type in "${data_types[@]}"; do
         local source_dir="$data_dir/$data_type"
         local backup_subdir="$backup_data_dir/$data_type"
         
         if [[ -d "$source_dir" ]]; then
-            log_debug "バックアップ中: $data_type"
+            log_debug "並列バックアップジョブ追加: $data_type"
             
-            # ディレクトリをコピー
-            if cp -r "$source_dir" "$backup_subdir" 2>/dev/null; then
-                local dir_size=$(du -sb "$backup_subdir" 2>/dev/null | cut -f1 || echo "0")
-                local file_count=$(find "$backup_subdir" -type f | wc -l)
-                
-                backed_up_items+=("$data_type:$file_count files:$dir_size bytes")
-                total_size=$((total_size + dir_size))
-                
-                log_debug "  $data_type: $file_count ファイル ($(numfmt --to=iec $dir_size))"
-            else
-                log_warn "  $data_type のバックアップに失敗しました"
-            fi
+            # 並列バックアップジョブを追加
+            local backup_command="mkdir -p '$backup_subdir' && cp -r '$source_dir'/* '$backup_subdir'/ 2>/dev/null"
+            add_parallel_job "backup_$data_type" "$backup_command" "データバックアップ: $data_type"
+            ((job_count++))
         else
             log_debug "  $data_type ディレクトリが存在しません"
         fi
     done
+    
+    # 並列バックアップを実行
+    if [[ $job_count -gt 0 ]]; then
+        log_info "並列バックアップ実行中: $job_count ジョブ"
+        
+        if execute_parallel_jobs 180; then  # 3分タイムアウト
+            log_success "並列バックアップが完了しました"
+            
+            # バックアップ結果を集計
+            for data_type in "${data_types[@]}"; do
+                local backup_subdir="$backup_data_dir/$data_type"
+                
+                if [[ -d "$backup_subdir" ]]; then
+                    local dir_size=$(du -sb "$backup_subdir" 2>/dev/null | cut -f1 || echo "0")
+                    local file_count=$(find "$backup_subdir" -type f 2>/dev/null | wc -l)
+                    
+                    if [[ $file_count -gt 0 ]]; then
+                        backed_up_items+=("$data_type:$file_count files:$dir_size bytes")
+                        total_size=$((total_size + dir_size))
+                        log_debug "  $data_type: $file_count ファイル ($(numfmt --to=iec $dir_size))"
+                    fi
+                fi
+            done
+        else
+            log_error "並列バックアップに失敗しました"
+            show_parallel_results
+            return 1
+        fi
+    fi
     
     # 設定ファイルもバックアップ
     local config_files=(".env" "vercel.json" "frontend/next.config.js" "frontend/package.json")

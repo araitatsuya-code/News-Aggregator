@@ -8,14 +8,16 @@ set -e
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ユーティリティスクリプトを読み込み
-source "$SCRIPT_DIR/utils/error-handler.sh"
-source "$SCRIPT_DIR/utils/detailed-logger.sh"
-source "$SCRIPT_DIR/utils/progress-logger.sh"
-source "$SCRIPT_DIR/utils/time-tracker.sh"
-source "$SCRIPT_DIR/utils/venv-manager.sh"
+source "$PROJECT_ROOT/scripts/utils/error-handler.sh"
+source "$PROJECT_ROOT/scripts/utils/detailed-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/progress-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/time-tracker.sh"
+source "$PROJECT_ROOT/scripts/utils/venv-manager.sh"
+source "$PROJECT_ROOT/scripts/utils/parallel-processor.sh"
+source "$PROJECT_ROOT/scripts/utils/deployment-optimizer.sh"
 
 # デフォルト設定
 VERBOSE_MODE=false
@@ -298,14 +300,14 @@ execute_data_copy() {
     return 0
 }
 
-# データ検証を実行
+# データ検証を実行（並列処理対応）
 validate_generated_data() {
     if [[ "$SKIP_VALIDATION" == "true" ]]; then
         log_info "データ検証はスキップされました"
         return 0
     fi
     
-    log_info "生成されたデータの検証中..."
+    log_info "生成されたデータの検証中（並列処理）..."
     
     local validation_errors=0
     
@@ -315,20 +317,29 @@ validate_generated_data() {
         "frontend/public/data/summaries/latest.json"
     )
     
+    # 並列処理を初期化
+    init_parallel_processor
+    
+    local job_count=0
     for file in "${required_files[@]}"; do
         if [[ ! -f "$file" ]]; then
             log_error "必須ファイルが見つかりません: $file"
             ((validation_errors++))
         else
-            # JSONファイルの構文チェック
-            if ! python3 -m json.tool "$file" >/dev/null 2>&1; then
-                log_error "JSONファイルの構文エラー: $file"
-                ((validation_errors++))
-            else
-                log_debug "JSONファイル検証OK: $file"
-            fi
+            # 並列JSON検証ジョブを追加
+            local validate_command="python3 -m json.tool '$file' >/dev/null 2>&1"
+            add_parallel_job "validate_$(basename "$file")" "$validate_command" "JSON検証: $(basename "$file")"
+            ((job_count++))
         fi
     done
+    
+    # 全JSONファイルの並列検証
+    log_info "全JSONファイルの並列検証を実行中..."
+    if ! parallel_json_validation "frontend/public/data/**" "全データファイル検証"; then
+        log_warn "一部のJSONファイル検証に失敗しました"
+        show_parallel_results
+        ((validation_errors++))
+    fi
     
     # 最新の日付フォルダの確認
     local news_dir="frontend/public/data/news"
@@ -711,6 +722,9 @@ main() {
     # 初期化
     initialize
     
+    # デプロイメント最適化を初期化
+    init_deployment_optimizer
+    
     # 総ステップ数を設定（バックアップ有無で調整）
     local total_steps=4
     if [[ "$BACKUP_ENABLED" == "true" ]]; then
@@ -720,9 +734,14 @@ main() {
     set_total_steps $total_steps
     start_workflow_timer
     
-    # ステップ1: 環境確認と仮想環境有効化
+    # ステップ1: 環境確認と仮想環境有効化（最適化版）
     start_step "環境確認と仮想環境有効化"
     start_step_timer "環境確認"
+    
+    # データパイプライン最適化を実行
+    if ! optimize_deployment_pipeline "data-only"; then
+        log_warn "パイプライン最適化に失敗しましたが、処理を続行します"
+    fi
     
     if ! check_environment; then
         fail_step "環境確認" "環境確認に失敗しました"
@@ -797,6 +816,9 @@ main() {
     
     # 実行時間統計を表示
     show_time_statistics
+    
+    # 最適化サマリーを表示
+    show_optimization_summary
     
     # 次のステップの案内
     echo
