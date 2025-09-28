@@ -150,23 +150,23 @@ health: ## ヘルスチェックを実行
 # ワンコマンドデプロイメント
 deploy-full: validate ## フルデプロイ（データ収集 + Vercelデプロイ）
 	@echo "🚀 ワンコマンドデプロイメントを開始中..."
-	@./scripts/deploy-full.sh --env preview
+	@./scripts/deploy/deploy-full.sh --env preview
 
 deploy-full-prod: validate ## 本番環境へのフルデプロイ
 	@echo "🚀 本番環境へのワンコマンドデプロイメントを開始中..."
-	@./scripts/deploy-full.sh --env prod
+	@./scripts/deploy/deploy-full.sh --env prod
 
 deploy-data: validate ## データ準備のみ実行
 	@echo "📊 データ準備を実行中..."
-	@./scripts/deploy-data-only.sh
+	@./scripts/deploy/deploy-data-only.sh
 
 deploy-only: ## Vercelデプロイのみ実行（データ収集スキップ）
 	@echo "🚀 Vercelデプロイのみを実行中..."
-	@./scripts/deploy-vercel.sh --env preview
+	@./scripts/deploy/deploy-vercel.sh --env preview
 
 deploy-only-prod: ## 本番環境へのVercelデプロイのみ実行
 	@echo "🚀 本番環境へのVercelデプロイのみを実行中..."
-	@./scripts/deploy-vercel.sh --env prod
+	@./scripts/deploy/deploy-vercel.sh --env prod
 
 # 本番デプロイ用
 deploy-check: validate test ## デプロイ前チェック

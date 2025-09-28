@@ -7,19 +7,21 @@ set -e
 
 # スクリプトのディレクトリを取得
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ユーティリティスクリプトを読み込み
-source "$SCRIPT_DIR/utils/error-handler.sh"
-source "$SCRIPT_DIR/utils/detailed-logger.sh"
-source "$SCRIPT_DIR/utils/progress-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/error-handler.sh"
+source "$PROJECT_ROOT/scripts/utils/detailed-logger.sh"
+source "$PROJECT_ROOT/scripts/utils/progress-logger.sh"
 
 # カラー出力用の定数（後方互換性のため保持）
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+if [[ -z "${RED:-}" ]]; then
+    RED='\033[0;31m'
+    GREEN='\033[0;32m'
+    YELLOW='\033[1;33m'
+    BLUE='\033[0;34m'
+    NC='\033[0m' # No Color
+fi
 
 # ログ関数（後方互換性のため保持、内部的には統一ログシステムを使用）
 log_info() {

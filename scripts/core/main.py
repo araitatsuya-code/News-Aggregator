@@ -11,7 +11,7 @@ from datetime import datetime
 from typing import List, Optional
 
 # プロジェクトルートをパスに追加
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent  # scripts/core -> scripts -> project_root
 sys.path.insert(0, str(project_root))
 
 from shared.config import AppConfig

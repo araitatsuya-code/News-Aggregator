@@ -255,7 +255,7 @@ check_environment() {
     local required_scripts=(
         "scripts/core/main.py"
         "scripts/deploy/deploy-data-only.sh"
-        "scripts/deploy/deploy-vercel.sh"
+        "scripts/deploy/deploy-vercel-simple.sh"
     )
     
     for script in "${required_scripts[@]}"; do
@@ -317,7 +317,7 @@ update_workflow_data() {
         init_workflow_data
     fi
     
-    # Pythonを使用してJSONを更新
+    # Pythonを使用してJSONを更新（データを安全にエスケープ）
     python3 -c "
 import json
 import sys
@@ -325,16 +325,19 @@ from datetime import datetime
 
 try:
     with open('$WORKFLOW_DATA_FILE', 'r') as f:
-        data = json.load(f)
+        workflow_data = json.load(f)
     
-    data['steps']['$step_name'] = {
+    # データを安全に処理
+    step_data = '''$data''' if '''$data''' else None
+    
+    workflow_data['steps']['$step_name'] = {
         'status': '$status',
         'timestamp': datetime.now().isoformat(),
-        'data': '$data' if '$data' else None
+        'data': step_data
     }
     
     with open('$WORKFLOW_DATA_FILE', 'w') as f:
-        json.dump(data, f, indent=2)
+        json.dump(workflow_data, f, indent=2)
         
 except Exception as e:
     print(f'Error updating workflow data: {e}', file=sys.stderr)
@@ -735,7 +738,9 @@ main() {
         fi
         
         # データ準備スクリプトを実行
-        if ! bash "$SCRIPT_DIR/deploy-data-only.sh" $data_script_options; then
+        local data_script_path="$PROJECT_ROOT/scripts/deploy/deploy-data-only.sh"
+        log_info "データ準備スクリプトを実行中: $data_script_path"
+        if ! bash "$data_script_path" $data_script_options; then
             handle_step_failure "データ収集" "データ収集に失敗しました"
             fail_step "データ収集" "データ収集に失敗しました"
             exit 1
@@ -780,7 +785,9 @@ main() {
     local vercel_script_options="--env $DEPLOY_ENV"
     
     # Vercelデプロイスクリプトを実行
-    if ! bash "$SCRIPT_DIR/deploy-vercel.sh" $vercel_script_options; then
+    local vercel_script_path="$PROJECT_ROOT/scripts/deploy/deploy-vercel-simple.sh"
+    log_info "Vercelデプロイスクリプトを実行中: $vercel_script_path"
+    if ! bash "$vercel_script_path" $vercel_script_options; then
         handle_step_failure "Vercelデプロイ" "Vercelデプロイに失敗しました"
         fail_step "Vercelデプロイ" "Vercelデプロイに失敗しました"
         exit 1

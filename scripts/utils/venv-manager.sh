@@ -203,13 +203,36 @@ check_dependencies() {
         local package_name=$(echo "$package_spec" | sed 's/[>=<!=].*//' | tr -d '[:space:]')
         
         if [[ -n "$package_name" ]]; then
+            # 特別なパッケージ名のマッピング
+            local import_name="$package_name"
+            case "$package_name" in
+                "google-generativeai")
+                    import_name="google.generativeai"
+                    ;;
+                "python-dateutil")
+                    import_name="dateutil"
+                    ;;
+                "python-dotenv")
+                    import_name="dotenv"
+                    ;;
+                "asyncio-throttle")
+                    import_name="asyncio_throttle"
+                    ;;
+                "pytest-asyncio")
+                    import_name="pytest_asyncio"
+                    ;;
+                "pytest-mock")
+                    import_name="pytest_mock"
+                    ;;
+                *)
+                    # パッケージ名にハイフンが含まれる場合はアンダースコアに変換
+                    import_name=$(echo "$package_name" | tr '-' '_')
+                    ;;
+            esac
+            
             # パッケージがインストールされているかチェック
-            if ! $python_cmd -c "import $package_name" >/dev/null 2>&1; then
-                # パッケージ名にハイフンが含まれる場合はアンダースコアに変換して再試行
-                local alt_package_name=$(echo "$package_name" | tr '-' '_')
-                if ! $python_cmd -c "import $alt_package_name" >/dev/null 2>&1; then
-                    missing_packages+=("$package_spec")
-                fi
+            if ! $python_cmd -c "import $import_name" >/dev/null 2>&1; then
+                missing_packages+=("$package_spec")
             fi
         fi
     done < requirements.txt

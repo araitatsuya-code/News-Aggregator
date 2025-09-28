@@ -26,10 +26,8 @@ const nextConfig = {
   experimental: {
     optimizeCss: process.env.NODE_ENV === 'production',
     optimizePackageImports: ['lucide-react', '@heroicons/react'],
-    // Vercel環境での追加最適化
-    ...(process.env.VERCEL && {
-      serverComponentsExternalPackages: ['sharp'],
-    }),
+    // 静的エクスポート用の設定
+    esmExternals: 'loose',
   },
 
   // パフォーマンス最適化

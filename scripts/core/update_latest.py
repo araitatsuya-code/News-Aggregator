@@ -7,12 +7,13 @@ latest.jsonファイル更新スクリプト
 import sys
 import json
 import logging
+import re
 from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any
 
 # プロジェクトルートをパスに追加
-project_root = Path(__file__).parent.parent
+project_root = Path(__file__).parent.parent.parent  # scripts/core -> scripts -> project_root
 sys.path.insert(0, str(project_root))
 
 from shared.config import AppConfig
@@ -24,7 +25,7 @@ def find_latest_date_folder(news_dir: Path) -> Path:
     """最新の日付フォルダを見つける"""
     date_folders = [
         d for d in news_dir.iterdir() 
-        if d.is_dir() and d.name.match(r'\d{4}-\d{2}-\d{2}')
+        if d.is_dir() and re.match(r'\d{4}-\d{2}-\d{2}', d.name)
     ]
     
     if not date_folders:
@@ -46,7 +47,7 @@ def load_news_from_date_folder(date_folder: Path) -> List[Dict[Any, Any]]:
         return json.load(f)
 
 
-def update_latest_news(data_dir: Path = None, limit: int = 20) -> None:
+def update_latest_news(data_dir: Path = None, limit: int = None) -> None:
     """
     latest.jsonを最新データで更新
     
@@ -82,9 +83,13 @@ def update_latest_news(data_dir: Path = None, limit: int = 20) -> None:
         
         sorted_articles = sorted(articles, key=get_published_time, reverse=True)
         
-        # 指定件数まで制限
-        latest_articles = sorted_articles[:limit]
-        logger.info(f"Selected top {len(latest_articles)} articles for latest.json")
+        # 指定件数まで制限（limitがNoneの場合は全件）
+        if limit is not None:
+            latest_articles = sorted_articles[:limit]
+            logger.info(f"Selected top {len(latest_articles)} articles for latest.json (limited to {limit})")
+        else:
+            latest_articles = sorted_articles
+            logger.info(f"Selected all {len(latest_articles)} articles for latest.json")
         
         # latest.jsonに保存
         with open(latest_file, 'w', encoding='utf-8') as f:
@@ -97,6 +102,21 @@ def update_latest_news(data_dir: Path = None, limit: int = 20) -> None:
         logger.error(f"Failed to update latest.json: {e}")
         print(f"❌ Failed to update latest.json: {e}")
         raise
+
+
+def find_latest_summary_file(summaries_dir: Path) -> Path:
+    """最新のサマリーファイルを見つける"""
+    summary_files = [
+        f for f in summaries_dir.iterdir() 
+        if f.is_file() and f.name != "latest.json" and re.match(r'\d{4}-\d{2}-\d{2}\.json', f.name)
+    ]
+    
+    if not summary_files:
+        raise FileNotFoundError("No summary files found in summaries directory")
+    
+    # 日付順でソートして最新を取得
+    latest_file = sorted(summary_files, key=lambda x: x.stem, reverse=True)[0]
+    return latest_file
 
 
 def update_latest_summary(data_dir: Path = None) -> None:
@@ -117,16 +137,12 @@ def update_latest_summary(data_dir: Path = None) -> None:
         logger = logging.getLogger(__name__)
         logger.info(f"Updating latest summary from {summaries_dir}")
         
-        # 最新の日付フォルダを見つける
-        latest_date_folder = find_latest_date_folder(summaries_dir)
-        logger.info(f"Using summary from: {latest_date_folder.name}")
+        # 最新のサマリーファイルを見つける
+        latest_summary_source = find_latest_summary_file(summaries_dir)
+        logger.info(f"Using summary from: {latest_summary_source.name}")
         
         # サマリーファイル読み込み
-        summary_file = latest_date_folder / "summary.json"
-        if not summary_file.exists():
-            raise FileNotFoundError(f"summary.json not found in {latest_date_folder}")
-        
-        with open(summary_file, 'r', encoding='utf-8') as f:
+        with open(latest_summary_source, 'r', encoding='utf-8') as f:
             summary_data = json.load(f)
         
         # latest.jsonに保存
@@ -134,7 +150,7 @@ def update_latest_summary(data_dir: Path = None) -> None:
             json.dump(summary_data, f, ensure_ascii=False, indent=2)
         
         logger.info("✅ Latest summary updated successfully")
-        print(f"✅ Latest summary updated from {latest_date_folder.name}")
+        print(f"✅ Latest summary updated from {latest_summary_source.name}")
         
     except Exception as e:
         logger.error(f"Failed to update latest summary: {e}")
@@ -149,7 +165,7 @@ def main():
     
     import argparse
     parser = argparse.ArgumentParser(description="Update latest.json files")
-    parser.add_argument("--limit", type=int, default=20, help="Number of articles for latest news (default: 20)")
+    parser.add_argument("--limit", type=int, default=None, help="Number of articles for latest news (default: all articles)")
     parser.add_argument("--news-only", action="store_true", help="Update news only")
     parser.add_argument("--summary-only", action="store_true", help="Update summary only")
     parser.add_argument("--data-dir", type=Path, help="Data directory path")
