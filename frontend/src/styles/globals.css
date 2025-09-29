@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ギーク向けフォントの読み込み */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;400;500;600;700&display=swap');
+
 /* エラーハンドリング関連のアニメーション */
 @keyframes slide-down {
   from {
@@ -96,13 +100,118 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  
+  /* ターミナルテーマ - ライトモード */
+  --terminal-bg-primary: #f8f8f8;
+  --terminal-bg-secondary: #f0f0f0;
+  --terminal-bg-accent: #e8e8e8;
+  --terminal-text-primary: #2d5016;
+  --terminal-text-secondary: #333333;
+  --terminal-text-muted: #666666;
+  --terminal-text-accent: #0066cc;
+  --terminal-text-warning: #cc6600;
+  --terminal-text-error: #cc3333;
+  --terminal-border-primary: #cccccc;
+  --terminal-border-accent: #2d5016;
+  --terminal-border-glow: rgba(45, 80, 22, 0.3);
+  
+  /* コードエディタテーマ - ライトモード */
+  --editor-bg-primary: #ffffff;
+  --editor-bg-secondary: #f8f8f8;
+  --editor-bg-line: #f0f0f0;
+  --editor-syntax-keyword: #0000ff;
+  --editor-syntax-string: #008000;
+  --editor-syntax-comment: #808080;
+  --editor-syntax-function: #795e26;
+  --editor-syntax-variable: #001080;
+  --editor-syntax-number: #098658;
 }
 
+/* ダークモード（デフォルト） */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    
+    /* ターミナルテーマ - ダークモード */
+    --terminal-bg-primary: #0a0a0a;
+    --terminal-bg-secondary: #1a1a1a;
+    --terminal-bg-accent: #2a2a2a;
+    --terminal-text-primary: #00ff41;
+    --terminal-text-secondary: #ffffff;
+    --terminal-text-muted: #888888;
+    --terminal-text-accent: #00d4ff;
+    --terminal-text-warning: #ffaa00;
+    --terminal-text-error: #ff4444;
+    --terminal-border-primary: #333333;
+    --terminal-border-accent: #00ff41;
+    --terminal-border-glow: rgba(0, 255, 65, 0.3);
+    
+    /* コードエディタテーマ - ダークモード */
+    --editor-bg-primary: #1e1e1e;
+    --editor-bg-secondary: #252526;
+    --editor-bg-line: #2d2d30;
+    --editor-syntax-keyword: #569cd6;
+    --editor-syntax-string: #ce9178;
+    --editor-syntax-comment: #6a9955;
+    --editor-syntax-function: #dcdcaa;
+    --editor-syntax-variable: #9cdcfe;
+    --editor-syntax-number: #b5cea8;
   }
+}
+
+/* Matrixテーマ */
+[data-theme="matrix"] {
+  --background: #000000;
+  --foreground: #00ff41;
+  --terminal-bg-primary: #000000;
+  --terminal-bg-secondary: #001100;
+  --terminal-bg-accent: #002200;
+  --terminal-text-primary: #00ff41;
+  --terminal-text-secondary: #00cc33;
+  --terminal-text-muted: #006600;
+  --terminal-text-accent: #66ff80;
+  --terminal-text-warning: #ffff00;
+  --terminal-text-error: #ff0000;
+  --terminal-border-primary: #003300;
+  --terminal-border-accent: #00ff41;
+  --terminal-border-glow: rgba(0, 255, 65, 0.5);
+}
+
+/* サイバーパンクテーマ */
+[data-theme="cyberpunk"] {
+  --background: #0a0015;
+  --foreground: #ff0080;
+  --terminal-bg-primary: #0a0015;
+  --terminal-bg-secondary: #1a0030;
+  --terminal-bg-accent: #2a0045;
+  --terminal-text-primary: #ff0080;
+  --terminal-text-secondary: #00d4ff;
+  --terminal-text-muted: #8000ff;
+  --terminal-text-accent: #b300ff;
+  --terminal-text-warning: #ff6600;
+  --terminal-text-error: #ff0040;
+  --terminal-border-primary: #4a0080;
+  --terminal-border-accent: #ff0080;
+  --terminal-border-glow: rgba(255, 0, 128, 0.4);
+}
+
+/* ハッカーテーマ */
+[data-theme="hacker"] {
+  --background: #000000;
+  --foreground: #00ff00;
+  --terminal-bg-primary: #000000;
+  --terminal-bg-secondary: #0a0a0a;
+  --terminal-bg-accent: #1a1a1a;
+  --terminal-text-primary: #00ff00;
+  --terminal-text-secondary: #ffffff;
+  --terminal-text-muted: #666666;
+  --terminal-text-accent: #ffff00;
+  --terminal-text-warning: #ff8800;
+  --terminal-text-error: #ff0000;
+  --terminal-border-primary: #333333;
+  --terminal-border-accent: #00ff00;
+  --terminal-border-glow: rgba(0, 255, 0, 0.3);
 }
 
 body {
@@ -177,6 +286,182 @@ body {
     @apply opacity-0 transform -translate-y-2;
     @apply transition-all duration-150 ease-in;
   }
+  
+  /* ギーク向けコンポーネントスタイル */
+  
+  /* ターミナル風レイアウト */
+  .terminal-layout {
+    @apply bg-terminal-bg-primary text-terminal-text-primary font-mono-primary;
+    @apply border border-terminal-border-primary rounded-lg;
+    @apply shadow-lg;
+  }
+  
+  /* ターミナル風ヘッダー */
+  .terminal-header {
+    @apply bg-terminal-bg-secondary border-b border-terminal-border-primary;
+    @apply px-4 py-2 flex items-center justify-between;
+    @apply text-terminal-text-secondary text-sm;
+  }
+  
+  /* ターミナル風プロンプト */
+  .terminal-prompt {
+    @apply text-terminal-text-accent font-mono-primary;
+  }
+  
+  .terminal-prompt::before {
+    content: "$ ";
+    @apply text-terminal-text-primary;
+  }
+  
+  /* コードエディタ風レイアウト */
+  .editor-layout {
+    @apply bg-editor-bg-primary text-white font-mono-code;
+    @apply border border-gray-700 rounded-lg overflow-hidden;
+  }
+  
+  /* コードエディタ風ヘッダー */
+  .editor-header {
+    @apply bg-editor-bg-secondary border-b border-gray-700;
+    @apply px-4 py-2 flex items-center space-x-2;
+    @apply text-sm text-gray-300;
+  }
+  
+  /* 行番号 */
+  .line-numbers {
+    @apply bg-editor-bg-line text-gray-500 font-mono-code text-sm;
+    @apply px-3 py-1 border-r border-gray-700;
+    @apply select-none;
+    @apply min-w-[3rem] text-right;
+    user-select: none;
+  }
+  
+  /* シンタックスハイライト */
+  .syntax-keyword {
+    @apply text-editor-syntax-keyword font-medium;
+  }
+  
+  .syntax-string {
+    @apply text-editor-syntax-string;
+  }
+  
+  .syntax-comment {
+    @apply text-editor-syntax-comment italic;
+  }
+  
+  .syntax-function {
+    @apply text-editor-syntax-function;
+  }
+  
+  .syntax-variable {
+    @apply text-editor-syntax-variable;
+  }
+  
+  .syntax-number {
+    @apply text-editor-syntax-number;
+  }
+  
+  /* タイピングアニメーション */
+  .typing-text {
+    @apply overflow-hidden whitespace-nowrap;
+    animation: typing 3s steps(40, end);
+  }
+  
+  /* カーソル点滅 */
+  .cursor-blink::after {
+    content: "|";
+    @apply animate-blink text-terminal-text-primary;
+  }
+  
+  /* グロー効果 */
+  .glow-effect {
+    @apply animate-glow;
+  }
+  
+  /* スキャンライン効果 */
+  .scanline-effect {
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .scanline-effect::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--terminal-text-primary), transparent);
+    @apply animate-scanline opacity-30;
+  }
+  
+  /* CRT効果 */
+  .crt-effect {
+    position: relative;
+  }
+  
+  .crt-effect::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.1) 2px,
+      rgba(0, 0, 0, 0.1) 4px
+    );
+    pointer-events: none;
+  }
+  
+  /* ASCII アート */
+  .ascii-art {
+    @apply font-mono-ascii text-terminal-text-primary whitespace-pre;
+    @apply leading-none tracking-tight;
+  }
+  
+  /* コンパイル風プログレスバー */
+  .compile-progress {
+    @apply bg-terminal-bg-accent rounded-full overflow-hidden;
+  }
+  
+  .compile-progress-bar {
+    @apply h-2 bg-terminal-text-primary animate-compile;
+  }
+  
+  /* ターミナル風ボタン */
+  .terminal-button {
+    @apply bg-terminal-bg-accent text-terminal-text-primary;
+    @apply border border-terminal-border-accent rounded;
+    @apply px-4 py-2 font-mono-primary text-sm;
+    @apply hover:bg-terminal-text-primary hover:text-terminal-bg-primary;
+    @apply transition-all duration-200;
+    @apply focus:outline-none focus:ring-2 focus:ring-terminal-border-glow;
+  }
+  
+  /* コードブロック風カード */
+  .code-card {
+    @apply bg-editor-bg-primary border border-gray-700 rounded-lg;
+    @apply font-mono-code text-sm;
+    @apply hover:border-terminal-border-accent transition-colors duration-200;
+  }
+  
+  /* Matrix風テキスト */
+  .matrix-text {
+    @apply text-matrix-green font-mono-primary;
+    @apply animate-glow;
+  }
+  
+  /* サイバーパンク風アクセント */
+  .cyber-accent {
+    @apply text-cyber-blue;
+    background: linear-gradient(45deg, theme('colors.cyber.blue'), theme('colors.cyber.purple'));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
 }
 
 @layer utilities {
@@ -213,4 +498,171 @@ body {
       @apply transform scale-105;
     }
   }
+  
+  /* ギーク向けユーティリティ */
+  
+  /* フォント関連 */
+  .font-geek {
+    @apply font-mono-primary;
+  }
+  
+  .font-code {
+    @apply font-mono-code;
+  }
+  
+  .font-ascii {
+    @apply font-mono-ascii;
+  }
+  
+  /* テーマ切り替え */
+  .theme-terminal {
+    @apply bg-terminal-bg-primary text-terminal-text-primary;
+  }
+  
+  .theme-editor {
+    @apply bg-editor-bg-primary text-white;
+  }
+  
+  /* アニメーション制御 */
+  .no-animations {
+    animation: none !important;
+  }
+  
+  .reduced-motion {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  
+  /* アクセシビリティ対応 */
+  @media (prefers-reduced-motion: reduce) {
+    .respect-motion-preference {
+      @apply reduced-motion;
+    }
+  }
+  
+  /* 高コントラスト対応 */
+  @media (prefers-contrast: high) {
+    .high-contrast {
+      --terminal-border-primary: #ffffff;
+      --terminal-text-muted: #cccccc;
+    }
+  }
+  
+  /* カラーブラインド対応 */
+  .colorblind-safe {
+    /* 色だけでなく形状やパターンでも情報を伝える */
+    position: relative;
+  }
+  
+  .colorblind-safe.error::before {
+    content: "⚠ ";
+  }
+  
+  .colorblind-safe.success::before {
+    content: "✓ ";
+  }
+  
+  .colorblind-safe.warning::before {
+    content: "⚡ ";
+  }
+  
+  /* フォーカス表示の強化 */
+  .focus-visible-enhanced:focus-visible {
+    @apply outline-2 outline-offset-2 outline-terminal-text-accent;
+    box-shadow: 0 0 0 3px var(--terminal-border-glow);
+  }
+  
+  /* スクリーンリーダー専用テキスト */
+  .sr-only-geek {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  /* デバッグ用 */
+  .debug-grid {
+    background-image: 
+      linear-gradient(rgba(255, 0, 0, 0.1) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 0, 0, 0.1) 1px, transparent 1px);
+    background-size: 20px 20px;
+  }
+}
+
+/* アクセシビリティ: アニメーション無効化設定の尊重 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  /* ただし、重要なフィードバックアニメーションは保持 */
+  .preserve-animation {
+    animation-duration: revert !important;
+    transition-duration: revert !important;
+  }
+}
+
+/* 高コントラストモード対応 */
+@media (prefers-contrast: high) {
+  :root {
+    --terminal-bg-primary: #000000;
+    --terminal-bg-secondary: #000000;
+    --terminal-text-primary: #ffffff;
+    --terminal-text-secondary: #ffffff;
+    --terminal-text-muted: #cccccc;
+    --terminal-border-primary: #ffffff;
+    --terminal-border-accent: #ffffff;
+  }
+}
+
+/* 印刷用スタイル */
+@media print {
+  .terminal-layout,
+  .editor-layout {
+    @apply bg-white text-black border-black;
+  }
+  
+  .glow-effect,
+  .scanline-effect,
+  .crt-effect {
+    animation: none;
+    box-shadow: none;
+  }
+  
+  .ascii-art {
+    @apply text-black;
+  }
+}
+
+/* フォント読み込み失敗時のフォールバック */
+@font-face {
+  font-family: 'JetBrains Mono Fallback';
+  src: local('Courier New'), local('Monaco'), local('Menlo');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Fira Code Fallback';
+  src: local('Consolas'), local('Monaco'), local('Courier New');
+  font-display: swap;
+}
+
+/* フォント読み込み状態の管理 */
+.font-loading .font-mono-primary {
+  font-family: 'Courier New', monospace;
+}
+
+.font-loading .font-mono-code {
+  font-family: 'Consolas', 'Courier New', monospace;
 }
