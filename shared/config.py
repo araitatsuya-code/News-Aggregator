@@ -322,10 +322,34 @@ def get_default_rss_sources() -> List[RSSSource]:
             name="Zenn AI"
         ),
         RSSSource(
+            url="https://zenn.dev/topics/mcp/feed",
+            category="国内",
+            language="ja",
+            name="Zenn LLM"
+        ),
+        RSSSource(
             url="https://zenn.dev/topics/llm/feed",
             category="国内",
             language="ja",
             name="Zenn LLM"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/githubcopilot/feed",
+            category="国内",
+            language="ja",
+            name="Zenn GithubCopilot"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/claudecode/feed",
+            category="国内",
+            language="ja",
+            name="Zenn Devin"
+        ),
+        RSSSource(
+            url="https://zenn.dev/topics/devin/feed",
+            category="国内",
+            language="ja",
+            name="Zenn Devin"
         ),
         RSSSource(
             url="https://zenn.dev/topics/nlp/feed",
