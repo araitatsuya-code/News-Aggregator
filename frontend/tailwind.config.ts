@@ -105,6 +105,13 @@ const config: Config = {
         'matrix-rain': 'matrixRain 20s linear infinite',
         'compile': 'compile 2s ease-in-out',
         'terminal-boot': 'terminalBoot 1s ease-out',
+        // コマンドライン専用アニメーション
+        'fade-in-out': 'fadeInOut 3s ease-in-out',
+        'slide-up-enter': 'slideUpEnter 0.3s ease-out',
+        'slide-down-exit': 'slideDownExit 0.3s ease-in',
+        'glow-pulse': 'glowPulse 2s ease-in-out infinite',
+        'cursor-blink': 'cursorBlink 1s step-end infinite',
+        'command-execute': 'commandExecute 0.8s ease-out',
       },
       keyframes: {
         fadeIn: {
@@ -153,6 +160,33 @@ const config: Config = {
           '0%': { opacity: '0', transform: 'scale(0.8)' },
           '50%': { opacity: '0.5' },
           '100%': { opacity: '1', transform: 'scale(1)' },
+        },
+        // コマンドライン専用キーフレーム
+        fadeInOut: {
+          '0%': { opacity: '0', transform: 'translateY(-10px)' },
+          '10%, 90%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(-10px)' },
+        },
+        slideUpEnter: {
+          '0%': { opacity: '0', transform: 'translateY(20px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
+        slideDownExit: {
+          '0%': { opacity: '1', transform: 'translateY(0)' },
+          '100%': { opacity: '0', transform: 'translateY(20px)' },
+        },
+        glowPulse: {
+          '0%, 100%': { boxShadow: '0 0 5px var(--terminal-border-glow)' },
+          '50%': { boxShadow: '0 0 20px var(--terminal-border-glow), 0 0 30px var(--terminal-border-glow)' },
+        },
+        cursorBlink: {
+          '0%, 50%': { opacity: '1' },
+          '51%, 100%': { opacity: '0' },
+        },
+        commandExecute: {
+          '0%': { transform: 'scale(1)', opacity: '1' },
+          '50%': { transform: 'scale(1.05)', opacity: '0.8' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
         },
       },
     },
