@@ -857,7 +857,21 @@ body {
 }
 
 .command-line-filter .output-area {
-  @apply scrollbar-thin scrollbar-thumb-gray-600 scrollbar-track-gray-800;
+  scrollbar-width: thin;
+  scrollbar-color: #4b5563 #1f2937;
+}
+
+.command-line-filter .output-area::-webkit-scrollbar {
+  width: 6px;
+}
+
+.command-line-filter .output-area::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+.command-line-filter .output-area::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 3px;
 }
 
 .command-line-filter .input-area input {

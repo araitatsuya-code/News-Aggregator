@@ -236,7 +236,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
         <div className="flex-1 p-4 font-mono-code text-sm leading-relaxed">
           {/* コメント行：カテゴリとソース */}
           <div className={`${syntaxStyles.comment} mb-2`}>
-            <span>// {article.category} - {article.source}</span>
+            <span>{`// ${article.category} - ${article.source}`}</span>
           </div>
 
           {/* メイン記事オブジェクト */}
@@ -251,7 +251,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           <div className="ml-4 mb-1">
             <span className={syntaxStyles.variable}>title</span>
             <span className="text-white">:</span>{' '}
-            <span className={syntaxStyles.string}>"{displayTitle}"</span>
+            <span className={syntaxStyles.string}>&quot;{displayTitle}&quot;</span>
             <span className="text-white">,</span>
           </div>
 
@@ -260,7 +260,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
             <div className="ml-4 mb-1">
               <span className={syntaxStyles.variable}>originalTitle</span>
               <span className="text-white">:</span>{' '}
-              <span className={syntaxStyles.string}>"{article.original_title}"</span>
+              <span className={syntaxStyles.string}>&quot;{article.original_title}&quot;</span>
               <span className="text-white">,</span>
             </div>
           )}
@@ -269,7 +269,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           <div className="ml-4 mb-1">
             <span className={syntaxStyles.variable}>url</span>
             <span className="text-white">:</span>{' '}
-            <span className={syntaxStyles.string}>"{article.url}"</span>
+            <span className={syntaxStyles.string}>&quot;{article.url}&quot;</span>
             <span className="text-white">,</span>
           </div>
 
@@ -279,9 +279,9 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
               <span className={syntaxStyles.variable}>summary</span>
               <span className="text-white">:</span>{' '}
               <span className={syntaxStyles.string}>
-                "{article.summary.length > 100 
+                &quot;{article.summary.length > 100 
                   ? `${article.summary.substring(0, 100)}...` 
-                  : article.summary}"
+                  : article.summary}&quot;
               </span>
               <span className="text-white">,</span>
             </div>
@@ -291,7 +291,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           <div className="ml-4 mb-1">
             <span className={syntaxStyles.variable}>publishedAt</span>
             <span className="text-white">:</span>{' '}
-            <span className={syntaxStyles.string}>"{article.published_at}"</span>
+            <span className={syntaxStyles.string}>&quot;{article.published_at}&quot;</span>
             <span className="text-white">,</span>
           </div>
 
@@ -310,14 +310,14 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
               <span className="text-white">[</span>
               {article.tags.slice(0, 3).map((tag, index) => (
                 <span key={index}>
-                  <span className={syntaxStyles.string}>"{tag}"</span>
+                  <span className={syntaxStyles.string}>&quot;{tag}&quot;</span>
                   {index < Math.min(article.tags.length, 3) - 1 && (
                     <span className="text-white">, </span>
                   )}
                 </span>
               ))}
               {article.tags.length > 3 && (
-                <span className={syntaxStyles.comment}> /* +{article.tags.length - 3} more */</span>
+                <span className={syntaxStyles.comment}> {`/* +${article.tags.length - 3} more */`}</span>
               )}
               <span className="text-white">]</span>
               <span className="text-white">,</span>
@@ -332,7 +332,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           {/* 翻訳インジケーター */}
           {isTranslated && (
             <div className={`${syntaxStyles.comment} mt-2 text-xs`}>
-              <span>// Translated from English using AI</span>
+              <span>{'// Translated from English using AI'}</span>
             </div>
           )}
         </div>

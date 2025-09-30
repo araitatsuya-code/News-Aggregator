@@ -36,9 +36,15 @@ const FunctionCallFilterDemo: React.FC = () => {
   return (
     <>
       <SEOHead
-        title="Function Call Filter Demo - AI News Aggregator"
-        description="プログラミング言語風カテゴリフィルターのデモページ"
-        url="/function-call-filter-demo"
+        metadata={{
+          title: "Function Call Filter Demo - AI News Aggregator",
+          description: "プログラミング言語風カテゴリフィルターのデモページ",
+          keywords: ["AI", "ニュース", "フィルター", "デモ", "プログラミング"],
+          ogTitle: "Function Call Filter Demo - AI News Aggregator",
+          ogDescription: "プログラミング言語風カテゴリフィルターのデモページ",
+          twitterCard: "summary" as const,
+          canonical: "/function-call-filter-demo"
+        }}
       />
       
       <div className="min-h-screen bg-gray-900 text-white">
