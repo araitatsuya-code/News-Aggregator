@@ -191,6 +191,154 @@ const config: Config = {
       },
     },
   },
-  plugins: [],
+  plugins: [
+    // アクセシビリティ対応のプラグイン
+    function({ addUtilities, theme }) {
+      const newUtilities = {
+        // スクリーンリーダー専用クラス
+        '.sr-only': {
+          position: 'absolute',
+          width: '1px',
+          height: '1px',
+          padding: '0',
+          margin: '-1px',
+          overflow: 'hidden',
+          clip: 'rect(0, 0, 0, 0)',
+          whiteSpace: 'nowrap',
+          border: '0',
+        },
+        '.sr-only:focus': {
+          position: 'static',
+          width: 'auto',
+          height: 'auto',
+          padding: 'inherit',
+          margin: 'inherit',
+          overflow: 'visible',
+          clip: 'auto',
+          whiteSpace: 'normal',
+        },
+        // フォーカス可視化
+        '.focus-visible': {
+          outline: '2px solid var(--terminal-border-accent)',
+          outlineOffset: '2px',
+        },
+        // タッチターゲットサイズ
+        '.touch-target': {
+          minHeight: '44px',
+          minWidth: '44px',
+        },
+        // 高コントラストモード対応
+        '.high-contrast': {
+          '@media (prefers-contrast: high)': {
+            borderWidth: '2px',
+            fontWeight: 'bold',
+          },
+        },
+        // モーション軽減対応
+        '.motion-safe': {
+          '@media (prefers-reduced-motion: no-preference)': {
+            animation: 'inherit',
+            transition: 'inherit',
+          },
+        },
+        '.motion-reduce': {
+          '@media (prefers-reduced-motion: reduce)': {
+            animation: 'none',
+            transition: 'none',
+          },
+        },
+        // カラーコントラスト対応
+        '.contrast-more': {
+          '@media (prefers-contrast: more)': {
+            filter: 'contrast(1.5)',
+          },
+        },
+        // フォーカストラップ
+        '.focus-trap': {
+          '&:focus-within': {
+            outline: '2px solid var(--terminal-border-accent)',
+            outlineOffset: '2px',
+          },
+        },
+        // アクセシブルなボタンスタイル
+        '.btn-accessible': {
+          minHeight: '44px',
+          minWidth: '44px',
+          padding: '0.5rem 1rem',
+          border: '2px solid transparent',
+          borderRadius: '0.375rem',
+          fontSize: '1rem',
+          fontWeight: '500',
+          lineHeight: '1.5',
+          textAlign: 'center',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          userSelect: 'none',
+          transition: 'all 0.2s ease-in-out',
+          '&:focus': {
+            outline: '2px solid var(--terminal-border-accent)',
+            outlineOffset: '2px',
+          },
+          '&:disabled': {
+            opacity: '0.5',
+            cursor: 'not-allowed',
+          },
+          '@media (prefers-reduced-motion: reduce)': {
+            transition: 'none',
+          },
+        },
+        // アクセシブルなリンクスタイル
+        '.link-accessible': {
+          color: 'var(--terminal-text-accent)',
+          textDecoration: 'underline',
+          textUnderlineOffset: '2px',
+          '&:hover': {
+            textDecorationThickness: '2px',
+          },
+          '&:focus': {
+            outline: '2px solid var(--terminal-border-accent)',
+            outlineOffset: '2px',
+            borderRadius: '2px',
+          },
+          '@media (prefers-reduced-motion: reduce)': {
+            transition: 'none',
+          },
+        },
+        // スキップリンク
+        '.skip-link': {
+          position: 'absolute',
+          top: '-40px',
+          left: '6px',
+          background: 'var(--terminal-bg-primary)',
+          color: 'var(--terminal-text-primary)',
+          padding: '8px',
+          textDecoration: 'none',
+          borderRadius: '4px',
+          border: '2px solid var(--terminal-border-accent)',
+          zIndex: '1000',
+          '&:focus': {
+            top: '6px',
+          },
+        },
+        // ライブリージョン
+        '.live-region': {
+          position: 'absolute',
+          left: '-10000px',
+          width: '1px',
+          height: '1px',
+          overflow: 'hidden',
+        },
+        // 高コントラストボーダー
+        '.border-accessible': {
+          '@media (prefers-contrast: high)': {
+            borderWidth: '2px',
+            borderStyle: 'solid',
+          },
+        },
+      }
+      
+      addUtilities(newUtilities)
+    },
+  ],
 }
 export default config
