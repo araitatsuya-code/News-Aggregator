@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useTranslation } from 'next-i18next';
 import { NewsItem as NewsItemType } from '../../lib/types';
@@ -41,9 +41,28 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
 }) => {
   const router = useRouter();
   const { t } = useTranslation('news');
-  const locale = router.locale || 'ja';
   const [isHovered, setIsHovered] = useState(false);
   const [isPressed, setIsPressed] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [isClient, setIsClient] = useState(false);
+
+  // クライアントサイドでのマウント検出
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+  // 画面サイズの検出
+  useEffect(() => {
+    if (!isClient) return;
+
+    const checkScreenSize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, [isClient]);
 
   /**
    * 外部リンクをクリックした時の処理
@@ -182,7 +201,8 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
     <div
       className={`code-card ${themeStyles} ${className} ${
         isPressed ? 'scale-98' : ''
-      } ${clickable ? 'cursor-pointer' : ''}`}
+      } ${clickable ? 'cursor-pointer' : ''} 
+      responsive-terminal-card`}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
@@ -193,26 +213,30 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
       aria-label={clickable ? `${displayTitle} - ${t('external_link')}` : displayTitle}
     >
       {/* ファイルヘッダー風の表示 */}
-      <div className="editor-header">
-        <div className="flex items-center space-x-2">
-          <div className="w-3 h-3 rounded-full bg-red-500"></div>
-          <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-          <div className="w-3 h-3 rounded-full bg-green-500"></div>
+      <div className="editor-header responsive-editor-header">
+        <div className="flex items-center space-x-1 sm:space-x-2">
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-red-500"></div>
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-yellow-500"></div>
+          <div className="w-2 h-2 sm:w-3 sm:h-3 rounded-full bg-green-500"></div>
         </div>
-        <div className="flex-1 text-center">
-          <span className="text-gray-400">
+        <div className="flex-1 text-center px-2">
+          <span className="text-gray-400 text-xs sm:text-sm truncate block">
             {article.category.toLowerCase().replace(/\s+/g, '_')}.{syntax}
           </span>
         </div>
-        <div className="text-xs text-gray-500">
+        <div className="text-xs text-gray-500 hidden sm:block">
           {formatDate(article.published_at)}
+        </div>
+        {/* モバイル用の日付表示 */}
+        <div className="text-xs text-gray-500 sm:hidden">
+          {formatDate(article.published_at).split('-')[1]}/{formatDate(article.published_at).split('-')[2]}
         </div>
       </div>
 
       {/* コードブロック風のコンテンツ */}
-      <div className="flex">
+      <div className="flex responsive-code-content">
         {/* 行番号 */}
-        <div className="line-numbers">
+        <div className="line-numbers responsive-line-numbers">
           <div>{String(lineNumber).padStart(3, '0')}</div>
           {showSummary && (
             <>
@@ -233,7 +257,7 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
         </div>
 
         {/* コード内容 */}
-        <div className="flex-1 p-4 font-mono-code text-sm leading-relaxed">
+        <div className="flex-1 p-2 sm:p-4 font-mono-code text-xs sm:text-sm leading-relaxed responsive-code-text">
           {/* コメント行：カテゴリとソース */}
           <div className={`${syntaxStyles.comment} mb-2`}>
             <span>{`// ${article.category} - ${article.source}`}</span>
@@ -248,39 +272,51 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           </div>
 
           {/* タイトル */}
-          <div className="ml-4 mb-1">
+          <div className="ml-2 sm:ml-4 mb-1">
             <span className={syntaxStyles.variable}>title</span>
             <span className="text-white">:</span>{' '}
-            <span className={syntaxStyles.string}>&quot;{displayTitle}&quot;</span>
+            <span className={`${syntaxStyles.string} break-words`}>
+              &quot;{displayTitle.length > 60 && isMobile 
+                ? `${displayTitle.substring(0, 60)}...` 
+                : displayTitle}&quot;
+            </span>
             <span className="text-white">,</span>
           </div>
 
           {/* 翻訳記事の場合の元タイトル */}
           {isTranslated && (
-            <div className="ml-4 mb-1">
+            <div className="ml-2 sm:ml-4 mb-1">
               <span className={syntaxStyles.variable}>originalTitle</span>
               <span className="text-white">:</span>{' '}
-              <span className={syntaxStyles.string}>&quot;{article.original_title}&quot;</span>
+              <span className={`${syntaxStyles.string} break-words`}>
+                &quot;{article.original_title.length > 50 && isMobile 
+                  ? `${article.original_title.substring(0, 50)}...` 
+                  : article.original_title}&quot;
+              </span>
               <span className="text-white">,</span>
             </div>
           )}
 
           {/* URL */}
-          <div className="ml-4 mb-1">
+          <div className="ml-2 sm:ml-4 mb-1">
             <span className={syntaxStyles.variable}>url</span>
             <span className="text-white">:</span>{' '}
-            <span className={syntaxStyles.string}>&quot;{article.url}&quot;</span>
+            <span className={`${syntaxStyles.string} break-all`}>
+              &quot;{article.url.length > 40 && isMobile 
+                ? `${article.url.substring(0, 40)}...` 
+                : article.url}&quot;
+            </span>
             <span className="text-white">,</span>
           </div>
 
           {/* 要約（オプション） */}
           {showSummary && (
-            <div className="ml-4 mb-1">
+            <div className="ml-2 sm:ml-4 mb-1">
               <span className={syntaxStyles.variable}>summary</span>
               <span className="text-white">:</span>{' '}
-              <span className={syntaxStyles.string}>
-                &quot;{article.summary.length > 100 
-                  ? `${article.summary.substring(0, 100)}...` 
+              <span className={`${syntaxStyles.string} break-words`}>
+                &quot;{article.summary.length > (isMobile ? 60 : 100) 
+                  ? `${article.summary.substring(0, isMobile ? 60 : 100)}...` 
                   : article.summary}&quot;
               </span>
               <span className="text-white">,</span>
@@ -288,14 +324,14 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
           )}
 
           {/* メタデータ */}
-          <div className="ml-4 mb-1">
+          <div className="ml-2 sm:ml-4 mb-1">
             <span className={syntaxStyles.variable}>publishedAt</span>
             <span className="text-white">:</span>{' '}
             <span className={syntaxStyles.string}>&quot;{article.published_at}&quot;</span>
             <span className="text-white">,</span>
           </div>
 
-          <div className="ml-4 mb-1">
+          <div className="ml-2 sm:ml-4 mb-1">
             <span className={syntaxStyles.variable}>confidence</span>
             <span className="text-white">:</span>{' '}
             <span className={syntaxStyles.number}>{formatConfidence(article.ai_confidence)}</span>
@@ -304,20 +340,20 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
 
           {/* タグ配列 */}
           {article.tags && article.tags.length > 0 && (
-            <div className="ml-4 mb-1">
+            <div className="ml-2 sm:ml-4 mb-1">
               <span className={syntaxStyles.variable}>tags</span>
               <span className="text-white">:</span>{' '}
               <span className="text-white">[</span>
-              {article.tags.slice(0, 3).map((tag, index) => (
+              {article.tags.slice(0, isMobile ? 2 : 3).map((tag, index) => (
                 <span key={index}>
                   <span className={syntaxStyles.string}>&quot;{tag}&quot;</span>
-                  {index < Math.min(article.tags.length, 3) - 1 && (
+                  {index < Math.min(article.tags.length, isMobile ? 2 : 3) - 1 && (
                     <span className="text-white">, </span>
                   )}
                 </span>
               ))}
-              {article.tags.length > 3 && (
-                <span className={syntaxStyles.comment}> {`/* +${article.tags.length - 3} more */`}</span>
+              {article.tags.length > (isMobile ? 2 : 3) && (
+                <span className={syntaxStyles.comment}> {`/* +${article.tags.length - (isMobile ? 2 : 3)} more */`}</span>
               )}
               <span className="text-white">]</span>
               <span className="text-white">,</span>
@@ -339,20 +375,27 @@ export const TerminalNewsItem: React.FC<TerminalNewsItemProps> = ({
       </div>
 
       {/* フッター：実行結果風の表示 */}
-      <div className="border-t border-gray-700 px-4 py-2 bg-editor-bg-secondary">
+      <div className="border-t border-gray-700 px-2 sm:px-4 py-2 bg-editor-bg-secondary responsive-footer">
         <div className="flex items-center justify-between text-xs">
-          <div className="flex items-center space-x-4">
-            <span className="text-green-400">
+          <div className="flex items-center space-x-2 sm:space-x-4">
+            <span className="text-green-400 hidden sm:inline">
               ✓ Compiled successfully
             </span>
-            <span className="text-gray-400">
+            <span className="text-green-400 sm:hidden">
+              ✓ OK
+            </span>
+            <span className="text-gray-400 hidden sm:inline">
               Confidence: {formatConfidence(article.ai_confidence)}%
             </span>
+            <span className="text-gray-400 sm:hidden">
+              {formatConfidence(article.ai_confidence)}%
+            </span>
           </div>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1 sm:space-x-2">
             {isTranslated && (
-              <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
-                翻訳済み
+              <span className="bg-blue-600 text-white px-1 sm:px-2 py-1 rounded text-xs">
+                <span className="hidden sm:inline">翻訳済み</span>
+                <span className="sm:hidden">翻訳</span>
               </span>
             )}
             <span className="text-gray-400">

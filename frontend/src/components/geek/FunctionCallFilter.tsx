@@ -390,7 +390,7 @@ export const FunctionCallFilter: React.FC<FunctionCallFilterProps> = ({
             {'// 利用可能なカテゴリ一覧'}
           </div>
           
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-3">
             {categories.map((category) => {
               const isSelected = selectedCategories.includes(category.name);
               
@@ -400,31 +400,35 @@ export const FunctionCallFilter: React.FC<FunctionCallFilterProps> = ({
                   onClick={() => handleCategoryToggle(category.name)}
                   disabled={disabled}
                   className={`
-                    p-3 rounded-lg border-2 transition-all duration-200 font-mono-code text-sm
+                    p-3 sm:p-4 rounded-lg border-2 transition-all duration-200 font-mono-code text-sm
+                    min-h-[44px] touch-button responsive-category-button
                     ${isSelected
-                      ? 'border-green-400 bg-green-900 bg-opacity-30 text-green-400'
-                      : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700'
+                      ? 'border-green-400 bg-green-900 bg-opacity-30 text-green-400 shadow-lg shadow-green-400/20'
+                      : 'border-gray-600 bg-gray-800 text-gray-300 hover:border-gray-500 hover:bg-gray-700 active:bg-gray-600'
                     }
                     ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
                     focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                    transform active:scale-95 hover:scale-105
                   `}
                   aria-pressed={isSelected}
                   aria-label={`${category.displayName || category.name}カテゴリを${isSelected ? '選択解除' : '選択'}`}
                 >
                   <div className="flex items-center justify-between">
-                    <span className={styles.string}>
+                    <span className={`${styles.string} truncate flex-1 mr-2`}>
                       &quot;{category.displayName || category.name}&quot;
                     </span>
                     {category.count !== undefined && (
-                      <span className={`${styles.number} ml-2`}>
+                      <span className={`${styles.number} text-xs sm:text-sm flex-shrink-0`}>
                         {category.count}
                       </span>
                     )}
                   </div>
                   
                   {isSelected && (
-                    <div className="mt-1 text-xs text-green-400">
-                      ✓ selected
+                    <div className="mt-1 text-xs text-green-400 flex items-center">
+                      <span className="mr-1">✓</span>
+                      <span className="hidden sm:inline">selected</span>
+                      <span className="sm:hidden">選択中</span>
                     </div>
                   )}
                 </button>
@@ -444,19 +448,25 @@ export const FunctionCallFilter: React.FC<FunctionCallFilterProps> = ({
               onClick={handleLogicalOperatorToggle}
               disabled={disabled}
               className={`
-                px-4 py-2 rounded-lg border-2 transition-all duration-200 font-mono-code text-sm
+                px-4 py-3 rounded-lg border-2 transition-all duration-200 font-mono-code text-sm
+                min-h-[44px] touch-button
                 border-blue-400 bg-blue-900 bg-opacity-30 text-blue-400
-                ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-blue-800'}
+                ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:bg-blue-800 active:bg-blue-700'}
                 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50
+                transform active:scale-95 hover:scale-105
               `}
               aria-label={`論理演算子を${logicalOperator === 'AND' ? 'OR' : 'AND'}に変更`}
             >
-              <span className={styles.variable}>operator</span>
-              <span className="text-white">:</span>{' '}
-              <span className={styles.string}>&quot;{logicalOperator}&quot;</span>
-              <span className="ml-2 text-xs">
-                ({logicalOperator === 'AND' ? 'すべて' : 'いずれか'})
-              </span>
+              <div className="flex flex-col sm:flex-row sm:items-center">
+                <div>
+                  <span className={styles.variable}>operator</span>
+                  <span className="text-white">:</span>{' '}
+                  <span className={styles.string}>&quot;{logicalOperator}&quot;</span>
+                </div>
+                <span className="text-xs mt-1 sm:mt-0 sm:ml-2">
+                  ({logicalOperator === 'AND' ? 'すべて' : 'いずれか'})
+                </span>
+              </div>
             </button>
           </div>
         )}

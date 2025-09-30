@@ -951,23 +951,23 @@ export const CommandLineFilter: React.FC<CommandLineFilterProps> = ({
   const styles = getThemeStyles();
 
   return (
-    <div className={`command-line-filter ${styles.background} ${className}`}>
+    <div className={`command-line-filter ${styles.background} ${className} responsive-command-line`}>
       {/* 出力エリア */}
-      <div className="output-area max-h-64 overflow-y-auto mb-4 font-mono-primary text-sm">
+      <div className="output-area max-h-48 sm:max-h-64 overflow-y-auto mb-4 font-mono-primary text-xs sm:text-sm">
         {output.map((result, index) => (
           <div key={index} className="mb-2">
             {/* コマンドプロンプト */}
-            <div className={`${styles.prompt} flex items-center`}>
+            <div className={`${styles.prompt} flex items-center flex-wrap sm:flex-nowrap`}>
               <span>$</span>
-              <span className="ml-2">{result.command}</span>
-              <span className="ml-auto text-xs opacity-60">
+              <span className="ml-2 break-all flex-1 min-w-0">{result.command}</span>
+              <span className="text-xs opacity-60 mt-1 sm:mt-0 sm:ml-auto flex-shrink-0">
                 {result.timestamp.toLocaleTimeString()}
               </span>
             </div>
             
             {/* 出力 */}
             {result.output && (
-              <div className={`ml-4 mt-1 whitespace-pre-wrap ${
+              <div className={`ml-2 sm:ml-4 mt-1 whitespace-pre-wrap break-words ${
                 result.success ? styles.output : styles.error
               }`}>
                 {result.output}
@@ -981,10 +981,10 @@ export const CommandLineFilter: React.FC<CommandLineFilterProps> = ({
       <div className="input-area relative">
         {/* プロンプト */}
         <div className="flex items-center">
-          <span className={`${styles.prompt} mr-2 font-mono-primary`}>$</span>
+          <span className={`${styles.prompt} mr-2 font-mono-primary flex-shrink-0`}>$</span>
           
           {/* 入力フィールド */}
-          <div className="flex-1 relative">
+          <div className="flex-1 relative min-w-0">
             <input
               ref={inputRef}
               type="text"
@@ -994,9 +994,10 @@ export const CommandLineFilter: React.FC<CommandLineFilterProps> = ({
               placeholder={placeholder}
               disabled={disabled || isExecuting}
               className={`
-                w-full bg-transparent border-none outline-none font-mono-primary text-sm
+                w-full bg-transparent border-none outline-none font-mono-primary text-xs sm:text-sm
                 ${styles.text} placeholder-gray-500
                 ${disabled || isExecuting ? 'opacity-50 cursor-not-allowed' : ''}
+                min-h-[44px] py-2
               `}
               autoComplete="off"
               spellCheck={false}
@@ -1016,9 +1017,10 @@ export const CommandLineFilter: React.FC<CommandLineFilterProps> = ({
           <div
             ref={suggestionsRef}
             className={`
-              absolute top-full left-6 right-0 mt-1 z-50
+              absolute top-full left-4 sm:left-6 right-0 mt-1 z-50
               ${styles.background} ${styles.border} border rounded-lg
-              max-h-48 overflow-y-auto shadow-lg
+              max-h-40 sm:max-h-48 overflow-y-auto shadow-lg
+              responsive-suggestions
             `}
           >
             {suggestions.map((suggestion, index) => (

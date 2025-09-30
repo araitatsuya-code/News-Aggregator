@@ -33,6 +33,10 @@ export type { CompileStep, CompileStatus } from './CompileFeedback';
 export type { LoaderType } from './ASCIILoader';
 export type { SystemState } from './ErrorHandlingSystem';
 
+// レスポンシブ対応コンポーネント
+export { ResponsiveTerminalLayout, CompactTerminalLayout } from './ResponsiveTerminalLayout';
+export { MobileGeekNavigation, TabletGeekNavigation } from './MobileGeekNavigation';
+
 // カスタムフック
 export {
   useTypingAnimation,

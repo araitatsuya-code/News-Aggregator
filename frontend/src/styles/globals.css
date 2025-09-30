@@ -95,6 +95,43 @@
   .fallback-notice {
     @apply p-3 text-sm;
   }
+  
+  /* ギークコンポーネントのモバイル対応 */
+  .responsive-terminal-card {
+    @apply mx-2 rounded-md;
+  }
+  
+  .responsive-editor-header {
+    @apply px-2 py-1.5;
+  }
+  
+  .responsive-line-numbers {
+    @apply px-2 text-xs min-w-[2.5rem];
+  }
+  
+  .responsive-code-content {
+    @apply text-xs;
+  }
+  
+  .responsive-code-text {
+    @apply leading-snug;
+  }
+  
+  .responsive-footer {
+    @apply text-xs;
+  }
+  
+  .responsive-category-button {
+    @apply text-xs p-2;
+  }
+  
+  .responsive-command-line {
+    @apply rounded-md;
+  }
+  
+  .responsive-suggestions {
+    @apply text-xs;
+  }
 }
 
 :root {
@@ -253,6 +290,31 @@ body {
     @apply min-h-[44px] min-w-[44px] flex items-center justify-center;
     @apply transition-all duration-200 ease-in-out;
     @apply active:scale-95 active:bg-opacity-80;
+    @apply select-none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  /* ギーク向けタッチボタン */
+  .geek-touch-button {
+    @apply touch-button;
+    @apply font-mono-primary;
+    @apply border-2 rounded-lg;
+    @apply focus:outline-none focus:ring-2 focus:ring-opacity-50;
+  }
+  
+  .geek-touch-button:active {
+    @apply transform scale-95;
+  }
+  
+  @media (hover: hover) and (pointer: fine) {
+    .geek-touch-button:hover {
+      @apply transform scale-105;
+    }
   }
   
   /* モバイル対応カード */
@@ -294,6 +356,13 @@ body {
     @apply bg-terminal-bg-primary text-terminal-text-primary font-mono-primary;
     @apply border border-terminal-border-primary rounded-lg;
     @apply shadow-lg;
+  }
+  
+  /* レスポンシブターミナルレイアウト */
+  @media (max-width: 640px) {
+    .terminal-layout {
+      @apply rounded-md shadow-md;
+    }
   }
   
   /* ターミナル風ヘッダー */
@@ -714,6 +783,109 @@ body {
   }
 }
 
+/* レスポンシブ対応の追加スタイル */
+
+/* 超小型デバイス（320px以下） */
+@media (max-width: 320px) {
+  .responsive-terminal-card {
+    @apply mx-1 text-xs;
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[40px] text-xs p-2;
+  }
+  
+  .font-mono-code {
+    @apply text-xs leading-tight;
+  }
+}
+
+/* 横向きモバイル */
+@media (max-width: 896px) and (orientation: landscape) {
+  .responsive-terminal-layout {
+    @apply mx-2;
+  }
+  
+  .responsive-terminal-content {
+    @apply py-2;
+  }
+}
+
+/* 高解像度ディスプレイ対応 */
+@media (min-width: 1440px) {
+  .responsive-terminal-layout {
+    @apply mx-8;
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[52px] text-lg p-5;
+  }
+}
+
+/* 超高解像度ディスプレイ対応 */
+@media (min-width: 1920px) {
+  .responsive-terminal-layout {
+    @apply mx-12 max-w-7xl;
+  }
+}
+
+/* タッチデバイス専用スタイル */
+@media (pointer: coarse) {
+  .geek-touch-button {
+    @apply min-h-[48px] min-w-[48px];
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[48px];
+  }
+  
+  /* タッチ時のフィードバック強化 */
+  .geek-touch-button:active {
+    @apply transform scale-95 bg-opacity-70;
+  }
+}
+
+/* マウス操作デバイス専用スタイル */
+@media (pointer: fine) {
+  .geek-touch-button {
+    @apply min-h-[40px] min-w-[40px];
+  }
+  
+  /* ホバー効果の追加 */
+  .geek-touch-button:hover {
+    @apply shadow-md;
+  }
+}
+
+/* 縦向きタブレット */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: portrait) {
+  .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3 {
+    @apply grid-cols-2;
+  }
+}
+
+/* 横向きタブレット */
+@media (min-width: 768px) and (max-width: 1024px) and (orientation: landscape) {
+  .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3 {
+    @apply grid-cols-3;
+  }
+}
+
+/* 折りたたみデバイス対応 */
+@media (max-width: 280px) {
+  .responsive-terminal-card {
+    @apply mx-0 rounded-none;
+  }
+  
+  .responsive-editor-header {
+    @apply px-1 py-1;
+  }
+  
+  .responsive-line-numbers {
+    @apply px-1 min-w-[2rem];
+  }
+}
+
 /* フォント読み込み失敗時のフォールバック */
 @font-face {
   font-family: 'JetBrains Mono Fallback';
@@ -1061,6 +1233,49 @@ body {
   .keyboard-shortcut {
     @apply text-xs px-1 py-0.5;
   }
+  
+  /* モバイル専用のギークコンポーネントスタイル */
+  .mobile-terminal {
+    @apply rounded-lg shadow-lg;
+  }
+  
+  .responsive-terminal-layout {
+    @apply mx-2;
+  }
+  
+  .responsive-terminal-header {
+    @apply text-sm;
+  }
+  
+  .responsive-terminal-content {
+    @apply text-sm;
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[48px] text-sm;
+  }
+  
+  .responsive-command-line {
+    @apply mx-2 rounded-lg;
+  }
+  
+  .responsive-suggestions {
+    @apply max-h-32 text-sm;
+  }
+  
+  /* タッチ対応の改善 */
+  .geek-touch-button {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* フォントサイズの調整 */
+  .font-mono-primary {
+    @apply text-sm;
+  }
+  
+  .font-mono-code {
+    @apply text-xs;
+  }
 }
 
 /* タブレット対応 */
@@ -1072,6 +1287,28 @@ body {
   .help-modal .help-content {
     @apply max-w-2xl;
   }
+  
+  /* タブレット専用のギークコンポーネントスタイル */
+  .tablet-terminal {
+    @apply rounded-lg shadow-lg mx-4;
+  }
+  
+  .responsive-terminal-layout {
+    @apply mx-4;
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[44px] text-sm p-3;
+  }
+  
+  .geek-touch-button {
+    @apply min-h-[44px] min-w-[44px];
+  }
+  
+  /* グリッドレイアウトの調整 */
+  .grid-cols-1.sm\\:grid-cols-2.lg\\:grid-cols-3 {
+    @apply grid-cols-2;
+  }
 }
 
 /* 大画面対応 */
@@ -1082,5 +1319,29 @@ body {
   
   .help-modal .help-content {
     @apply max-w-4xl;
+  }
+  
+  /* デスクトップ専用のギークコンポーネントスタイル */
+  .responsive-terminal-layout {
+    @apply mx-6;
+  }
+  
+  .responsive-category-button {
+    @apply min-h-[48px] text-base p-4;
+  }
+  
+  .geek-touch-button {
+    @apply min-h-[48px] min-w-[48px];
+  }
+  
+  /* ホバー効果の強化（デスクトップのみ） */
+  @media (hover: hover) and (pointer: fine) {
+    .geek-touch-button:hover {
+      @apply transform scale-105 shadow-lg;
+    }
+    
+    .responsive-category-button:hover {
+      @apply shadow-lg;
+    }
   }
 }
