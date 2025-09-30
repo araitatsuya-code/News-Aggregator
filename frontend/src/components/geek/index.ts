@@ -11,6 +11,9 @@ export { TerminalPrompt, TerminalSession } from './TerminalPrompt';
 // ページローダー関連
 export { PageLoader, SimpleTypingLoader } from './PageLoader';
 
+// ニュース表示関連
+export { TerminalNewsItem, TerminalNewsList } from './TerminalNewsItem';
+
 // カスタムフック
 export {
   useTypingAnimation,
