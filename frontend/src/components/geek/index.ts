@@ -14,6 +14,9 @@ export { PageLoader, SimpleTypingLoader } from './PageLoader';
 // ニュース表示関連
 export { TerminalNewsItem, TerminalNewsList } from './TerminalNewsItem';
 
+// フィルター関連
+export { FunctionCallFilter, SimpleFunctionCallFilter } from './FunctionCallFilter';
+
 // カスタムフック
 export {
   useTypingAnimation,

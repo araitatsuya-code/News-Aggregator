@@ -448,6 +448,75 @@ body {
     @apply hover:border-terminal-border-accent transition-colors duration-200;
   }
   
+  /* FunctionCallFilter専用スタイル */
+  .geek-filter-container {
+    @apply bg-gray-900 rounded-lg overflow-hidden shadow-lg;
+    @apply border border-gray-700;
+  }
+  
+  .geek-filter-container .editor-header {
+    @apply bg-gray-800 border-b border-gray-600;
+  }
+  
+  /* 関数呼び出し風のコードブロック */
+  .function-call-block {
+    @apply bg-gray-900 p-4 rounded-lg;
+    @apply border border-gray-700;
+    @apply font-mono-code text-sm;
+  }
+  
+  /* カテゴリボタンのホバー効果 */
+  .category-button {
+    @apply transition-all duration-200 ease-in-out;
+    @apply transform hover:scale-105;
+    @apply focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+  }
+  
+  .category-button:active {
+    @apply scale-95;
+  }
+  
+  /* 実行アニメーション */
+  .execution-spinner {
+    @apply animate-spin w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full;
+  }
+  
+  /* コンパイル成功インジケーター */
+  .compile-success {
+    @apply text-green-400;
+  }
+  
+  .compile-success::before {
+    content: "✓ ";
+    @apply text-green-400;
+  }
+  
+  /* 論理演算子ボタン */
+  .logical-operator-button {
+    @apply px-4 py-2 rounded-lg border-2 transition-all duration-200;
+    @apply font-mono-code text-sm;
+    @apply border-blue-400 bg-blue-900 bg-opacity-30 text-blue-400;
+    @apply hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+  
+  /* シンプルフィルター用のインライン表示 */
+  .simple-filter-inline {
+    @apply inline-flex flex-wrap gap-2 items-center;
+  }
+  
+  .simple-filter-inline .category-tag {
+    @apply px-2 py-1 rounded font-mono-code text-sm transition-all duration-200;
+    @apply border focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
+  }
+  
+  .simple-filter-inline .category-tag.selected {
+    @apply bg-green-900 bg-opacity-50 text-green-400 border-green-400;
+  }
+  
+  .simple-filter-inline .category-tag:not(.selected) {
+    @apply bg-gray-800 text-gray-400 border-gray-600 hover:border-gray-500;
+  }
+  
   /* Matrix風テキスト */
   .matrix-text {
     @apply text-matrix-green font-mono-primary;
