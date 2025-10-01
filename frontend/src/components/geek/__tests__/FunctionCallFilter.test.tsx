@@ -103,7 +103,8 @@ describe('FunctionCallFilter', () => {
       
       const aiCategory = screen.getByRole('button', { name: /AIカテゴリを選択解除/ });
       expect(aiCategory).toHaveClass('border-green-400', 'bg-green-900');
-      expect(screen.getByText('✓ selected')).toBeInTheDocument();
+      expect(screen.getByText('✓')).toBeInTheDocument();
+      expect(screen.getByText('selected')).toBeInTheDocument();
     });
 
     test('複数選択が有効な場合、複数のカテゴリを選択できる', async () => {

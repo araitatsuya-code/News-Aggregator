@@ -50,6 +50,7 @@ Object.defineProperty(window, 'open', {
 });
 
 describe('AccessibleTerminalNewsItem', () => {
+
   const mockArticle: NewsItem = {
     id: '1',
     title: 'テストニュース記事のタイトル',

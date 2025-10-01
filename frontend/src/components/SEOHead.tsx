@@ -23,7 +23,7 @@ export function SEOHead({ metadata, jsonLd }: SEOHeadProps) {
       {/* 基本メタデータ */}
       <title>{metadata.title}</title>
       <meta name="description" content={metadata.description} />
-      <meta name="keywords" content={metadata.keywords.join(', ')} />
+      <meta name="keywords" content={metadata.keywords?.join(', ') || ''} />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <meta charSet="utf-8" />
       

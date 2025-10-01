@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useTranslation } from 'next-i18next'
 import LanguageSwitcher from './LanguageSwitcher'
+import { GeekModeToggle, useGeekMode } from '../geek/GeekModeToggle'
 
 interface HeaderProps {
   currentLocale: string
@@ -16,6 +17,7 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
   const router = useRouter()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
+  const { mode, toggleMode } = useGeekMode()
 
   // スクロール状態の監視（ヘッダーの影の調整用）
   useEffect(() => {
@@ -99,8 +101,14 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
             </Link>
           </nav>
 
-          {/* Desktop Language Switcher */}
+          {/* Desktop Language Switcher and Geek Mode Toggle */}
           <div className="hidden md:flex items-center space-x-4">
+            <GeekModeToggle
+              currentMode={mode}
+              onModeChange={toggleMode}
+              position="header"
+              theme="matrix"
+            />
             <LanguageSwitcher variant="dropdown" />
           </div>
 
@@ -171,10 +179,22 @@ export default function Header({ currentLocale, onLocaleChange }: HeaderProps) {
               </div>
             </Link>
             
-            {/* Mobile Language Switcher */}
-            <div className="px-3 py-2 border-t border-gray-200 mt-2 pt-4">
-              <div className="text-sm text-gray-600 mb-2">{t('navigation.language')}</div>
-              <LanguageSwitcher variant="button" className="w-full justify-center" />
+            {/* Mobile Language Switcher and Geek Mode Toggle */}
+            <div className="px-3 py-2 border-t border-gray-200 mt-2 pt-4 space-y-3">
+              <div>
+                <div className="text-sm text-gray-600 mb-2">{t('navigation.language')}</div>
+                <LanguageSwitcher variant="button" className="w-full justify-center" />
+              </div>
+              <div>
+                <div className="text-sm text-gray-600 mb-2">UI Mode</div>
+                <GeekModeToggle
+                  currentMode={mode}
+                  onModeChange={toggleMode}
+                  position="header"
+                  theme="matrix"
+                  className="w-full justify-center"
+                />
+              </div>
             </div>
           </div>
         </div>

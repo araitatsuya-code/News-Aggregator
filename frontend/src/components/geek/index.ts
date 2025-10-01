@@ -37,6 +37,9 @@ export type { SystemState } from './ErrorHandlingSystem';
 export { ResponsiveTerminalLayout, CompactTerminalLayout } from './ResponsiveTerminalLayout';
 export { MobileGeekNavigation, TabletGeekNavigation } from './MobileGeekNavigation';
 
+// モード切り替え
+export { GeekModeToggle, GeekModeRedirect, useGeekMode } from './GeekModeToggle';
+
 // カスタムフック
 export {
   useTypingAnimation,

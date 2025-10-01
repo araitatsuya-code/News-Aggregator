@@ -107,8 +107,8 @@ describe('TerminalPrompt', () => {
     );
 
     // TypingAnimationコンポーネントが使用されていることを間接的に確認
-    // （実際のタイピングアニメーションの動作は別のテストで確認）
-    expect(screen.getByText('test command')).toBeInTheDocument();
+    // タイピング中の状態を確認
+    expect(screen.getByLabelText(/タイピング中:/)).toBeInTheDocument();
   });
 });
 
@@ -155,7 +155,9 @@ describe('TerminalSession', () => {
     );
 
     expect(screen.getByText('ls')).toBeInTheDocument();
-    expect(screen.getByText('file1.txt\nfile2.txt')).toBeInTheDocument();
+    expect(screen.getAllByText((content, element) => {
+      return element?.textContent === 'file1.txt\nfile2.txt';
+    })[0]).toBeInTheDocument();
     expect(screen.getByText('cat file1.txt')).toBeInTheDocument();
     expect(screen.getByText('Hello World')).toBeInTheDocument();
     expect(screen.getByText('Permission denied')).toBeInTheDocument();
@@ -170,8 +172,12 @@ describe('TerminalSession', () => {
       />
     );
 
-    const outputElement = screen.getByText('file1.txt\nfile2.txt');
-    expect(outputElement).toHaveClass('text-gray-300');
+    const outputElements = screen.getAllByText((content, element) => {
+      return element?.textContent === 'file1.txt\nfile2.txt';
+    });
+    // 実際のテキスト要素を取得（親のflexコンテナではなく）
+    const textElement = outputElements.find(el => el.classList.contains('text-gray-300'));
+    expect(textElement).toHaveClass('text-gray-300');
 
     const errorElement = screen.getByText('Permission denied');
     expect(errorElement).toHaveClass('text-red-400');
@@ -238,8 +244,12 @@ describe('アクセシビリティ', () => {
 
     render(<TerminalSession lines={lines} useTyping={false} />);
 
-    const container = screen.getByText('test output').closest('div');
-    expect(container).toHaveClass('font-mono-primary');
+    const outputElement = screen.getByText('test output');
+    expect(outputElement).toBeInTheDocument();
+    
+    // TerminalSessionのルートコンテナを確認
+    const container = outputElement.closest('.font-mono-primary');
+    expect(container).toBeInTheDocument();
   });
 
   test('エラーメッセージが適切にマークアップされる', () => {

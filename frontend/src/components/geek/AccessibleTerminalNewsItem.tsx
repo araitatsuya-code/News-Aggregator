@@ -104,7 +104,7 @@ export const AccessibleTerminalNewsItem: React.FC<AccessibleTerminalNewsItemProp
     setAnnounceText(`${displayTitle}の記事を新しいタブで開いています`);
     
     window.open(article.url, '_blank', 'noopener,noreferrer');
-  }, [article.url, article.title, clickable]);
+  }, [article.url, article.title, clickable, displayTitle]);
 
   /**
    * キーボードナビゲーションの処理
@@ -325,7 +325,7 @@ export const AccessibleTerminalNewsItem: React.FC<AccessibleTerminalNewsItemProp
           <div className="flex-1 text-sm leading-relaxed">
             {/* コメント行：カテゴリとソース */}
             <div className="mb-2" style={{ color: colors.syntax.comment }}>
-              <span>// {article.category} - {article.source}</span>
+              <span>{/* {article.category} - {article.source} */}</span>
             </div>
 
             {/* メイン記事オブジェクト */}

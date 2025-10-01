@@ -193,7 +193,7 @@ const config: Config = {
   },
   plugins: [
     // アクセシビリティ対応のプラグイン
-    function({ addUtilities, theme }) {
+    function({ addUtilities, theme }: any) {
       const newUtilities = {
         // スクリーンリーダー専用クラス
         '.sr-only': {
