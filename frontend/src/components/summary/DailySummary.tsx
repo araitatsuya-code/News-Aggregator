@@ -72,7 +72,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
       </div>
 
       {/* トレンド情報 */}
-      {showTrends && summary.top_trends.length > 0 && (
+      {showTrends && summary.top_trends && summary.top_trends.length > 0 && (
         <div className="mobile-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
             <svg className="w-5 h-5 mr-2 text-red-600" fill="currentColor" viewBox="0 0 20 20">
@@ -81,7 +81,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
             {t('top_trends')}
           </h2>
           <div className="flex flex-wrap gap-2">
-            {summary.top_trends.map((trend, index) => (
+            {summary.top_trends?.map((trend, index) => (
               <span
                 key={index}
                 className={`inline-block px-3 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-200 touch-button ${
@@ -104,12 +104,12 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
             <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
             </svg>
-            {summary.top_trends.length}{t('trends_detected')}
+            {summary.top_trends?.length || 0}{t('trends_detected')}
           </div>
         </div>
       )}
 
-      {showTrends && summary.top_trends.length === 0 && (
+      {showTrends && (!summary.top_trends || summary.top_trends.length === 0) && (
         <div className="mobile-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
             <svg className="w-5 h-5 mr-2 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
@@ -135,7 +135,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
           {t('category_breakdown')}
         </h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-          {Object.entries(summary.category_breakdown).map(([category, count]) => (
+          {summary.category_breakdown && Object.entries(summary.category_breakdown).map(([category, count]) => (
             <div 
               key={category} 
               className="text-center p-3 sm:p-4 bg-gray-50 rounded-lg hover-desktop hover:bg-gray-100 active:bg-gray-100 transition-colors duration-200 touch-button"
@@ -148,7 +148,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
             </div>
           ))}
         </div>
-        {Object.keys(summary.category_breakdown).length === 0 && (
+        {(!summary.category_breakdown || Object.keys(summary.category_breakdown).length === 0) && (
           <div className="text-center py-6 sm:py-8 text-gray-500">
             <svg className="mx-auto h-8 w-8 sm:h-12 sm:w-12 text-gray-300 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -159,7 +159,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
       </div>
 
       {/* 重要ニュース */}
-      {summary.significant_news.length > 0 && (
+      {summary.significant_news && summary.significant_news.length > 0 && (
         <div className="mobile-card p-4 sm:p-6">
           <h2 className="text-lg sm:text-xl font-semibold text-gray-900 mb-3 sm:mb-4 flex items-center">
             <svg className="w-5 h-5 mr-2 text-yellow-600" fill="currentColor" viewBox="0 0 20 20">
@@ -168,7 +168,7 @@ export function DailySummary({ summary, showTrends = true }: DailySummaryProps) 
             {t('significant_news')}
           </h2>
           <div className="touch-spacing">
-            {summary.significant_news.map((article, index) => (
+            {summary.significant_news?.map((article, index) => (
               <div 
                 key={article.id}
                 className="animate-fade-in"
